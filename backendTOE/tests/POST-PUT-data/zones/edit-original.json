@@ -1,0 +1,11 @@
+{
+  "zone_id": 1,
+  "zone_name": "test-zone",
+  "central_parking_address": "391 Victoria Rd N, Guelph, ON, Canada",
+  "central_building_name": "St. Patrick Catholic School",
+  "zone_radius_meter": 250,
+  "houses_covered": 200,
+  "zoom": 16,
+  "latitude": 43.576915,
+  "longitude": -80.256706
+}

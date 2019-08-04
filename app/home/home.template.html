@@ -1,0 +1,48 @@
+<div ng-cloak class="container">
+	<h1>Home</h1>
+	<!-- If you are not logged in -->
+	<div ng-if="!isAuthenticated()">
+		<p ng-if="!isAuthenticated()">To register for this event, please Login or if you do not have an account, please
+			Sign Up</p>
+		<div layout="row" layout-align="center center">
+			<md-button ng-click="$ctrl.loginModal($event)" class="buttonSubmit md-raised">Login</md-button>
+			<md-button ng-href="#{{locationPaths.signUp}}" class="buttonSubmit md-raised">Sign Up</md-button>
+		</div>
+	</div>
+	
+	<!-- If you are logged in but not registered -->
+	<div ng-if="isAuthenticated() && !$ctrl.checkRegister()">
+		<p>To register for this event click below</p>
+		<div align="center">
+			<md-button href="#{{locationPaths.register}}" class="buttonSubmit md-raised">Register For Event</md-button>
+		</div>
+	</div>
+	
+	<!-- If you are in the event but not on a team -->
+	<div ng-if="isAuthenticated() && $ctrl.checkRegister() && !$ctrl.checkTeam()">
+		<p>You are registered for event: {{$ctrl.userEvent.event_name}}</p>
+		<p>Assemble a team for the event!</p>
+		<div align="center">
+			<!--TODO: modify the href here to link to the event that the user is signed up for -->
+			<md-button ng-href="#/event/{{$ctrl.userEvent.event_name}}/join-team" class="buttonSubmit md-raised">Join a Team
+			</md-button>
+			<md-button ng-href="#/event/{{$ctrl.userEvent.event_name}}/create-team" class="buttonSubmit md-raised">Create a Team
+			</md-button>
+		
+		</div>
+	</div>
+	
+	<!-- If you are in the event and on a team -->
+	<div ng-if="isAuthenticated() && $ctrl.checkRegister() && $ctrl.checkTeam()">
+		<md-content>
+			<p>You are registered for event: {{$ctrl.userEvent.event_name}}</p>
+			<p>You are on team: {{$ctrl.userTeam.team_name}}</p>
+			<p>To view your route for the event click below</p>
+		</md-content>
+		<div align="center">
+			<md-button ng-href="#{{locationPaths.teamRoutes}}" class="md-raised md-warn buttonSubmit">View Route
+			</md-button>
+		</div>
+	</div>
+
+</div>

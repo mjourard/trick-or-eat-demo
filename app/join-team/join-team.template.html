@@ -1,0 +1,37 @@
+<div ng-cloak class="container">
+	<h1>Join A Team</h1>
+	
+	<div layout="row" layout-xs="column" layout-sm="column" align="start" layout-align="start">
+		<div flex-gt-sm="70">
+			<md-input-container class="formField">
+				<label align="left">Search for team</label>
+				<input ng-model="searchText" type="text" maxlength="50">
+			</md-input-container>
+		</div>
+		<div flex-gt-sm="30">
+			<md-checkbox ng-model="showAllTeams">
+				Display All Teams
+			</md-checkbox>
+		</div>
+	</div>
+	
+	<div layout="row" layout-xs="column" layout-sm="column" align="center" layout-align="center">
+		<md-list>
+			<md-subheader>Team Name</md-subheader>
+			<md-list-item class="tableRowPointer" ng-class="{'selected-row':$index == $ctrl.currentRow}"
+						  ng-repeat="team in $ctrl.teamObj | orderBy : $ctrl.displayOrderProp | filter:searchText | limitTo:teamDisplayLimit"
+						  ng-click="$ctrl.setSelectedRow($index,team)">{{team.name}}
+			</md-list-item>
+		</md-list>
+	</div>
+	
+	<md-divider></md-divider>
+	<p>Enter the three digit code below given to you by your team captain</p>
+	<combination-lock digits="3" combo="$ctrl.code" on-update="$ctrl.updateCode(value, index)"></combination-lock>
+	<md-divider></md-divider>
+	
+	<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+		<md-button type="button" class="buttonSubmit md-raised md-primary" ng-disabled="joinClicked" ng-click="$ctrl.joinTeam()">Join Team</md-button>
+		<md-button type="button" class="md-raised md-accent" href="{{locationPaths.home}}">Cancel</md-button>
+	</div>
+</div>

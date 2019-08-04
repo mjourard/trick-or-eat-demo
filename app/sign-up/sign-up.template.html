@@ -1,0 +1,53 @@
+<div class="container" layout="row" layout-align="space-around" ng-cloak>
+	<div class="md-whiteframe-10dp container" flex="100" flex-gt-sm="55" flex-sm="75">
+		<h1 class="title">Sign Up</h1>
+		<form name="UserForm" ng-submit="$ctrl.submitForm()">
+			<md-input-container class="formField" flex-gt-sm="45">
+				<label>First Name</label>
+				<input ng-model="fName" required ng-maxlength="30" type="text">
+			</md-input-container>
+			<md-input-container class="formField" flex-gt-sm="45">
+				<label>Last Name</label>
+				<input ng-model="lName" required ng-maxlength="40" type="text">
+			</md-input-container>
+			<br>
+			<md-select name="country" placeholder="Select a Country" ng-model="$ctrl.country" flex-gt-sm="45" ng-change="setRegions()">
+				<md-option ng-repeat="(cid, cName) in $ctrl.countryNames" ng-value="cid">
+					{{cName}}
+				</md-option>
+			</md-select>
+			<md-select name="region" ng-disabled="$ctrl.noCountrySelected" placeholder="Select a Region" ng-model="region" flex-gt-sm="45">
+				<md-option ng-repeat="(rid, rName) in $ctrl.regionNames" ng-value="rid">
+					{{rName}}
+				</md-option>
+			</md-select>
+			<md-input-container class="formField" flex-gt-sm="60">
+				<label>Email</label>
+				<input type="email" name="userEmail" ng-maxlength="50" ng-model="userEmail" required>
+			</md-input-container>
+			<md-input-container class="formField" flex-gt-sm="60">
+				<label>Password</label>
+				<input type="password" name="pass" required ng-model="pass" ng-minlength="6" ng-maxlength="50" ng-pattern="/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/">
+			</md-input-container>
+			<div ng-if="UserForm.$submitted || UserForm.pass.$dirty">
+				<small ng-if="pass!=$ctrl.confirm" class="error">*Passwords do not match<br></small>
+				<small ng-if="UserForm.pass.$error.minlength" class="error">Password must be at least 6 characters
+					long<br></small>
+				<small ng-if="UserForm.pass.$error.pattern" class="error">Password must contain at least 1 lowercase, 1
+					uppercase, and 1 number
+				</small>
+			</div>
+			<md-input-container class="formField" flex-gt-sm="60">
+				<label>Confirm Password</label>
+				<input type="password" name="confirmPass" required ng-model="$ctrl.confirm" ng-minlength="6" ng-maxlength="50">
+			</md-input-container>
+			<br>
+			<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+				<md-button type="submit" class="buttonSubmit md-raised md-primary" ng-disabled="pass!=$ctrl.confirm || UserForm.$invalid">
+					Sign Up
+				</md-button>
+				<md-button type="button" class="buttonSubmit md-raised md-accent" href="{{locationPaths.home}}">Cancel</md-button>
+			</div>
+		</form>
+	</div>
+</div>

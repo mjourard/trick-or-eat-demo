@@ -1,0 +1,62 @@
+<div ng-cloak class="container">
+	<div layout="column" ng-if="$ctrl.teamName != ''">
+		<h1>{{$ctrl.teamName}}</h1>
+		<h3>Join Code: {{$ctrl.joinCode}}</h3>
+		<md-divider></md-divider>
+		<div ng-repeat="teammate in $ctrl.teammates">
+			<md-card>
+				<md-card-title>
+					<md-card-title-media>
+						<div class="md-media-sm card-media">
+							<img ng-src="{{$ctrl.imagePath}}" class="md-media-sm md-card-image">
+						</div>
+					</md-card-title-media>
+					<md-card-title-text>
+						<span class="md-headline" style="margin-left: 5px;">{{teammate.first_name}} {{teammate.last_name}}</span>
+						<span ng-if="teammate.is_captain" class="md-subhead" style="margin-left: 5px;"><md-icon>copyright</md-icon>Captain</span>
+					</md-card-title-text>
+				</md-card-title>
+				<md-card-content layout="row" layout-align="start">
+					<!--<span ng-if="teammate.checked_in" class="md-subhead">I'm here!</span>-->
+					<!--<span class="status {{teammate.checked_in ? 'green' : 'red'}}">{{teammate.checked_in ? 'Checked In' : 'Not Here'}}</span>-->
+					<div ng-if="teammate.can_drive">
+						<md-button class="md-icon-button">
+							<md-tooltip md-direction="top">I can drive for the event!</md-tooltip>
+							<md-icon>directions_car</md-icon>
+						</md-button>
+					</div>
+					<div ng-if="teammate.hearing">
+						<md-button class="md-icon-button">
+							<md-tooltip md-direction="top">I'm hearing impaired</md-tooltip>
+							<md-icon>hearing</md-icon>
+						</md-button>
+					</div>
+					<div ng-if="teammate.visual">
+						<md-button class="md-icon-button">
+							<md-tooltip md-direction="top">I'm visually impaired</md-tooltip>
+							<md-icon>remove_red_eye</md-icon>
+						</md-button>
+					</div>
+					<div ng-if="teammate.mobility">
+						<md-button class="md-icon-button">
+							<md-tooltip md-direction="top">I have mobility issues</md-tooltip>
+							<md-icon>accessible</md-icon>
+						</md-button>
+					</div>
+				</md-card-content>
+				<md-card-actions layout="row" layout-align="start">
+					<md-button class="md-raised" ng-if="teammate.can_kick" ng-click="$ctrl.kickTeammate(teammate.user_id, teammate.first_name, teammate.last_name)">Kick</md-button>
+				</md-card-actions>
+			</md-card>
+		</div>
+		<md-divider></md-divider>
+		<md-content flex layout-padding>
+			<h2>Leave Team</h2>
+			<p>Click 'Leave' if you've joined the wrong team by accident. It's cool, we won't judge you.</p>
+			<md-button ng-click="$ctrl.leaveTeam()" class="md-raised md-accent">Leave</md-button>
+		</md-content>
+	</div>
+	<div layout="row" ng-if="$ctrl.teamName == ''">
+		<h4>You don't seem to be on a team :(</h4>
+	</div>
+</div>

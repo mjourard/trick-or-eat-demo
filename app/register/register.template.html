@@ -1,0 +1,113 @@
+<div ng-cloak class="container">
+	<h1>Register For Event</h1>
+
+	<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+		<form ng-submit="$ctrl.registerEvent()">
+			<p>Do you have an accessibility need that may impact your ability to participate in the event?</p>
+			<md-input-container>
+				<div>
+					<md-checkbox ng-model="$ctrl.blind" ng-disabled="none">Visual Impairment</md-checkbox>
+				</div>
+				<div>
+					<md-checkbox ng-model="$ctrl.mobility" ng-disabled="none">Mobility Impairment
+					</md-checkbox>
+				</div>
+				<div>
+					<md-checkbox ng-model="$ctrl.deaf" ng-disabled="none">Hearing Impairment</md-checkbox>
+				</div>
+				<div>
+					<md-checkbox ng-model="none">None</md-checkbox>
+				</div>
+			</md-input-container>
+
+			<p>We will provide transportation by school-bus for all participants, but some participants choose to travel
+				in their personal vehicles.</p>
+			<p>Will you be travelling in a vehicle rather than a school-bus?</p>
+			<md-input-container>
+				<md-radio-group ng-model="$ctrl.drive" required="">
+					<md-radio-button ng-value="true">Yes</md-radio-button>
+					<md-radio-button ng-value="false">No</md-radio-button>
+				</md-radio-group>
+			</md-input-container>
+
+			<br/>
+			<p>Your current location is set to {{$ctrl.regionName}}, {{$ctrl.countryName}}. If this is not your location
+				please update your location in your account information.</p>
+
+			<p>Please select the event location you wish to attend.</p>
+			<div layout="row" layout-align="center">
+				<md-input-container class="formField" ng-if="$ctrl.events">
+					<label>Select a Location</label>
+					<md-select ng-model="$ctrl.event" style="color:black;">
+						<md-option ng-repeat="cEvent in $ctrl.events" ng-value="cEvent.event_id">{{cEvent.event_name}}
+						</md-option>
+					</md-select>
+				</md-input-container>
+				<md-input-container class="formField" ng-if="!$ctrl.events">
+					<label>No Events in your area.</label>
+					<md-select ng-model="$ctrl.event" style="color:black;">
+						<md-option ng-value="-1">No Events</md-option>
+					</md-select>
+				</md-input-container>
+			</div>
+			<br/>
+
+			<h2>Terms and Conditions</h2>
+			<div id="scrollArea">
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget augue justo. Sed nec sodales
+					nisl. Aliquam tempor, risus ac tempor porttitor, est purus faucibus leo, quis feugiat erat orci sit
+					amet erat. Proin vestibulum ligula vel lectus lacinia suscipit. Curabitur mi risus, facilisis non
+					ullamcorper in, euismod id eros. Integer condimentum rhoncus nunc, id consectetur lacus commodo at.
+					Vestibulum vestibulum dui vel rutrum pulvinar. Cras eget enim vel metus mattis imperdiet. Nunc
+					lobortis leo a ante rutrum, ut fermentum arcu tristique.
+				</p>
+
+				<p>
+					Nam tincidunt ligula ex, porta laoreet turpis convallis a. Donec ut orci ut dolor porttitor mattis.
+					Phasellus purus orci, mollis in vehicula quis, convallis vel orci. In volutpat ultrices nulla sed
+					ultrices. Sed id tristique metus, a rutrum nulla. Duis egestas vehicula mi, ac ornare felis semper
+					sit amet. Donec consectetur suscipit odio, a sodales massa laoreet at. Cras lacinia ex nec neque
+					congue laoreet. In iaculis orci sed nisi fringilla, a eleifend ligula convallis. Etiam augue lorem,
+					tempus eget lectus sed, facilisis fringilla est. Mauris bibendum ligula porttitor erat porta, a
+					finibus turpis interdum. Praesent a tempor nunc, vel tristique magna. Nam sollicitudin, tellus a
+					ultricies tempor, odio orci pellentesque justo, ac ultrices mi lacus consectetur neque. Donec quis
+					nulla in purus finibus sollicitudin quis eu lacus.
+				</p>
+
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget augue justo. Sed nec sodales
+					nisl. Aliquam tempor, risus ac tempor porttitor, est purus faucibus leo, quis feugiat erat orci sit
+					amet erat. Proin vestibulum ligula vel lectus lacinia suscipit. Curabitur mi risus, facilisis non
+					ullamcorper in, euismod id eros. Integer condimentum rhoncus nunc, id consectetur lacus commodo at.
+					Vestibulum vestibulum dui vel rutrum pulvinar. Cras eget enim vel metus mattis imperdiet. Nunc
+					lobortis leo a ante rutrum, ut fermentum arcu tristique.
+				</p>
+
+				<p>
+					Nam tincidunt ligula ex, porta laoreet turpis convallis a. Donec ut orci ut dolor porttitor mattis.
+					Phasellus purus orci, mollis in vehicula quis, convallis vel orci. In volutpat ultrices nulla sed
+					ultrices. Sed id tristique metus, a rutrum nulla. Duis egestas vehicula mi, ac ornare felis semper
+					sit amet. Donec consectetur suscipit odio, a sodales massa laoreet at. Cras lacinia ex nec neque
+					congue laoreet. In iaculis orci sed nisi fringilla, a eleifend ligula convallis. Etiam augue lorem,
+					tempus eget lectus sed, facilisis fringilla est. Mauris bibendum ligula porttitor erat porta, a
+					finibus turpis interdum. Praesent a tempor nunc, vel tristique magna. Nam sollicitudin, tellus a
+					ultricies tempor, odio orci pellentesque justo, ac ultrices mi lacus consectetur neque. Donec quis
+					nulla in purus finibus sollicitudin quis eu lacus.
+				</p>
+			</div>
+
+			<md-input-container>
+				<md-checkbox ng-model="$ctrl.terms" aria-label="By checking this box you agree to the terms and conditions of this event">
+					By checking this box you agree to the terms and conditions of this event
+				</md-checkbox>
+			</md-input-container>
+
+			<div layout-align="center" layout="row" layout-sm="row" layout-xs="column">
+				<md-button type="submit" class="buttonSubmit md-raised md-primary">Register</md-button>
+				<md-button type="button" class="buttonSubmit md-raised md-accent" href="{{locationPaths.home}}">Cancel</md-button>
+			</div>
+
+		</form>
+	</div>
+</div>

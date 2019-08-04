@@ -1,0 +1,105 @@
+<div layout="row">
+	<div flex>
+		<md-toolbar md-scroll-shrink>
+			<div class="md-toolbar-tools">Upload Routes</div>
+		</md-toolbar>
+		<div layout="row">
+			<div flex>
+				<div layout="column">
+					<div flex>
+						<md-select name="zone" placeholder="Select a Zone" ng-model="$ctrl.zone">
+							<md-option ng-repeat="(zid, zName) in $ctrl.zoneNames" ng-value="zid">
+								{{zName}}
+							</md-option>
+						</md-select>
+					</div>
+					<div flex>
+						<md-input-container>
+							<div>
+								<md-checkbox ng-model="$ctrl.mobility" ng-disabled="none">Wheelchair Accessible</md-checkbox>
+							</div>
+							<div>
+								<md-checkbox ng-model="$ctrl.blind" ng-disabled="none">Accessible to the visually impaired?</md-checkbox>
+							</div>
+							<div>
+								<md-checkbox ng-model="$ctrl.deaf" ng-disabled="none">Accessible to the hearing impaired?</md-checkbox>
+							</div>
+							<div>
+								<md-checkbox ng-model="none">None</md-checkbox>
+							</div>
+						</md-input-container>
+						<div flex>
+							<div layout="row">
+								<div flex flex-offset="15">
+									<md-button class="md-raised md-primary" ng-click="upload(files)" ng-disabled="files == undefined || files.length == 0">Accept</md-button>
+								</div>
+								<div flex>
+									<md-button class="md-raised md-warn" ng-click="clearPending()">Cancel</md-button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			</div>
+			<div flex flex-offset="5">
+				<div ngf-drop ngf-select ng-model="files" class="drop-box"
+					 ngf-drag-over-class="'dragover'" ngf-multiple="true" ngf-allow-dir="true"
+					 accept=".kmz,.kml"
+					 ngf-pattern="'.kmz,.kml'">Drop kmz or kml files here or click to upload
+				</div>
+				<input class="ng-hide" id="input-file-id" multiple type="file"/>
+				<label for="input-file-id" class="md-button md-raised md-primary">Choose Files</label>
+				<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+				<md-list class="md-dense" ng-cloak>
+					<md-subheader class="md-no-sticky">Files:</md-subheader>
+					<md-list-item ng-repeat="f in files" class="md-2-line">
+						<h4> {{f.name}}</h4>
+						<p>{{f.$error}} {{f.$errorParam}} </p>
+					</md-list-item>
+				</md-list>
+				<md-list class="md-dense" ng-cloak>
+					<md-subheader>Upload Log:</md-subheader>
+					<md-list-item ng-repeat="log in logs">
+						<p>{{log}}</p>
+					</md-list-item>
+				</md-list>
+			
+			</div>
+		</div>
+	</div>
+	<md-divider></md-divider>
+	<div flex>
+		<md-toolbar md-scroll-shrink>
+			<div class="md-toolbar-tools">Routes In Zone: {{curZone}}</div>
+		</md-toolbar>
+		<md-list>
+			<md-list-item class="md-2-line" ng-repeat="route in $ctrl.routes" ng-click="null">
+				<div layout="row" layout-padding>
+					<div flex="40">
+						<h3>Zone: {{route.zone_name}}</h3>
+						<h3>Route: {{route.route_name}}</h3>
+					</div>
+					<div flex="50">
+						<md-checkbox ng-model="route.wheelchair_accessible" aria-label="wheelchair accessible?">
+							Wheelchair Accessible
+						</md-checkbox>
+						
+						<md-checkbox md-no-ink ng-model="route.blind_accessible" aria-label="accessible to the visually impaired?">
+							Accessible to the Visually Impaired?
+						</md-checkbox>
+						
+						<md-checkbox ng-model="route.hearing_accessible" aria-label="accessible to the hearing impaired?">
+							Accessible to the Hearing Impaired?
+						</md-checkbox>
+					</div>
+					<div flex="10">
+						<md-button class="md-raised md-warn" aria-label="Delete route" ng-click="$ctrl.deleteRoute($ctrl.zone, route.route_name, route.route_id)">
+							<md-icon md-svg-src="node_modules/material-design-icons/action/svg/production/ic_delete_forever_24px.svg"></md-icon>
+						</md-button>
+					</div>
+				</div>
+			</md-list-item>
+		</md-list>
+	</div>
+</div>

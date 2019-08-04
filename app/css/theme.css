@@ -1,0 +1,236 @@
+@font-face {
+    font-family: Chau-Philomene;
+    src: url(./Fonts/chau_philomene_one/ChauPhilomeneOne-Regular.ttf);
+}
+
+#scrollArea {
+    padding: 10px;
+    height: 300px;
+    overflow: auto;
+
+    border-style: solid;
+}
+
+.tableRowPointer:hover {
+    cursor: pointer;
+}
+
+.selected-row {
+    background-color: rgb(255, 145, 0);
+}
+
+.container {
+    padding: 10px;
+}
+
+.log {
+    width: 60%;
+}
+
+.title {
+    padding-left: 20px;
+}
+
+.toolbar md-toolbar md-icon.md-default-theme {
+    color: rgb(255, 145, 0);
+}
+
+.md-icon-button {
+    width: 32px;
+    height: 32px;
+}
+
+.noBlend {
+    background-color: rgb(255, 145, 0);
+}
+
+.headerTitle {
+    text-align: center;
+}
+
+.dark {
+    color: rgb(255, 145, 0);
+    background-color: rgb(60, 60, 60);
+}
+
+.dark-inverse {
+    color: rgb(30, 30, 30);
+    background-color: rgb(255, 145, 0);
+}
+
+.dark-no-font-change {
+    background-color: rgb(60, 60, 60);
+}
+
+.side {
+    width: 210px;
+    height: 40px;
+}
+
+.bold {
+    font-weight: bold !important;
+}
+
+a.header:hover {
+    color: rgb(255, 145, 0);
+}
+
+.spacing {
+    padding: 10px;
+}
+
+.sideHeadText {
+    background-color: rgb(255, 145, 0) !important;
+    color: rgb(60, 60, 60);
+    padding-left: 10px;
+}
+
+.quick {
+    height: 100%;
+}
+
+.formField {
+    width: 90%;
+    color: black;
+}
+
+.standard {
+    color: white;
+    width: 60%;
+}
+
+.link {
+    color: rgb(255, 145, 0) !important;
+}
+
+.link:hover {
+    color: rgb(0, 0, 0) !important;
+    cursor: pointer;
+}
+
+.link:visited {
+    color: rgb(120, 120, 120) !important;
+}
+
+.nameLabel {
+    display: inline;
+}
+
+.nameField {
+    padding-left: 120px;
+}
+
+.container {
+    padding: 10px;
+}
+
+.error {
+    color: red;
+    font-size: 9pt;
+}
+
+.logDialog {
+    width: 50%;
+}
+
+.dialogHead {
+    padding-left: 8%;
+}
+
+/* google maps stuff */
+.angular-google-map-container {
+    height: 70vh;
+    width: 100%;
+    background-color: grey;
+}
+
+.button {
+    -moz-appearance: button;
+    /* Firefox */
+    -webkit-appearance: button;
+    /* Safari and Chrome */
+    padding: 10px;
+    margin: 10px;
+    width: 70px;
+}
+
+.drop-box {
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    width: 200px;
+    height: 65px;
+    text-align: center;
+    padding-top: 25px;
+    margin: 10px;
+}
+
+.dragover {
+    border: 5px dashed blue;
+}
+
+.card-media {
+    background-color: #999999;
+}
+
+.status {
+    border: 2px solid;
+    margin: 0 6px;
+    padding: 8px;
+    border-radius: 10%;
+}
+
+.red {
+    border-color: #ff6666;
+    background-color: #ffcccc;
+}
+
+.green {
+    border-color: #4dff4d;
+    background-color: #ccffcc;
+}
+
+.footer-link {
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #999898;
+}
+
+.footer-heading {
+    color: #fff;
+}
+
+.footer-p {
+    color: #999898;
+}
+
+.no-style-anchor {
+    text-decoration: none;
+    color: inherit;
+}
+
+.footer-background-img {
+    background: url('../img/map_fot.png') 100% 100% no-repeat;
+}
+
+.combination-lock-container {
+    /*border: 1px solid black;*/
+}
+
+.tumbler {
+
+}
+
+.code-modifier {
+    min-height: 0;
+    min-width: 0;
+}
+
+.code-input {
+    width: 36px;
+    text-align: center;
+}
+
+.feedback__question {
+    font-size: 16px;
+    font-weight: bold;
+}

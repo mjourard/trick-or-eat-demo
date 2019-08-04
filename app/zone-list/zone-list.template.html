@@ -1,0 +1,54 @@
+<div ng-cloak layout="column">
+	<div layout="row" flex="95" layout-padding layout-margin layout-fill layout-align="center center">
+		<div flex class="md-display-1">Zones for {{$ctrl.region_name}}</div>
+		<div flex>
+			<p>
+				Search:
+				<input ng-model="$ctrl.query"/>
+			</p>
+		</div>
+		<div flex>
+			<md-input-container>
+				<label>Sort By:</label>
+				<md-select ng-model="$ctrl.orderProp">
+					<md-option value="central_building_name">Building Name</md-option>
+					<md-option value="zone_radius_meter">Size</md-option>
+					<md-option value="zone_name">Zone Name</md-option>
+				</md-select>
+			</md-input-container>
+		</div>
+		<div flex>
+			<md-button class="md-raised md-primary" ng-click="$ctrl.newZone()">New Zone</md-button>
+		</div>
+	</div>
+	<div flex-gt-sm="95" flex layout-padding>
+		<md-content>
+			<md-list>
+				<md-list-item ng-repeat="zone in $ctrl.zones | filter:$ctrl.query | orderBy:$ctrl.orderProp" ng-click="$ctrl.zoneSelected(zone.zone_id)" layout="row" layout-align="start center">
+					<div flex="20" layout-padding layout-margin layout-fill>
+						<md-switch ng-model="zone.status" aria-label="active-zone" ng-true-value="'active'" ng-false-value="'inactive'" ng-change="$ctrl.setZoneStatus(zone.zone_id, zone.status)" class="md-warn">
+							{{ zone.status }}
+						</md-switch>
+					</div>
+					<div flex="80">
+						<div class="md-list-item-text" layout="row">
+							<div layout="column" layout-align="start start" flex>
+								<h2 flex>{{ zone.zone_name }}</h2>
+								<h5 flex>Last Modified: {{zone.date_modified}}</h5>
+								<h5 flex>Added: {{ zone.date_added }}</h5>
+							</div>
+							<div layout="column" layout-align="start start" flex>
+								<h2 flex>{{zone.central_building_name}}</h2>
+								<h5 flex>{{zone.central_parking_address}}</h5>
+							</div>
+							<div layout="column" layout-align="end start" flex>
+								<h5 flex>Zone Radius: {{zone.zone_radius_meter}}</h5>
+								<h5 flex>Houses Covered: {{zone.houses_covered}}</h5>
+							</div>
+						</div>
+					</div>
+				</md-list-item>
+			</md-list>
+		</md-content>
+	</div>
+</div>

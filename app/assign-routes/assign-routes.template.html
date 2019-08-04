@@ -1,0 +1,152 @@
+<div ng-cloak class="container">
+	<div layout="row" layout-align="center">
+		<div flex>
+			<md-input-container class="formField" ng-init="$ctrl.getEvents()">
+				<label>Select an event to modify route assignments for.</label>
+				<md-select ng-model="$ctrl.selectedEvent" ng-change="$ctrl.getRouteAssignments()"
+						   style="color:black;">
+					<md-option ng-repeat="cEvent in $ctrl.eventObj" ng-value="cEvent">{{cEvent.event_name}}
+					</md-option>
+				</md-select>
+			</md-input-container>
+		</div>
+		<div flex>
+			<md-button ng-disabled="!$ctrl.selectedEvent" ng-click="$ctrl.assignRoutes()" class="md-raised md-primary">Assign Routes To Unassigned Teams</md-button>
+		</div>
+		<div flex>
+			<md-button ng-disabled="!$ctrl.selectedEvent" ng-click="$ctrl.removeRouteAssignments()" class="md-raised md-warn">Remove All Route Assignments</md-button>
+		</div>
+	</div>
+	
+	<div layout="row" layout-align="center">
+	
+	
+	</div>
+	
+	<div layout="row" layout-align="center">
+		<div layout="column">
+			<md-table-container>
+				<table md-table ng-if="$ctrl.stats != null">
+					<thead md-head>
+						<tr md-row>
+							<th md-column>Total Routes</th>
+							<th md-column>Full Routes</th>
+							<th md-column>Empty Routes</th>
+							<th md-column>Total Active Teams</th>
+							<th md-column>Unassigned Active Teams</th>
+							<th md-column>Unassigned Active Teams Percentage</th>
+						</tr>
+					</thead>
+					<tbody md-body>
+						<tr md-row>
+							<td md-cell>{{$ctrl.stats.totalRoutes}}</td>
+							<td md-cell>{{$ctrl.stats.fullRoutes}}</td>
+							<td md-cell>{{$ctrl.stats.emptyRoutes}}</td>
+							<td md-cell>{{$ctrl.stats.teamCount}}</td>
+							<td md-cell>{{$ctrl.stats.unassignedTeams}}</td>
+							<td md-cell>{{$ctrl.stats.unassignedTeams * 100 / $ctrl.stats.teamCount | number : 1}}%</td>
+						</tr>
+					</tbody>
+				</table>
+			</md-table-container>
+		</div>
+	</div>
+	
+	<div layout="row" ng-if="$ctrl.selectedEvent">
+		<div flex>
+			<md-toolbar md-scroll-shrink>
+				<div class="md-toolbar-tools">Routes</div>
+			</md-toolbar>
+			<div layout="column">
+				<md-table-container>
+					<table md-table ng-if="$ctrl.routes != null">
+						<thead md-head md-order="routesQuery.order" md-on-reorder="$ctrl.getRouteAssignments">
+							<tr md-row>
+								<th md-column md-order-by="route_name">Route Name</th>
+								<th md-column md-numeric md-order-by="member_count">Assigned Members</th>
+								<th md-column>Type</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Vision Support</md-tooltip>
+									<md-icon>remove_red_eye</md-icon>
+								</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Hearing Support</md-tooltip>
+									<md-icon>hearing</md-icon>
+								</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Mobility Support</md-tooltip>
+									<md-icon>accessible</md-icon>
+								</th>
+								<th md-column>Teams</th>
+							</tr>
+						</thead>
+						<tbody md-body>
+							<tr md-row ng-repeat="route in $ctrl.routes">
+								<td md-cell>{{route.route_name}}</td>
+								<td md-cell>{{route.member_count}}</td>
+								<td md-cell>{{route.type}}</td>
+								<td md-cell>{{route.blind_accessible | yesNo }}</td>
+								<td md-cell>{{route.hearing_accessible | yesNo }}</td>
+								<td md-cell>{{route.wheelchair_accessible | yesNo }}</td>
+								<td md-cell>
+									<md-list>
+										<md-list-item class="md-3-line" ng-repeat="team in route.teams">
+											<div class="md-list-item-text" layout="column">
+												<p>{{team.team_name}}</p>
+												<p>{{team.member_count}}</p>
+											</div>
+										</md-list-item>
+									</md-list>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</md-table-container>
+			</div>
+		</div>
+		<md-divider></md-divider>
+		<div flex>
+			<md-toolbar md-scroll-shrink>
+				<div class="md-toolbar-tools">Unassigned Teams</div>
+			</md-toolbar>
+			<div layout="column">
+				<md-table-container>
+					<table md-table ng-if="$ctrl.unassignedTeams">
+						<thead md-head>
+							<tr md-row>
+								<th md-column>Team Name</th>
+								<th md-column>Member Count</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Can Drive</md-tooltip>
+									<md-icon>directions_car</md-icon>
+								</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Vision Impaired</md-tooltip>
+									<md-icon>remove_red_eye</md-icon>
+								</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Hearing Impaired</md-tooltip>
+									<md-icon>hearing</md-icon>
+								</th>
+								<th md-column>
+									<md-tooltip md-direction="top">Wheelchair Requirement</md-tooltip>
+									<md-icon>accessible</md-icon>
+								</th>
+							</tr>
+						</thead>
+						<tbody md-body>
+							<tr md-row ng-repeat="team in $ctrl.unassignedTeams | orderBy: ['member_count','can_drive','hearing', 'visual', 'mobility']">
+								<td md-cell>{{team.team_name}}</td>
+								<td md-cell>{{team.member_count}}</td>
+								<td md-cell>{{team.can_drive | yesNo}}</td>
+								<td md-cell>{{team.visual | yesNo }}</td>
+								<td md-cell>{{team.hearing | yesNo }}</td>
+								<td md-cell>{{team.mobility | yesNo }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</md-table-container>
+			</div>
+		</div>
+	</div>
+</div>

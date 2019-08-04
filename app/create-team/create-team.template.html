@@ -1,0 +1,54 @@
+<div ng-cloak class="container">
+	<h1>Create Team</h1>
+	<form>
+		<p>
+			To create a team, fill in the information below. Your teammates will have the option to join your team after it has been created.
+		</p>
+		
+		<md-input-container class="formField">
+			<input ng-model="teamName" placeholder="Team Name" type="text" required="" maxlength="50" md-maxlength="50">
+		</md-input-container>
+		
+		<md-input-container class="formField">
+			<label>Number of people on my team</label>
+			<md-select ng-model="memberCount" style="color:black;">
+				<md-option ng-repeat="n in [1,2,3,4,5]" ng-value="n">{{n}}</md-option>
+			</md-select>
+		</md-input-container>
+		
+		<p>Do any of your teammates have an accessibility need that may impact their ability to participate in the
+			event?</p>
+		<md-input-container>
+			<div>
+				<md-checkbox ng-model="$ctrl.blind" ng-disabled="none">Visual Impairment</md-checkbox>
+			</div>
+			<div>
+				<md-checkbox ng-model="$ctrl.mobility" ng-disabled="none">Mobility Impairment
+				</md-checkbox>
+			</div>
+			<div>
+				<md-checkbox ng-model="$ctrl.deaf" ng-disabled="none">Hearing Impairment</md-checkbox>
+			</div>
+			<div>
+				<md-checkbox ng-model="none">None</md-checkbox>
+			</div>
+		</md-input-container>
+		
+		<p>Do any of your teammates have access to a vehicle for this event that they would be wanting to use?</p>
+		<md-input-container>
+			<md-radio-group ng-model="$ctrl.drive" required="">
+				<md-radio-button ng-value="true">Yes</md-radio-button>
+				<md-radio-button ng-value="false">No</md-radio-button>
+			</md-radio-group>
+		</md-input-container>
+		
+		<p>Enter a three digit code below. This will be entered by your teammates when they join your team.</p>
+		<combination-lock digits="3" combo="$ctrl.code" on-update="$ctrl.updateCode(value, index)"></combination-lock>
+		
+		<div layout="row" layout-align="center">
+			<md-button type="submit" class="buttonSubmit md-raised md-primary" ng-click="$ctrl.createTeam(teamName, memberCount)">Create Team</md-button>
+			<md-button type="button" class="buttonSubmit md-raised md-accent" href="{{locationPaths.home}}">Cancel</md-button>
+		</div>
+	</form>
+	<div ng-bind-html="$ctrl.errorHtml"></div>
+</div>

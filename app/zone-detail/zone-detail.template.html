@@ -1,0 +1,48 @@
+<form name="ZoneForm">
+	<div class="container" layout="row" layout-align="space-around" ng-cloak>
+
+		<div flex="70" flex-sm="100">
+			<div class="container" layout="column">
+				<div flex="10">
+					<div layout-gt-sm="row">
+						<md-input-container class="md-block formField" flex-gt-sm>
+							<label>Zone Name</label>
+							<input type="text" ng-model="$ctrl.zoneName" required>
+						</md-input-container>
+
+						<md-input-container class="md-block formField" flex-gt-sm>
+							<label>Main Building Name</label>
+							<input type="text" ng-model="$ctrl.buildingName" required>
+						</md-input-container>
+					</div>
+				</div>
+				<div flex="90">
+					<div id="zone-map" class="angular-google-map-container"></div>
+				</div>
+			</div>
+		</div>
+		<div flex="30" flex-sm="100" layout="column">
+			<div flex="20"></div>
+			<md-input-container class="md-block formField" flex>
+				<label>Address</label>
+				<input type="text" ng-model="$ctrl.address" id="zone-address" required>
+			</md-input-container>
+			<div flex layout="row">
+				<md-input-container class="md-block formField" flex>
+					<label>Radius</label>
+					<input type="number" ng-model="$ctrl.radius" required>
+				</md-input-container>
+				<md-input-container class="md-block formField" flex>
+					<label>Houses</label>
+					<input type="number" ng-model="$ctrl.houses" required>
+				</md-input-container>
+			</div>
+			<section layout="row" layout-sm="column" layout-align="center center" layout-wrap>
+				<md-button type="button" class="md-raised md-primary" ng-disabled="ZoneForm.$invalid" ng-click="$ctrl.submit()">
+					{{saveText}}
+				</md-button>
+				<md-button class="md-raised md-warn" ng-click="$ctrl.cancel()">Cancel</md-button>
+			</section>
+		</div>
+	</div>
+</form>

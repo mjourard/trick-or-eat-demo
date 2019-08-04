@@ -1,0 +1,7 @@
+<div class="combination-lock-container" layout="row" layout-align="start stretch">
+	<div class="tumbler" layout="column" layout-align="space-around center" ng-repeat="(digit, value) in $ctrl.digitsArray">
+		<md-button type="button" ng-click="$ctrl.increment(digit)" class="code-modifier md-raised" style="min-width: 0;"><md-icon>arrow_drop_up</md-icon></md-button>
+		<input type="text" readonly min="0" max="9" placeholder="1" ng-model="value" class="code-input">
+		<md-button type="button" ng-click="$ctrl.decrement(digit)" class="code-modifier md-raised" style="min-width: 0;"><md-icon>arrow_drop_down</md-icon></md-button>
+	</div>
+</div>

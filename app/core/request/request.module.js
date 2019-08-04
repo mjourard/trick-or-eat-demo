@@ -1,0 +1,1 @@
+angular.module('core.request', ['ng', 'ngCookies', 'ngFileUpload']);

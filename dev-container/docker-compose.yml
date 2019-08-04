@@ -1,0 +1,52 @@
+version: '3.1'
+
+services:
+  web:
+    container_name: toe_nginx
+    image: nginx:alpine
+    volumes:
+      - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./nginx/vhosts:/etc/nginx/conf.d/vhosts"
+      - "../backendTOE:/var/www/html/toe/back"
+      - "../app:/var/www/html/toe/app"
+    ports:
+      - "8000:80"
+    depends_on:
+      - php
+  php:
+    container_name: toe_php
+    build: php-fpm-gd-debug/
+    volumes:
+      - "../backendTOE:/var/www/html/toe/back"
+      - "../app:/var/www/html/toe/app"
+    environment:
+      - dev_mode=on
+      - LOG_FILE=/var/log/myapp/errors.log
+      - USER_DATABASE_HOST=mysql
+      - USER_DATABASE_USERNAME=root
+      - USER_DATABASE_PASSWORD=example
+      - REDIS_LOGGING_IP=toe_redis
+      - REDIS_LOGGING_PORT=6379
+      - REDIS_LOGGING_PASSWORD=foobared
+  mysql:
+    container_name: toe_mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql/
+      - "./mysql/data:/docker-entrypoint-initdb.d"
+      - "./mysql/config:/etc/mysql/conf.d"
+  redis:
+    container_name: toe_redis
+    image: redis
+    command: ["redis-server", "--requirepass", "foobared", "--appendonly", "yes"]
+    ports:
+    - "6379:6379"
+    volumes:
+    - ../data/redis:/data
+    restart: always
+volumes:
+  mysql_data:

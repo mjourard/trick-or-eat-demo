@@ -1,0 +1,160 @@
+<div ng-cloak>
+	<div hide-gt-sm>
+		<div id="sidenavcontainer" layout="row">
+			<md-sidenav md-component-id="nav" class="md-sidenav-left" md-whiteframe="6">
+				<md-toolbar class="sideHeadText" layout="row" layout-align="start center">
+					<label class="dark-inverse bold" flex>Menu</label>
+				</md-toolbar>
+				<div layout="column" layout-align="start center" class="quick">
+					<md-button ng-href="#{{locationPaths.home}}" ng-click="$ctrl.toggleMenuNav()">
+						<span class="bold">Home</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.zoneList}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+						<span class="bold">Zones</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.routeArchive}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+						<span class="bold">Route Archive</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.eventRoutes}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+						<span class="bold">Event Routes</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.assignRoutes}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+						<span class="bold">Assign routes</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.teamRoutes}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized(userRoles.participant)">
+						<span class="bold">My Routes</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.viewTeam}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized(userRoles.participant)">
+						<span class="bold">My Team</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.feedback}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.isAuthorized(userRoles.participant)">
+						<span class="bold">Feedback</span>
+					</md-button>
+					<md-button ng-click="$ctrl.toggleMenuNav(); $ctrl.loginModal($event)" ng-if="!$ctrl.loggedIn()">
+						<span class="bold">Login</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.signUp}}" ng-click="$ctrl.toggleMenuNav()" ng-if="!$ctrl.loggedIn()">
+						<span class="bold">Sign Up</span>
+					</md-button>
+					<md-button aria-label="User Profile" ng-if="$ctrl.loggedIn()" ng-click="$ctrl.toggleMenuNav(); $ctrl.toggleEditNav()">
+						<span class="bold">{{userfName}}</span>
+					</md-button>
+					<md-button ng-href="#{{locationPaths.logout}}" ng-click="$ctrl.toggleMenuNav()" ng-if="$ctrl.loggedIn()">
+						<span class="bold">Logout</span>
+					</md-button>
+					<md-button class="md-icon-button" aria-label="Notifications">
+						<md-icon md-svg-icon="img/icons/bell.svg"></md-icon>
+					</md-button>
+				</div>
+			</md-sidenav>
+		</div>
+		<md-content>
+			<md-toolbar>
+				<div class="md-toolbar-tools dark">
+					<md-button class="md-icon-button noBlend" ng-click="$ctrl.toggleMenuNav()" aria-label="Settings">
+						<md-icon md-svg-icon="img/icons/menu.svg"></md-icon>
+					</md-button>
+					<span class="headerTitle bold" flex>Trick Or Eat</span>
+					<md-button class="md-icon-button" aria-label="Notifications">
+						<md-icon md-svg-icon="img/icons/bell.svg"></md-icon>
+					</md-button>
+				</div>
+			</md-toolbar>
+		</md-content>
+	</div>
+	<div hide show-gt-sm>
+		<md-content>
+			<md-toolbar>
+				<div class="md-toolbar-tools dark">
+					<md-button class="md-icon-button" aria-label="Notifications">
+						<md-icon md-svg-icon="img/icons/Trick_or_Eat_logo_re-sized.svg"></md-icon>
+					</md-button>
+					<a ng-href="#{{locationPaths.home}}" class="header"><h1 class="bold">Trick Or Eat</h1></a>
+					<span flex></span>
+					<div layout="row" layout-align="center end">
+						<md-button ng-href="#{{locationPaths.home}}">
+							<span class="bold">Home</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.zoneList}}" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+							<span class="bold">Zones</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.routeArchive}}" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+							<span class="bold">Route Archive</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.eventRoutes}}" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+							<span class="bold">Event Routes</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.assignRoutes}}" ng-if="$ctrl.isAuthorized([userRoles.admin, userRoles.organizer])">
+							<span class="bold">Assign routes</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.teamRoutes}}" ng-if="$ctrl.isAuthorized(userRoles.participant)">
+							<span class="bold">My Routes</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.viewTeam}}" ng-if="$ctrl.isAuthorized(userRoles.participant)">
+							<span class="bold">My Team</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.feedback}}" ng-if="$ctrl.isAuthorized(userRoles.participant)">
+							<span class="bold">Feedback</span>
+						</md-button>
+						<md-button ng-click="$ctrl.loginModal($event)" ng-if="!$ctrl.loggedIn()">
+							<span class="bold">Login</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.signUp}}" ng-if="!$ctrl.loggedIn()">
+							<span class="bold">Sign Up</span>
+						</md-button>
+						<md-button aria-label="User Profile" ng-if="$ctrl.loggedIn()" ng-click="$ctrl.toggleEditNav()">
+							<span class="bold">{{userfName}}</span>
+						</md-button>
+						<md-button ng-href="#{{locationPaths.logout}}" ng-if="$ctrl.loggedIn()">
+							<span class="bold">Logout</span>
+						</md-button>
+						<md-button class="md-icon-button" aria-label="Notifications">
+							<md-icon md-svg-icon="img/icons/bell.svg"></md-icon>
+						</md-button>
+					</div>
+				</div>
+			</md-toolbar>
+		</md-content>
+	</div>
+	<md-sidenav md-component-id="edit" class="md-sidenav-right" md-whiteframe="6">
+		<md-toolbar class="md-toolbar-tools sideHeadText" layout="row" layout-align="start center">
+			<label class="dark-inverse bold" flex>Edit Account</label>
+		</md-toolbar>
+		<div class="md-dialog-content container" ng-controller="AccountCtrl as account">
+			<!--<form name="editForm" ng-submit="account.updateUser()">--->
+			<form name="editForm" ng-submit="account.updateUser()">
+				<md-input-container name="fName" class="formField spacing">
+					<label>First Name:</label>
+					<input required ng-model="account.fName" ng-maxlength="50" aria-label="First Name">
+				</md-input-container>
+				<md-input-container class="formField spacing">
+					<label>Last Name:</label>
+					<input required ng-model="account.lName" ng-maxlength="50" aria-label="Last Name">
+				</md-input-container>
+
+				<md-select name="country" aria-label="country" placeholder="{{account.country.country_name}}" ng-model="account.country" ng-change="setRegions()" flex-gt-sm="90">
+					<md-option ng-repeat="(cid, cName) in account.countryNames" ng-value="cid">
+						{{cName}}
+					</md-option>
+				</md-select>
+				<md-select name="region" aria-label="region" placeholder="{{account.region.region_name}}" ng-model="account.region" flex-gt-sm="90">
+					<md-option ng-repeat="(rid, rName) in account.regionNames" ng-value="rid">
+						{{rName}}
+					</md-option>
+				</md-select>
+
+				<div layout="column" layout-align="start">
+					<md-button class="buttonSubmit" type="button" ng-click="account.passModal()">
+						Change Password
+					</md-button>
+				</div>
+				<div layout="row" layout-align="space-around">
+					<md-button flex="45" ng-disabled="editForm.$pristine || editForm.$invalid" class="buttonSubmit" type="submit">Save</md-button>
+					<md-button flex="45" class="buttonSubmit" type="button" ng-click="account.cancelEdit()">
+						<label>Cancel</label>
+					</md-button>
+				</div>
+			</form>
+		</div>
+	</md-sidenav>
+</div>

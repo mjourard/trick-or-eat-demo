@@ -1,0 +1,12 @@
+{
+  "zone_id": 1,
+  "zone_name": "test-zone",
+  "central_parking_address": "42 Wallaby Grove, Sydney, New South Wales, Australia",
+  "central_building_name": "Scary Dentist Office",
+  "zone_radius_meter": 100,
+  "houses_covered": 200,
+  "zoom": 16,
+  "latitude": -33.668358,
+  "longitude": 150.620886
+}
+        

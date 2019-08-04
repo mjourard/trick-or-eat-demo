@@ -1,0 +1,42 @@
+<md-dialog aria-label="login" class="logDialog">
+	<div ng-cloak>
+		<md-toolbar>
+			<div class="dark dialogHead" layout="row" layout-align="space-around center">
+				<h2>Login</h2>
+				<span flex></span>
+				<md-button class="md-icon-button" ng-click="cancel()">
+					<md-icon md-svg-src="img/icons/close.svg" aria-label="Close"></md-icon>
+				</md-button>
+			</div>
+		</md-toolbar>
+		<md-dialog-content>
+			<div class="md-dialog-content">
+				<form name="logInfo">
+					<div>
+						<span class="error" ng-if="success == false">Incorrect Email or Password. Please try again.</span>
+						<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+							<md-input-container class="formField">
+								<label for="email">Email:</label>
+								<input id="email" ng-model="creds.email" required="" type="email" ng-maxlength="50">
+							</md-input-container><br/>
+						</div>
+
+						<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+							<md-input-container class="formField">
+								<label for="password">Password:</label>
+								<input id="password" ng-model="creds.password" required="" type="password" ng-maxlength="50">
+							</md-input-container>
+						</div>
+						<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+							<md-button type="submit" class="buttonSubmit md-raised md-primary" ng-click="login(creds)">Login</md-button>
+							<md-button type="button" class="buttonSubmit md-raised md-accent" ng-click="cancel()">Cancel</md-button>
+						</div>
+					</div>
+				</form>
+				<div align="center">
+					<a class="link" ng-click="redirect(locationPaths.requestPasswordReset)">Forgot Password?</a> or <br><a class="link" ng-click="redirect(locationPaths.signUp)">Sign Up</a>
+				</div>
+			</div>
+		</md-dialog-content>
+	</div>
+</md-dialog>

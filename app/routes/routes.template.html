@@ -1,0 +1,28 @@
+<div class="container" ng-init="$ctrl.getRoutes()">
+	<h1>My Routes</h1>
+	<md-divider></md-divider>
+	<div ng-if="$ctrl.hasRoutes" layout="row" layout-align="center center">
+		<div layout="column" layout-align="space-around" layout-padding ng-repeat="cRoute in $ctrl.routesObj">
+			<div flex>
+				<span><strong><u>{{cRoute.route_name}}</u></strong></span>
+			</div>
+			<div flex>
+				<md-icon>access_time</md-icon>Start: {{cRoute.route_start_time | timeDisplay}}
+			</div>
+			<div flex>
+				<md-icon>directions_bus</md-icon>Bus: {{cRoute.zone_name}}
+			</div>
+		</div>
+	</div>
+	<md-divider></md-divider>
+	<div ng-show="!$ctrl.hasRoutes" align="center">
+		<p>
+			There are no routes assigned to your team at this time.<br/>
+			Please check back later.
+		</p>
+	</div>
+	<div ng-show="$ctrl.hasRoutes" flex="90" flex-offset="5" align="center">
+		<div id="zone-map" class="angular-google-map-container"></div>
+	</div>
+
+</div>

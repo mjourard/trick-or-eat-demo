@@ -1,0 +1,24 @@
+<div ng-cloak class="container" layout="column" layout-align="start stretch" layout-margin>
+	<h1>Feedback Page</h1>
+	<md-content>
+		<p>Thanks for participating in Trick or Eat this year!</p>
+		<p>We want to know how you found the experience of using this app during the event. </p>
+		<p>Please answer the questions below.</p>
+	</md-content>
+	<md-divider></md-divider>
+	<div ng-repeat="question in $ctrl.questions">
+		<span class="feedback__question">{{question.question}}</span>
+		<md-input-container class="md-block">
+			<label>Feedback</label>
+			<textarea name="feedback" ng-model="$ctrl.comments[question.question_id]" md-maxlength="question.response_limit" rows="5" md-select-on-focus></textarea>
+		</md-input-container>
+		<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+			<md-button type="button" class="buttonSubmit md-raised md-primary" ng-click="$ctrl.saveComment($ctrl.comments[question.question_id], question.question_id)">Save Comment</md-button>
+		</div>
+		<md-divider></md-divider>
+	</div>
+	<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
+		<md-button type="submit" class="buttonSubmit md-raised md-primary" ng-click="$ctrl.saveAllComments()">Save All Comments</md-button>
+		<md-button type="button" class="buttonSubmit md-raised md-accent" ng-click="$ctrl.cancel()">Cancel</md-button>
+	</div>
+</div>

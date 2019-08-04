@@ -1,0 +1,40 @@
+<md-dialog aria-label="Edit Account" class="logDialog">
+<div ng-cloak ng-controller="AccountCtrl as account" ng-init="account.getUser()">
+<!-- <md-sidenav class="md-sidenav-left" md-component-id="edit" md-whiteframe="8"> -->
+	<md-toolbar>
+		<div class="dark dialogHead" layout="row" layout-align="space-around center">
+			<h2>Edit Account</h2>
+			<span flex></span>
+			<md-button class="md-icon-button" ng-click="account.cancel()">
+				<md-icon aria-label="Close" md-svg-src="img/icons/close.svg"></md-icon>
+			</md-button>
+		</div>
+	</md-toolbar>
+	<md-dialog-content>
+		<div class="md-dialog-content">
+			<form name="editForm" ng-submit="account.checkFields()">
+				<md-input-container class="formField spacing">
+					<label>First Name:</label>
+					<input required ng-model="account.fName" ng-maxlength="50"> 
+				</md-input-container>
+				<md-input-container class="formField spacing">
+					<label>Last Name:</label>
+					<input required ng-maxlength="50" ng-model="account.lName">
+				</md-input-container>
+				<div>
+					<ng-include src="'templates/location.html'"></ng-include>
+				</div>
+				<div layout="column" layout-align-gt-xs="center" layout-gt-xs="row">
+					<md-button class="buttonSubmit" flex-gt-xs="35" type="button">Change Email</md-button>
+					<md-button class="buttonSubmit" flex-gt-xs="35" type="button">Change Password</md-button>
+				</div>
+				<div>
+					<md-button class="buttonSubmit" type="submit">Save</md-button>
+					<md-button class="buttonSubmit" type="button" ng-click="account.cancel()">Cancel</md-button>
+				</div>
+			</form>
+		</div>
+	</md-dialog-content>
+<!-- </md-sidenav> -->
+</div>
+</md-dialog>
