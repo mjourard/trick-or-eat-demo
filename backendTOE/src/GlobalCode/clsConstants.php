@@ -40,13 +40,8 @@ class clsConstants
 	const SILEX_PARAM_DATETIME = "datetime";
 
 	const DATABASE_NAME = "scotchbox";
-	const DATABASE_HOST = "127.0.0.1";
-	const DATABASE_PORT = 3306;
 
 	const MINIMUM_PASSWORD_LENGTH = 8;
-
-	//Turns on debug mode. Need a better way to distinguish between production and development mode. Until then, this should never be merged to master as true
-	const DEBUG_ON = true;
 
 	const PARAMETER_KEY = 'params';
 
@@ -66,8 +61,6 @@ class clsConstants
 	const ROUTE_HOSTING_DIRECTORY = __DIR__ . "/../../public/route-files";
 	const ROUTE_HOSTING_URL       = "backendtoe/public/route-files";
 
-	const REDIS_LOGGING_IP   = '131.104.49.37';
-	const REDIS_LOGGING_PORT = 6379;
 	const REDIS_ERROR_KEY    = "errors";
 
 	const EMAIL_RESET_LINK = "#/reset-password/";

@@ -17,10 +17,17 @@ require __DIR__ . '/../../src/GlobalCode/clsConstants.php';
 require __DIR__ . '/../clsDAL.php';
 
 use TOE\GlobalCode\clsConstants;
-use TOE\Creds\clsCreds;
+use TOE\GlobalCode\clsEnv;
+use TOECron\clsDAL;
 
 //get a connection to the backend
-$DAL = new clsDAL(clsCreds::DATABASE_USER, clsCreds::DATABASE_PASSWORD, clsConstants::DATABASE_HOST, clsConstants::DATABASE_NAME, clsConstants::DATABASE_PORT);
+$DAL = new clsDAL(
+	clsEnv::Get(clsEnv::TOE_DATABASE_USER),
+	clsEnv::Get(clsEnv::TOE_DATABASE_PASSWORD),
+	clsEnv::Get(clsEnv::TOE_DATABASE_HOST),
+	clsConstants::DATABASE_NAME,
+	clsEnv::Get(clsEnv::TOE_DATABASE_PORT)
+);
 
 //get the current time
 $time = time();

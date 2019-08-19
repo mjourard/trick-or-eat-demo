@@ -1,17 +1,18 @@
 <?php
-/* @var \Silex\Application $app */
+/* @var Application $app */
 
-use TOE\Creds\clsCreds;
+use Silex\Application;
 use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 
 $app['db.options'] = [
 	'driver'   => 'pdo_mysql',
-	'host'     => clsConstants::DATABASE_HOST,
-	'port'     => clsConstants::DATABASE_PORT,
+	'host'     => clsEnv::Get(clsEnv::TOE_DATABASE_HOST),
+	'port'     => clsEnv::Get(clsEnv::TOE_DATABASE_PORT),
 	'dbname'   => clsConstants::DATABASE_NAME,
 	'charset'  => 'utf8',
-	'user'     => clsCreds::DATABASE_USER,
-	'password' => clsCreds::DATABASE_PASSWORD
+	'user'     => clsEnv::Get(clsEnv::TOE_DATABASE_USER),
+	'password' => clsEnv::Get(clsEnv::TOE_DATABASE_PASSWORD)
 ];
 
 //anonymous routes are for when a user is not required to login
@@ -129,12 +130,12 @@ $app['parameters'] = [
 	]
 ];
 
-$app['redis.logging.ip'] = clsConstants::REDIS_LOGGING_IP;
-$app['redis.logging.port'] = clsConstants::REDIS_LOGGING_PORT;
-$app['redis.logging.password'] = clsCreds::REDIS_PASSWORD;
+$app['redis.logging.ip'] = clsEnv::Get(clsEnv::TOE_REDIS_LOGGING_IP);
+$app['redis.logging.port'] = clsEnv::Get(clsEnv::TOE_REDIS_LOGGING_PORT);
+$app['redis.logging.password'] = clsEnv::Get(clsEnv::TOE_REDIS_PASSWORD);
 
 //This is here due to the order that $app is defined and executed in both production and development environments
 if (getenv('dev_mode') === 'on')
 {
-	require "../config/config_dev.php";
+	require __DIR__ . "/../config/config_dev.php";
 }

@@ -2,6 +2,7 @@
 
 use Symfony\Component\HttpFoundation\Request;
 use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 use TOE\GlobalCode\clsResponseJson;
 use TOE\GlobalCode\clsUtil;
 
@@ -108,7 +109,7 @@ $app->error(function (\Exception $e, Request $request, $code) use ($app)
 			$message = 'We are sorry, but something went terribly wrong.';
 	}
 
-	if (clsConstants::DEBUG_ON)
+	if (clsEnv::Get(clsEnv::TOE_DEBUG_ON))
 	{
 		$message = "\n*CODE*\n$code\n*MESSAGE*\n" . $e->getMessage() . "\n*TRACE*\n" . clsUtil::RemoveFrameworkCallsFromStacktrace($e->getTraceAsString());
 	}

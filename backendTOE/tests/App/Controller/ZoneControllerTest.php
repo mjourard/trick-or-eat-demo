@@ -9,6 +9,7 @@
 
 namespace TOETests\App\Controller;
 
+use TOE\App\Controller\ZoneController;
 use TOE\GlobalCode\clsHTTPCodes;
 use TOETests\BaseTestCase;
 use TOETests\clsTestConstants;
@@ -19,7 +20,7 @@ class ZoneControllerTest extends BaseTestCase
 	const NEW_ZONE_NAME = "zoneControllerTest-newZone";
 	const TEST_ZONE_ID  = 1;
 	const BAD_ZONE_ID   = 999999;
-	const MAX_ZOOM      = 20;
+
 
 	const BAD_ZONE_STATUS              = "%41414d";
 	const DEFAULT_CREATE_OBJECT_PATH     = "/zones/create.json";
@@ -29,9 +30,8 @@ class ZoneControllerTest extends BaseTestCase
 	const LONG_STRING = "asjas.,mzncfokjas;lkfdjwoiejf;lkajdlkfjijfqoije;lkajsd;lkfjaijfd;lkajs;dlkfjasoifdj;lkewj;lkzjfoijas;lkdjfa;ijewoija;lkjfdoijz;lkjfoij;lkjwoij;lkj;ljzx;lkcj;oijoijfpoijqlkefjasjas.,mzncfokjas;lkfdjwoiejf;lkajdlkfjijfqoije;lkajsd;lkfjaijfd;lkajs;dlkfjasoifdj;lkewj;lkzjfoijas;lkdjfa;ijewoija;lkjfdoijz;lkjfoij;lkjwoij;lkj;ljzx;lkcj;oijoijfpoijqlkefjAAasjas.,mzncfokjas;lkfdjwoiejf;lkajdlkfjijfqoije;lkajsd;lkfjaijfd;lkajs;dlkfjasoifdj;lkewj;lkzjfoijas;lkdjfa;ijewoija;lkjfdoijz;lkjfoij;lkjwoij;lkj;ljzx;lkcj;oijoijfpoijqlkefjasjas.,mzncfokjas;lkfdjwoiejf;lkajdlkfjijfqoije;lkajsd;lkfjaijfd;lkajs;dlkfjasoifdj;lkewj;lkzjfoijas;lkdjfa;ijewoija;lkjfdoijz;lkjfoij;lkjwoij;lkj;ljzx;lkcj;oijoijfpoijqlkefjAAasjas.,mzncfokjas;lkfdjwoiejf;lkajdlkfjijfqoije;lkajsd;lkfjaijfd;lkajs;dlkfjasoifdj;lkewj;lkzjfoijas;lkdjfa;ijewoija;lkjfdoijz;lkjfoij;lkjwoij;lkj;ljzx;lkcj;oijoijfpoijqlkefjasjas.,mzncfokjas;lkfdjwoiejf;lkajdlkfjijfqoije;lkajsd;lkfjaijfd;lkajs;dlkfjasoifdj;lkewj;lkzjfoijas;lkdjfa;ijewoija;lkjfdoijz;lkjfoij;lkjwoij;lkj;ljzx;lkcj;oijoijfpoijqlkefjAA";
 	const BAD_VALUES  = ["zone_name"               => [self::LONG_STRING],
 						 "central_parking_address" => [self::LONG_STRING],
-						 "zone_radius_meter"       => [-1],
 						 "houses_covered"          => [-1],
-						 "zoom"                    => [-1, 0, self::MAX_ZOOM + 1],
+						 "zoom"                    => [-1, 0, ZoneController::MAX_ZOOM + 1],
 						 "latitude"                => [-91, 91],
 						 "longitude"               => [-91, 91]];
 
@@ -94,9 +94,8 @@ class ZoneControllerTest extends BaseTestCase
 		$badVals = [
 			"zone_name"               => [self::LONG_STRING],
 			"central_parking_address" => [self::LONG_STRING],
-			"zone_radius_meter"       => [-1],
 			"houses_covered"          => [-1],
-			"zoom"                    => [-1, 0, self::MAX_ZOOM + 1],
+			"zoom"                    => [-1, 0, ZoneController::MAX_ZOOM + 1],
 			"latitude"                => [-91, 91],
 			"longitude"               => [-91, 91]
 		];

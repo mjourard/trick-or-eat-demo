@@ -1,25 +1,34 @@
 {
-    "require": {
-        "silex/silex": "~2.0",
-        "firebase/php-jwt": "^4.0",
-        "doctrine/dbal": "^2.5",
-        "symfony/validator": "^3.2",
-        "monolog/monolog": "^1.22",
-        "predis/predis": "^1.1",
-        "phpmailer/phpmailer": "^5.2",
-        "league/oauth2-client": "^2.2",
-        "league/oauth2-google": "^2.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "TOE\\": "src/",
-            "TOECron\\": "cron-jobs/",
-            "TOETests\\": "tests/"
-        }
-    },
-    "require-dev": {
-        "phpunit/phpunit": "*",
-        "symfony/browser-kit": ">=2.3,<2.4-dev",
-        "symfony/css-selector": "*"
+  "config": {
+    "platform": {
+      "php": "7.2"
     }
+  },
+  "require": {
+    "silex/silex": "~2.0",
+    "firebase/php-jwt": "^4.0",
+    "doctrine/dbal": "^2.5",
+    "symfony/validator": "^3.2",
+    "monolog/monolog": "^1.22",
+    "predis/predis": "^1.1",
+    "phpmailer/phpmailer": "^5.2",
+    "league/oauth2-client": "^2.2",
+    "league/oauth2-google": "^2.0",
+    "ext-redis": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "TOE\\": "src/",
+      "TOECron\\": "cron-jobs/",
+      "TOETests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8",
+    "symfony/browser-kit": ">=2.3,<2.4-dev",
+    "symfony/css-selector": "*"
+  },
+  "scripts": {
+    "test": "./vendor/bin/phpunit -c ./tests/phpunit.xml"
+  }
 }

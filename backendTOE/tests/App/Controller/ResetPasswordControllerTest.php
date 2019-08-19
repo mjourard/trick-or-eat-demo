@@ -12,6 +12,7 @@ use TOE\GlobalCode\clsHTTPCodes;
 use TOETests\BaseTestCase;
 use Firebase\JWT\JWT;
 use TOE\GlobalCode\clsConstants;
+use TOETests\clsTesterCreds;
 
 
 const TEST_USER_ID = 7;
@@ -39,9 +40,20 @@ class ResetPasswordControllerTest extends BaseTestCase
 		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 
 		//Test with a valid token
+		//get the old password
+		$oldPass = clsTesterCreds::GENERIC_PASSWORD;
 		$request = [
 			'jwt'      => $this->createValidResetToken($app['jwt.key']),
 			'password' => 'password'
+		];
+
+		$this->client->request('POST', '/resetPassword', $request);
+		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_NO_CONTENT);
+
+		//reset to the old password
+		$request = [
+			'jwt'      => $this->createValidResetToken($app['jwt.key']),
+			'password' => $oldPass
 		];
 
 		$this->client->request('POST', '/resetPassword', $request);

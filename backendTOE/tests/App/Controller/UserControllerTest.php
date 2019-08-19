@@ -55,9 +55,9 @@ class UserControllerTest extends BaseTestCase
 		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
 
 		$expected = [
-			'user_roles'   => ['participant', 'driver'],
-			'first_name'   => 'normal',
-			'last_name'    => 'user',
+			'user_roles'   => ['participant'],
+			'first_name'   => 'user',
+			'last_name'    => 'notreg',
 			'region_id'    => 9,
 			'event_id'     => null,
 			'event_name'   => null,
@@ -66,7 +66,7 @@ class UserControllerTest extends BaseTestCase
 			'region_name'  => "Ontario",
 			'country_id'   => 1,
 			'country_name' => "Canada",
-			'email'        => "normaluser@gmail.com",
+			'email'        => "normaluser@toetests.com",
 			'id'           => 2,
 			'success'      => true,
 			'message'      => ''

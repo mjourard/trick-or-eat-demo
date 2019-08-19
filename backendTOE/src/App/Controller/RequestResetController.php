@@ -1,19 +1,21 @@
 <?php
+
 namespace TOE\App\Controller;
 
 use Firebase\JWT\JWT;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPMailerOAuth;
 use Silex\Application;
 use SMTP;
-use TOE\Creds\clsCreds;
 use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 use TOE\GlobalCode\clsHTTPCodes;
 use TOE\GlobalCode\clsResponseJson;
 
 class RequestResetController extends BaseController
 {
 	//Time until password reset token expires (in seconds)
-	const VALID_TIME          = 18000;
+	const VALID_TIME = 18000;
 	const MAX_ACTIVE_REQUESTS = 5;
 
 	public function RequestReset(Application $app)
@@ -24,7 +26,7 @@ class RequestResetController extends BaseController
 
 
 		//check if user exists
-		if ($userInfo === false)
+		if($userInfo === false)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "We couldn't find an account registered with that email."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
 		}
@@ -36,7 +38,7 @@ class RequestResetController extends BaseController
 		//count existing requests (max 5)
 		$result = $this->countRequests($userInfo['user_id'], $issuedAt);
 
-		if ($result >= self::MAX_ACTIVE_REQUESTS)
+		if($result >= self::MAX_ACTIVE_REQUESTS)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "You have requested too many reset requests recently."), clsHTTPCodes::CLI_ERR_SPECIFIC_USER_REQUEST_OVERLOAD);
 		}
@@ -81,7 +83,7 @@ class RequestResetController extends BaseController
 			->setParameter(':unique_id', $data['uniqueID'], clsConstants::SILEX_PARAM_STRING);
 		$result = $qb->execute();
 
-		if ($result === 0)
+		if($result === 0)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "An error occurred on our end."), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
@@ -89,12 +91,13 @@ class RequestResetController extends BaseController
 		$message = $this->generateResetEmailHTMLBody($jwt, $userInfo['first_name']);
 		$email = $this->getUserEmail($userInfo['user_id']);
 		$success = $this->emailToken($message, $email);
-		if ($success === true)
+		if($success === true)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
 
 		$this->logger->error($success);
+
 		return $app->json(clsResponseJson::GetJsonResponseArray(false, "An error occurred when trying to send the email: $success"), clsHTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 	}
 
@@ -128,6 +131,7 @@ class RequestResetController extends BaseController
 	 * @param string $email
 	 *
 	 * @return bool|string Returns true on success, and an error message on false.
+	 * @throws \phpmailerException
 	 */
 	private function emailToken($message, $email)
 	{
@@ -139,15 +143,15 @@ class RequestResetController extends BaseController
 		//TODO: move this to a config file like the other configurable constants
 		$mail->SMTPDebug = SMTP::DEBUG_OFF;
 
-		$mail->oauthUserEmail = clsCreds::RESET_ACCOUNT_EMAIL;
-		$mail->oauthClientId = clsCreds::RESET_CLIENT_ID;
-		$mail->oauthClientSecret = clsCreds::RESET_CLIENT_SECRET;
-		$mail->oauthRefreshToken = clsCreds::RESET_REFRESH_TOKEN;
+		$mail->oauthUserEmail = clsEnv::Get(clsEnv::TOE_RESET_ACCOUNT_EMAIL);
+		$mail->oauthClientId = clsEnv::Get(clsEnv::TOE_RESET_CLIENT_ID);
+		$mail->oauthClientSecret = clsEnv::Get(clsEnv::TOE_RESET_CLIENT_SECRET);
+		$mail->oauthRefreshToken = clsEnv::Get(clsEnv::TOE_RESET_REFRESH_TOKEN);
 
 		$mail->SMTPOptions = [
 			'ssl' => [
-				'verify_peer' => false,
-				'verify_peer_name' => false,
+				'verify_peer'       => false,
+				'verify_peer_name'  => false,
 				'allow_self_signed' => true
 			]
 		];
@@ -163,10 +167,22 @@ class RequestResetController extends BaseController
 		$mail->msgHTML($message);
 		$mail->addAddress($email);
 
-		if ($mail->send() === false)
+		try
 		{
-			return $mail->ErrorInfo;
-		};
+			if($mail->send() === false)
+			{
+				return $mail->ErrorInfo;
+			};
+		}
+		catch(IdentityProviderException $ex)
+		{
+			$this->logger->error("Reset Password Email Failed: " . $ex->getMessage(), ['email' => $email]);
+			if (clsEnv::Get(clsEnv::TOE_DEBUG_ON))
+			{
+				return true;
+			}
+			throw $ex;
+		}
 
 		return true;
 	}
@@ -187,7 +203,7 @@ class RequestResetController extends BaseController
 			->setParameter('userid', $userid, clsConstants::SILEX_PARAM_STRING);
 		$results = $qb->execute()->fetch();
 
-		if ($results === false || empty($results))
+		if($results === false || empty($results))
 		{
 			return false;
 		}
@@ -198,7 +214,7 @@ class RequestResetController extends BaseController
 	/**
 	 * Generates an HTML page containing the link to reset a user's password.
 	 *
-	 * @param string $token The jwt token that will be used for verification
+	 * @param string $token    The jwt token that will be used for verification
 	 *
 	 * @param string $username The name of the user who's email was used for the password reset request
 	 *
@@ -207,9 +223,17 @@ class RequestResetController extends BaseController
 	private function generateResetEmailHTMLBody($token, $username)
 	{
 		$email = file_get_contents(__DIR__ . '/../../email-templates/reset-password-email.html');
-		$email = str_replace("%reset-link%", $_SERVER['SERVER_PROTOCOL'] . $_SERVER['SERVER_NAME'] . "/" . clsConstants::EMAIL_RESET_LINK . $token, $email);
+		$proto = "http";
+		if (!empty($_SERVER['SERVER_PROTOCOL']))
+		{
+			$proto = $_SERVER['SERVER_PROTOCOL'];
+		}
+		$host = "localhost";
+		if (!empty($_SERVER['SERVER_NAME']))
+		{
+			$host = $_SERVER['SERVER_NAME'];
+		}
+		$email = str_replace("%reset-link%", $proto . $host . "/" . clsConstants::EMAIL_RESET_LINK . $token, $email);
 		return str_replace("%username%", $username, $email);
 	}
 }
-
-?>

@@ -6,8 +6,8 @@
  * Time: 11:39 AM
  */
 
-use TOE\Creds\clsCreds;
 use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 use TOECron\clsDAL;
 use TOECron\RegistrationImport\Team;
 use TOECron\RegistrationImport\User;
@@ -33,7 +33,13 @@ const TEAM_REG_DATE = 'Team Registration Date';
 const DRY_RUN = false;
 const GUELPH_EVENT_ID = 1;
 
-$DAL = new clsDAL(clsCreds::DATABASE_USER, clsCreds::DATABASE_PASSWORD, clsConstants::DATABASE_HOST, clsConstants::DATABASE_NAME, clsConstants::DATABASE_PORT);
+$DAL = new clsDAL(
+	clsEnv::Get(clsEnv::TOE_DATABASE_USER),
+	clsEnv::Get(clsEnv::TOE_DATABASE_PASSWORD),
+	clsEnv::Get(clsEnv::TOE_DATABASE_HOST),
+	clsConstants::DATABASE_NAME,
+	clsEnv::Get(clsEnv::TOE_DATABASE_PORT)
+);
 $filename = __DIR__ . '/' . REPORT_FILE;
 
 /** @var User[] $users */

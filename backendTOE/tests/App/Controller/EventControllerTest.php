@@ -21,7 +21,7 @@ class EventControllerTest extends BaseTestCase
 	const REGION_NAME_WITHOUT_EVENT = "Alberta";
 
 	const TEST_EVENT_ID   = 1;
-	const TEST_EVENT_NAME = "Guelph Trick or Eat";
+	const TEST_EVENT_NAME = "Trick-or-Eat-2016";
 	const BAD_EVENT_ID    = 999999999;
 
 	/**

@@ -8,24 +8,65 @@
 
 namespace TOETests;
 
+use Doctrine\DBAL\Connection;
 use Exception;
-use Silex\WebTestCase;
+use PHPUnit\Framework\TestCase;
 use Silex\Application;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Client;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use TOE\GlobalCode\clsConstants;
 use TOE\GlobalCode\clsHTTPCodes;
 
 require __DIR__ . '/bootstrap.php';
 
-class BaseTestCase extends WebTestCase
+class BaseTestCase extends TestCase
 {
-	/* @var \Symfony\Component\HttpKernel\Client $client */
+	#region Silex WebTestCase
+	/**
+	 * HttpKernelInterface instance.
+	 *
+	 * @var HttpKernelInterface
+	 */
+	protected $app;
+
+	/**
+	 * PHPUnit setUp for setting up the application.
+	 *
+	 * Note: Child classes that define a setUp method must call
+	 * parent::setUp().
+	 */
+	protected function setUp(): void
+	{
+		$this->app = $this->createApplication();
+	}
+
+
+	/**
+	 * Creates a Client.
+	 *
+	 * @param array $server Server parameters
+	 *
+	 * @return Client A Client instance
+	 */
+	public function createClient(array $server = [])
+	{
+		if (!class_exists('Symfony\Component\BrowserKit\Client')) {
+			throw new \LogicException('Component "symfony/browser-kit" is required by WebTestCase.'.PHP_EOL.'Run composer require symfony/browser-kit');
+		}
+
+		return new Client($this->app, $server);
+	}
+	#endregion
+
+	/* @var Client $client */
 	protected $client;
 
-	/* @var \Symfony\Component\HttpFoundation\Response $lastResponse */
+	/* @var Response $lastResponse */
 	protected $lastResponse;
 
-	/* @var \Doctrine\DBAL\Connection $dbConn */
+	/* @var Connection $dbConn */
 	protected $dbConn;
 
 	private $loggedIn;
@@ -47,9 +88,9 @@ class BaseTestCase extends WebTestCase
 	{
 		$app = new Application();
 
-		require "../src/app.php";
-		require "../config/config.php";
-		require "../config/routes.php";
+		require __DIR__ . "/../src/app.php";
+		require __DIR__ . "/../config/config.php";
+		require __DIR__ . "/../config/routes.php";
 
 		$app['debug'] = true;
 
@@ -186,6 +227,11 @@ class BaseTestCase extends WebTestCase
 	public function GetLoggedInUserId()
 	{
 		return $this->loggedInUserId;
+	}
+
+	public function GetLoggedInPassword()
+	{
+		return $this->loggedInPassword;
 	}
 
 	protected function GetModifiedJSONObject($modifications = [])

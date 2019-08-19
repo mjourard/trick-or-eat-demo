@@ -41,7 +41,8 @@ class RouteControllerTest extends BaseTestCase
 	public function testAllocateRoute()
 	{
 		//test with a route that doesn't exist
-		$this->LoadJSONObject(clsTestConstants::TEST_DATA_FOLDER_PATH . self::ALLOCATE_OBJECT_FILE);
+		$this->markTestIncomplete();
+//		$this->LoadJSONObject(clsTestConstants::TEST_DATA_FOLDER_PATH . self::ALLOCATE_OBJECT_FILE);
 
 		//test with an event that doesn't exist
 

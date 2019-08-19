@@ -1,3 +1,7 @@
+backendTOE/logs/
+.phpunit.result.cache
 .idea/
-backendTOE/vendor/
-app/node_modules/
+vendor/
+node_modules/
+dist/
+data/redis/

@@ -16,30 +16,30 @@ class AuthController extends BaseController
 	/**
 	 * Registers a new user for the trick-or-eat application.
 	 *
-	 * @param \Silex\Application                        $app
+	 * @param \Silex\Application $app
 	 *
 	 * @return \Symfony\Component\HttpFoundation\JsonResponse
 	 */
 	public function register(Application $app)
 	{
-		if (!$this->EmailIsGood($app[clsConstants::PARAMETER_KEY]['email'], $app))
+		if(!$this->EmailIsGood($app[clsConstants::PARAMETER_KEY]['email'], $app))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad email"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		if (!$this->PasswordIsGood($app[clsConstants::PARAMETER_KEY]['password']))
+		if(!$this->PasswordIsGood($app[clsConstants::PARAMETER_KEY]['password']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad password"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$firstName = trim($app[clsConstants::PARAMETER_KEY]['first_name']);
-		if (empty($firstName))
+		if(empty($firstName))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "First name cannot be empty."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$lastName = trim($app[clsConstants::PARAMETER_KEY]['last_name']);
-		if (empty($lastName))
+		if(empty($lastName))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Last name cannot be empty."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -50,13 +50,13 @@ class AuthController extends BaseController
 
 		$userId = $app['user.lookup']->GetUserId($email);
 
-		if ($userId !== false)
+		if($userId !== false)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "email of '$email' already registered"), clsHTTPCodes::CLI_ERR_CONFLICT);
 		}
 
 		//verify the region passed in exists
-		if (!$this->RegionExists($app[clsConstants::PARAMETER_KEY]['region_id']))
+		if(!$this->RegionExists($app[clsConstants::PARAMETER_KEY]['region_id']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "region_id of {$app[clsConstants::PARAMETER_KEY]['region_id']} is was not found in the database."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -77,7 +77,7 @@ class AuthController extends BaseController
 			->setParameter(':last_name', $lastName)
 			->setParameter(':region_id', $app[clsConstants::PARAMETER_KEY]['region_id']);
 
-		if (!$qb->execute() === 0)
+		if(!$qb->execute() === 0)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'There was a problem registering the user'), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		};
@@ -92,7 +92,7 @@ class AuthController extends BaseController
 			])
 			->setParameter(':role', clsConstants::ROLE_PARTICIPANT, clsConstants::SILEX_PARAM_STRING);
 
-		if (!$qb->execute() === 0)
+		if(!$qb->execute() === 0)
 		{
 			//TODO: delete the newly created user so they can attempt to sign up again
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'There was a problem registering the user\'s role.'), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
@@ -126,19 +126,19 @@ class AuthController extends BaseController
 			->setParameter(':email', strtolower($app[clsConstants::PARAMETER_KEY]["email"]));
 
 		$userInfo = $qb->execute()->fetchAll();
-		if (count($userInfo) > 1)
+		if(count($userInfo) > 1)
 		{
 			$app->json(clsResponseJson::GetJsonResponseArray(false, "Database inconsistency; more than one user matches these login details."), clsHTTPCodes::SERVER_GENERIC_ERROR);
 		};
 
-		if (empty($userInfo))
+		if(empty($userInfo))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Email not registered."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		};
 		$userInfo = $userInfo[0];
-		if (!password_verify($app[clsConstants::PARAMETER_KEY]['password'], $userInfo['password']))
-        {
-            return $app->json(clsResponseJson::GetJsonResponseArray(false, 'Incorrect password.'), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		if(!password_verify($app[clsConstants::PARAMETER_KEY]['password'], $userInfo['password']))
+		{
+			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'Incorrect password.'), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		};
 		$issuedAt = time();
 		$expire = $issuedAt + self::VALID_TIME;
@@ -147,8 +147,8 @@ class AuthController extends BaseController
 			'exp'  => $expire,
 			'data' => [
 				// Data related to the signer user
-				'userId' => $userInfo['user_id'], // userid from the users table
-				'email'  => $userInfo['email'], // User name
+				'userId'    => $userInfo['user_id'], // userid from the users table
+				'email'     => $userInfo['email'], // User name
 				'userRoles' => explode($delim, $userInfo['user_roles'])
 			]
 		];
@@ -186,8 +186,9 @@ class AuthController extends BaseController
 	 */
 	private function EmailIsGood($email, Application $app)
 	{
-		/** @var  \Symfony\Component\Validator\Validator\ValidatorInterface $validator*/
+		/** @var  \Symfony\Component\Validator\Validator\ValidatorInterface $validator */
 		$validator = $app['validator'];
+
 		return $validator->validate($email, new Assert\Email())->count() === 0;
 	}
 
@@ -196,10 +197,4 @@ class AuthController extends BaseController
 		//TODO: Modify the password input to rate the user's password strength. Any non-empty password should be accepted
 		return !empty($password);
 	}
-
-
-
 }
-
-;
-?>

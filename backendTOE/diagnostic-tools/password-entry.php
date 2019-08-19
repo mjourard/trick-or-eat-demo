@@ -8,8 +8,8 @@
  * Time: 5:11 PM
  */
 
-use TOE\Creds\clsCreds;
 use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 use TOECron\clsDAL;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -21,7 +21,12 @@ if (count($argv) < 2)
 	die("Usage: "  . basename(__FILE__) . " <email> <new-password>");
 }
 
-$DAL = new clsDAL(clsCreds::DATABASE_USER, clsCreds::DATABASE_PASSWORD, '127.0.0.1', clsConstants::DATABASE_NAME);
+$DAL = new clsDAL(
+	clsEnv::Get(clsEnv::TOE_DATABASE_USER),
+	clsEnv::Get(clsEnv::TOE_DATABASE_PASSWORD),
+	clsEnv::Get(clsEnv::TOE_DATABASE_HOST),
+	clsConstants::DATABASE_NAME
+);
 $username = $DAL->EscapeString($argv[1]);
 $password = password_hash($argv[2], PASSWORD_DEFAULT);
 

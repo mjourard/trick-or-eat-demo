@@ -10,10 +10,11 @@ namespace TOETests\App\Controller;
 
 use TOE\GlobalCode\clsHTTPCodes;
 use TOETests\BaseTestCase;
+use TOETests\clsTesterCreds;
 
 class RequestResetControllerTest extends BaseTestCase
 {
-	const VALID_USER_EMAIL = "mjourard@hotmail.com";
+	const VALID_USER_EMAIL = clsTesterCreds::ADMIN_ON_TEAM_WITH_ROUTE_EMAIL;
     const NON_EXISTENT_USER_EMAIL = "doesnotexist@notreal.com";
 
 	/**

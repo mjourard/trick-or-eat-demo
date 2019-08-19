@@ -15,11 +15,20 @@ use TOE\GlobalCode\clsResponseJson;
 
 class ZoneController extends BaseController
 {
+	const MAX_ZOOM = 20;
+	const MIN_ZOOM = 1;
+
 	public function createZone(Application $app)
 	{
 		$this->InitializeInstance($app);
 		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$params = $app[clsConstants::PARAMETER_KEY];
+		$response = $this->verifyParams($app, $params);
+		if($response !== null)
+		{
+			return $response;
+		}
+
 
 		$qb = $this->db->createQueryBuilder();
 		$qb->insert('zone')
@@ -50,7 +59,7 @@ class ZoneController extends BaseController
 		{
 			$qb->execute();
 		}
-		catch (\Exception $e)
+		catch(\Exception $e)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "There was an error creating a the new zone: {$e->getMessage()}"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -64,7 +73,7 @@ class ZoneController extends BaseController
 
 		$newZone = $qb->execute()->fetchAll();
 
-		if (empty($newZone))
+		if(empty($newZone))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "There was an error fetching the new zone"), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
@@ -77,6 +86,11 @@ class ZoneController extends BaseController
 		$this->InitializeInstance($app);
 		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$params = $app[clsConstants::PARAMETER_KEY];
+		$response = $this->verifyParams($app, $params);
+		if($response !== null)
+		{
+			return $response;
+		}
 
 		//varify the zone exists
 		$qb = $this->db->createQueryBuilder();
@@ -85,7 +99,7 @@ class ZoneController extends BaseController
 			->where('zone_id = :zoneId')
 			->setParameter(':zoneId', $params['zone_id'], clsConstants::SILEX_PARAM_INT);
 
-		if (empty($qb->execute()->fetchAll()))
+		if(empty($qb->execute()->fetchAll()))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Zone with ID of {$params['zone_id']} does not exist."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
 		}
@@ -117,7 +131,7 @@ class ZoneController extends BaseController
 		{
 			$qb->execute();
 		}
-		catch (\Exception $e)
+		catch(\Exception $e)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "There was an error updating the zone: {$e->getMessage()}"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -127,9 +141,9 @@ class ZoneController extends BaseController
 
 	/**
 	 *
-	 * @param \Silex\Application                        $app
-	 * @param  Integer                                  $regionId The region that you are retrieving the zones for.
-	 * @param  String                                   $status   The statuses of zones to be returned. If passing in 'all', will return all zones. If passing in 'working', will return all non-retired zones.
+	 * @param \Silex\Application $app
+	 * @param Integer            $regionId The region that you are retrieving the zones for.
+	 * @param String             $status   The statuses of zones to be returned. If passing in 'all', will return all zones. If passing in 'working', will return all non-retired zones.
 	 *
 	 * @return \Symfony\Component\HttpFoundation\JsonResponse
 	 */
@@ -138,12 +152,12 @@ class ZoneController extends BaseController
 		$this->InitializeInstance($app);
 		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 
-		if (!$this->isStatusGood($status) && $status !== 'all' && $status !== 'working')
+		if(!$this->isStatusGood($status) && $status !== 'all' && $status !== 'working')
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad status passed in '$status'."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		if (!$this->RegionExists($regionId))
+		if(!$this->regionExists($regionId))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad region Id passed in '$regionId'"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -164,7 +178,7 @@ class ZoneController extends BaseController
 			->where('region_id = :regionId')
 			->setParameter(':regionId', $regionId, clsConstants::SILEX_PARAM_INT);
 
-		switch ($status)
+		switch($status)
 		{
 			case 'working':
 				$qb->andWhere("NOT status = 'retired'");
@@ -181,7 +195,7 @@ class ZoneController extends BaseController
 
 		$zones = $qb->execute()->fetchAll();
 
-		foreach ($zones as &$zone)
+		foreach($zones as &$zone)
 		{
 			$zone['zone_id'] = (int)$zone['zone_id'];
 		}
@@ -214,13 +228,13 @@ class ZoneController extends BaseController
 
 		$zone = $qb->execute()->fetchAll();
 
-		if (empty($zone))
+		if(empty($zone))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Zone with id $zoneId does not exist."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		$ints = ['zone_id', 'zone_radius_meter', 'houses_covered', 'zoom'];
-		foreach ($ints as $int)
+		foreach($ints as $int)
 		{
 			$zone[0][$int] = (int)$zone[0][$int];
 		}
@@ -237,7 +251,7 @@ class ZoneController extends BaseController
 		$status = $app[clsConstants::PARAMETER_KEY]['status'];
 		$zoneId = $app[clsConstants::PARAMETER_KEY]['zone_id'];
 
-		if (!$this->isStatusGood($status))
+		if(!$this->isStatusGood($status))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad status passed in: $status"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -249,7 +263,7 @@ class ZoneController extends BaseController
 			->where('zone_id = :zoneId')
 			->setParameter(':zoneId', $zoneId);
 
-		if (empty($qb->execute()->fetchAll()))
+		if(empty($qb->execute()->fetchAll()))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Zone with id $zoneId does not exist."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
 		}
@@ -267,7 +281,7 @@ class ZoneController extends BaseController
 
 	private function isStatusGood($status)
 	{
-		switch ($status)
+		switch($status)
 		{
 			case 'active':
 			case 'inactive':
@@ -278,9 +292,9 @@ class ZoneController extends BaseController
 		}
 	}
 
-	private function RegionExists($regionId)
+	private function regionExists($regionId)
 	{
-		if (!is_int($regionId))
+		if(!is_int($regionId))
 		{
 			return false;
 		}
@@ -293,7 +307,28 @@ class ZoneController extends BaseController
 			->setParameter('region_id', $regionId, clsConstants::SILEX_PARAM_INT);
 
 		return !empty($qb->execute()->fetchAll());
+	}
 
+	/**
+	 * Verifies the common params of zones
+	 *
+	 * @param Application $app
+	 * @param             $params
+	 *
+	 * @return \Symfony\Component\HttpFoundation\JsonResponse|null
+	 */
+	private function verifyParams(Application $app, $params)
+	{
+		if($params['houses_covered'] < 1)
+		{
+			return $app->json(clsResponseJson::GetJsonResponseArray(false, "param houses_covered must be a positive number. Newly created zones must cover at least 1 house."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		}
+		if($params['zoom'] < self::MIN_ZOOM || $params['zoom'] > self::MAX_ZOOM)
+		{
+			return $app->json(clsResponseJson::GetJsonResponseArray(false, sprintf("param zoom must be between %d and %d", self::MIN_ZOOM, self::MAX_ZOOM)), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		}
+
+		return null;
 	}
 
 }

@@ -15,6 +15,7 @@ use TOETests\clsTesterCreds;
 class FeedbackControllerTest extends BaseTestCase
 {
 	const COMMENT_MAX_SIZE = 2000;
+	const TEST_QUESTION_ID = 1;
 
 	/**
 	 * @group Feedback
@@ -36,10 +37,11 @@ class FeedbackControllerTest extends BaseTestCase
 		{
 
 			$this->client->request('POST', '/feedback/saveComment', [
-				'comment' => $comment['test']
+				'comment' => $comment['test'],
+				'question_id' => self::TEST_QUESTION_ID
 			]);
 			$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
-			$this->verifyCommentSaved($comment['expected']);
+			$this->verifyCommentSaved($comment['expected'], self::TEST_QUESTION_ID);
 		}
 	}
 
@@ -56,12 +58,12 @@ class FeedbackControllerTest extends BaseTestCase
 		$this->assertEquals(self::COMMENT_MAX_SIZE, $content->limit, "Character limit does not match database column size");
 	}
 
-	private function verifyCommentSaved($expected)
+	private function verifyCommentSaved($expected, $questionId)
 	{
-		$this->client->request('GET', '/feedback/comment');
+		$this->client->request('GET', "/feedback/comment/$questionId");
 		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
-		$content = json_decode($this->lastResponse->getContent());
-		$this->assertEquals($expected, $content->comment, "Comments were not the same");
+		$content = json_decode($this->lastResponse->getContent(), true);
+		$this->assertEquals($expected, $content['comment'], "Comments were not the same");
 	}
 
 }

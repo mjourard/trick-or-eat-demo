@@ -81,24 +81,7 @@ CREATE TABLE `event` (
 -- Dumping data for table `event`
 --
 
---
--- Table structure for table `feedback`
---
 
-DROP TABLE IF EXISTS `feedback`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `feedback` (
-  `user_id` int(11) NOT NULL,
-  `comment` varchar(2000) NOT NULL DEFAULT '',
-  PRIMARY KEY (`user_id`),
-  UNIQUE KEY `user_id_UNIQUE` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `feedback`
---
 
 --
 -- Table structure for table `member`
@@ -351,6 +334,52 @@ CREATE TABLE `zone` (
 
 --
 -- Dumping data for table `zone`
+--
+
+--
+-- Table structure for table `question`
+--
+
+DROP TABLE IF EXISTS `question`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `question` (
+  `question_id` int(11) NOT NULL AUTO_INCREMENT,
+  `question` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `response_limit` int(10) DEFAULT 2,
+  `status` enum('active','inactive','retired') NOT NULL DEFAULT 'active',
+  `date_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`question_id`),
+  UNIQUE KEY `question_UNIQUE` (`question`),
+  KEY `question_status_IDX` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `question`
+--
+
+--
+-- Table structure for table `feedback`
+--
+
+DROP TABLE IF EXISTS `feedback`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `feedback` (
+  `user_id` int(11) NOT NULL,
+  `question_id` int(11) NOT NULL,
+  `comment` varchar(2000) NOT NULL DEFAULT '',
+  `iteration` int(10) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`user_id`, `question_id`, `iteration`),
+  CONSTRAINT `fk_FEEDBACK_QUESTION_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_FEEDBACK_QUESTION_question_id` FOREIGN KEY (`question_id`) REFERENCES `question` (`question_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `feedback`
 --
 
 --

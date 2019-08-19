@@ -1,9 +1,7 @@
 <?php
-namespace Silex\Provider;
-use TOE\App\Service\UserProvider;
+namespace TOE\App\Service;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use TOE\App\Service\UserInfoStorage;
 
 class UserServiceProvider implements ServiceProviderInterface
 {

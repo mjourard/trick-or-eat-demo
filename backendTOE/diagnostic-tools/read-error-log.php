@@ -6,8 +6,7 @@
  * Time: 4:53 PM
  */
 
-use TOE\Creds\clsCreds;
-use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -26,8 +25,8 @@ else
 //die("[2017-10-31 20:48:17] app.DEBUG: < 200 [] {\"url\":\"/backendtoe/public/index.php/regions/1\",\"ip\":\"10.11.220.215\",\"http_method\":\"GET\",\"server\":\"guelphtrickoreat.ca\",\"referrer\":\"https://guelphtrickoreat.ca/\"}\n");
 
 $redis = new Redis();
-$redis->connect('127.0.0.1', clsConstants::REDIS_LOGGING_PORT);
-$redis->auth(clsCreds::REDIS_PASSWORD);
+$redis->connect(clsEnv::Get(clsEnv::TOE_REDIS_LOGGING_IP), clsEnv::Get(clsEnv::TOE_REDIS_LOGGING_PORT));
+$redis->auth(clsEnv::Get(clsEnv::TOE_REDIS_PASSWORD));
 $errors = $redis->lRange(ERRORS_KEY, $errorCount, -1);
 foreach ($errors as $error)
 {

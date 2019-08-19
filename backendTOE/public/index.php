@@ -7,15 +7,15 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../src/bootstrap.php';
 
-use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 
 $app = new Silex\Application();
 
-require "../src/app.php";
-require "../config/config.php";
-require "../config/routes.php";
+require __DIR__ . "/../src/app.php";
+require __DIR__ . "/../config/config.php";
+require __DIR__ . "/../config/routes.php";
 
 
-$app['debug'] = clsConstants::DEBUG_ON;
+$app['debug'] = clsEnv::Get(clsEnv::TOE_DEBUG_ON);
 $app->run();
 

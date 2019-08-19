@@ -1,9 +1,14 @@
 <?php
+
+use Monolog\Handler\RedisHandler;
+use Monolog\Logger;
+use Monolog\Processor\WebProcessor;
 use Symfony\Component\HttpFoundation\Request;
 use \Firebase\JWT\JWT;
 use TOE\App\Service\ParameterVerifier;
-use Silex\Provider\UserServiceProvider;
+use TOE\App\Service\UserServiceProvider;
 use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\clsEnv;
 use TOE\GlobalCode\clsHTTPCodes;
 use TOE\GlobalCode\clsResponseJson;
 
@@ -15,14 +20,14 @@ if ($logFile === false)
 /* @var \Silex\Application $app */
 $app->register(new Silex\Provider\DoctrineServiceProvider());
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
-$app->register(new Silex\Provider\UserServiceProvider());
+$app->register(new UserServiceProvider());
 $app->register(new Silex\Provider\ValidatorServiceProvider());
 $app->register(new Silex\Provider\MonologServiceProvider(), [
 	'monolog.logfile' => $logFile,
 	'monolog.bubble'  => true,
-	'monolog.level'   => \Monolog\Logger::WARNING
+	'monolog.level'   => Logger::WARNING
 ]);
-$app->extend('monolog', function (Monolog\Logger $monolog, $app)
+$app->extend('monolog', function (Logger $monolog, $app)
 {
 	$redis = new Predis\Client([
 		'scheme'   => 'tcp',
@@ -30,12 +35,12 @@ $app->extend('monolog', function (Monolog\Logger $monolog, $app)
 		'port'     => $app['redis.logging.port'],
 		'password' => $app['redis.logging.password']
 	]);
-	$key = clsConstants::DEBUG_ON ? "dev-" : "";
+	$key = clsEnv::Get(clsEnv::TOE_DEBUG_ON) ? "dev-" : "";
 	$key .= clsConstants::REDIS_ERROR_KEY;
-	$monolog->pushHandler(new \Monolog\Handler\RedisHandler($redis, $key));
+	$monolog->pushHandler(new RedisHandler($redis, $key));
 
 	//Adds the current request URI, request method and client IP to a log record.
-	$monolog->pushProcessor(new \Monolog\Processor\WebProcessor());
+	$monolog->pushProcessor(new WebProcessor());
 
 	return $monolog;
 });
@@ -94,11 +99,12 @@ $app->before(function (Request $request) use ($app)
 	}
 
 	//The if (isset()) is for making the functional tests with phpunit and webtestcase work. PHPunit doesn't allow it to return the same service (freezes it).
-	/**
-	 * @return \TOE\App\Service\ParameterVerifier
-	 */
+
 	if (!isset($app['param.verifier']))
 	{
+		/**
+		 * @return ParameterVerifier
+		 */
 		$app['param.verifier'] = function () use ($app)
 		{
 			return new ParameterVerifier($app['parameters']);
@@ -111,5 +117,4 @@ $app->before(function (Request $request) use ($app)
 		return $app->json($results, clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 	};
 	$app['params'] = $results;
-
 });

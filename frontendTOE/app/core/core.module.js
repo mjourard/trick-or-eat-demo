@@ -1,0 +1,29 @@
+/**
+ * Created by LENOVO-T430 on 12/27/2016.
+ */
+angular.module('core',
+	[
+		'core.auth',
+		'core.account',
+		'core.event',
+		'core.location',
+		'core.map',
+		'core.request',
+		'core.route',
+		'core.team',
+		'core.user',
+		'core.zone'
+	]);
+
+require('./auth/auth.module');
+require('./account/account.module');
+require('./event/event.module');
+require('./location/location.module');
+require('./map/map.module');
+require('./request/request.module');
+require('./route/route.module');
+require('./team/team.module');
+require('./time-display/time-display.filter');
+require('./user/user.module');
+require('./yes-no/yes-no.filter');
+require('./zone/zone.module');

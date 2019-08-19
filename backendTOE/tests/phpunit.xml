@@ -8,7 +8,6 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         syntaxCheck="false"
          bootstrap="./bootstrap.php"
 >
     <testsuites>
@@ -18,19 +17,41 @@
     </testsuites>
 
     <!--Use this section to execute specific groups. Leave it commented out if you want to run all tests-->
-<!--    <groups>-->
-<!--        <include>-->
+    <groups>
+        <include>
+<!--            <group>Event</group>-->
 <!--            <group>Feedback</group>-->
-<!--            &lt;!&ndash;<group>Request-Password</group>&ndash;&gt;-->
-<!--            &lt;!&ndash;<group>Reset-Password</group>&ndash;&gt;-->
-<!--        </include>-->
-<!--        <exclude>-->
-<!--            <group>Route-broken</group>-->
-<!--        </exclude>-->
-<!--    </groups>-->
+<!--            <group>Request-Password</group>-->
+<!--            <group>Reset-Password</group>-->
+<!--            <group>Team</group>-->
+<!--            <group>Route</group>-->
+<!--            <group>Auth</group>-->
+<!--            <group>Region</group>-->
+<!--            <group>Route-Archive</group>-->
+<!--            <group>Route-new</group>-->
+<!--            <group>User</group>-->
+<!--            <group>Zone</group>-->
+<!--            <group>default</group>-->
+        </include>
+        <exclude>
+            <group>Route-broken</group>
+        </exclude>
+    </groups>
 
     <php>
         <!--<server name="APP_DIR" value="/var/www/silexsandbox/app" />-->
         <env name="dev_mode" value="on" />
+        <env name="TOE_DEBUG_ON" value="true" />
+        <env name="TOE_DATABASE_HOST" value="127.0.0.1" />
+        <env name="TOE_DATABASE_PORT" value="3306" />
+        <env name="TOE_DATABASE_USER" value="root" />
+        <env name="TOE_DATABASE_PASSWORD" value="example" />
+        <env name="TOE_REDIS_PASSWORD" value="foobared" />
+        <env name="TOE_REDIS_LOGGING_IP" value="127.0.0.1" />
+        <env name="TOE_REDIS_LOGGING_PORT" value="6379" />
+<!--        <env name="TOE_RESET_ACCOUNT_EMAIL" value="" />-->
+<!--        <env name="TOE_RESET_CLIENT_ID" value="" />-->
+<!--        <env name="TOE_RESET_CLIENT_SECRET" value="" />-->
+<!--        <env name="TOE_RESET_REFRESH_TOKEN" value="" />-->
     </php>
 </phpunit>
