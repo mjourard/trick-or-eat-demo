@@ -14,16 +14,16 @@
 					<h4 class="footer-heading">Charitable Registration #</h4>
 				</div>
 				<div flex>
-					<p class="footer-p">84052 4581 RR0001</p>
+					<p class="footer-p">{{info.charitable_reg_num}}</p>
 				</div>
 			</div>
 			<md-divider></md-divider>
 			<div flex class="dark-no-font-change" layout="column" layout-fill layout-align="start center">
 				<div flex="15"><h4 class="footer-heading">Contact Info</h4></div>
-				<div flex="15"><p class="footer-p">401 Richmond Street West, Suite 365</p></div>
-				<div flex="15"><p class="footer-p">Toronto, Ontario M5V 3A8</p></div>
-				<div flex="15"><p class="footer-p">P: 416-657-4489</p></div>
-				<div flex="15"><p class="footer-p"><a href="mailto:whereits@mealexchange.com" class="no-style-anchor">E: whereits@mealexchange.com</a></p></div>
+				<div flex="15"><p class="footer-p">{{info.contact_addr_1}}</p></div>
+				<div flex="15"><p class="footer-p">{{info.contact_addr_2}}</p></div>
+				<div flex="15"><p class="footer-p">P: {{info.contact_phone}}</p></div>
+				<div flex="15"><p class="footer-p"><a ng-href="mailto:{{info.contact_email}}" class="no-style-anchor">E: {{info.contact_email}}</a></p></div>
 			</div>
 		</div>
 		<div hide show-gt-sm layout="row" layout-align="center stretch">
@@ -42,7 +42,7 @@
 					<h4 class="footer-heading">Charitable Registration #</h4>
 				</div>
 				<div flex>
-					<p class="footer-p">84052 4581 RR0001</p>
+					<p class="footer-p">{{info.charitable_reg_num}}</p>
 				</div>
 			</div>
 			<div flex class="dark-no-font-change" layout="column" layout-align="start start" layout-fill>
@@ -50,16 +50,15 @@
 				
 				<div flex layout="row" layout-align="start start" layout-wrap layout-fill>
 					<md-icon flex="10" class="footer-p">location_on</md-icon>
-					<p class="footer-p" flex>401 Richmond Street West, Suite 365, Toronto, Ontario M5V 3A8</p>
+					<p class="footer-p" flex>{{info.contact_addr_1}}, {{info.contact_addr_2}}</p>
 				</div>
-				
 				<div flex layout="row" layout-align="start start" layout-fill>
 					<md-icon flex="10" class="footer-p">phone</md-icon>
-					<p class="footer-p" flex>P: 416-657-4489</p>
+					<p class="footer-p" flex>P: {{info.contact_phone}}</p>
 				</div>
 				<div flex layout="row" layout-align="start start" layout-fill>
 					<md-icon flex="10" class="footer-p">email</md-icon>
-					<p class="footer-p" flex>E: whereits@mealexchange.com</p>
+					<p class="footer-p" flex>E: {{info.contact_email}}</p>
 				</div>
 			</div>
 		</div>

@@ -10,11 +10,11 @@ module.exports = merge(common('Trick or Eat'), {
         new webpack.DefinePlugin({
             BACKEND: JSON.stringify('https://api.guelphtrickoreat.ca'),
             ROUTE_HOSTING: JSON.stringify('https://guelphtrickoreat.ca/route-files'),
-            CHARITABLE_REG_NUM: JSON.stringify('84052 4581 RR0001'),
-            CONTACT_ADDR_1: JSON.stringify('401 Richmond Street West, Suite 365'),
-            CONTACT_ADDR_2: JSON.stringify('Toronto, Ontario M5V 3A8'),
-            CONTACT_PHONE: JSON.stringify('416-657-4489'),
-            CONTACT_EMAIL: JSON.stringify('whereits@mealexchange.com')
+            CHARITABLE_REG_NUM: JSON.stringify('00000 0000 AA0000'),
+            CONTACT_ADDR_1: JSON.stringify('77 Demo Address Avenue, Suite 9001'),
+            CONTACT_ADDR_2: JSON.stringify('Toronto, Ontario A1A 1A1'),
+            CONTACT_PHONE: JSON.stringify('555-555-5555'),
+            CONTACT_EMAIL: JSON.stringify('thisisademo@mealexchange.com')
         })
     ]
 });
