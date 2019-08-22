@@ -1,0 +1,94 @@
+service: app
+
+provider:
+    name: aws
+    region: us-east-1
+    runtime: provided
+
+plugins:
+    - ./vendor/bref/bref
+
+resouces:
+    Resources:
+        Assets:
+            Type: AWS::S3::Bucket
+            Properties:
+                BucketName: $TOE_FRONTEND_BUCKET
+        WebsiteCDN:
+            Type: AWS::CloudFront::Distribution
+            Properties:
+                DistributionConfig:
+                    Enabled: true
+                    PriceClass: PriceClass_100
+                    HttpVersion: http2
+                    Origins:
+                        # The website (AWS Lambda)
+                        -   Id: Website
+                            DomainName: '#{ApiGatewayRestApi}.execute-api.#{AWS::Region}.amazonaws.com'
+                            OriginPath: '/dev'
+                            CustomOriginConfig:
+                                OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
+                        # The assets (S3)
+                        -   Id: Assets
+                            # Use s3-website URLs instead if you host a static website (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
+                            DomainName: '#{Assets}.s3.amazonaws.com'
+                            CustomOriginConfig:
+                                OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
+                    # The default behavior is to send everything to AWS Lambda
+                    DefaultCacheBehavior:
+                        AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+                        TargetOriginId: Website # the PHP application
+                        # Disable caching for the PHP application https://aws.amazon.com/premiumsupport/knowledge-center/prevent-cloudfront-from-caching-files/
+                        DefaultTTL: 0
+                        MinTTL: 0
+                        MaxTTL: 0
+                        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
+                        ForwardedValues:
+                            QueryString: true
+                            Cookies:
+                                Forward: all # Forward cookies to use them in PHP
+                            # We must *not* forward the `Host` header else it messes up API Gateway
+                            Headers:
+                                - 'Accept'
+                                - 'Accept-Language'
+                                - 'Origin'
+                                - 'Referer'
+                        ViewerProtocolPolicy: redirect-to-https
+                    CacheBehaviors:
+                        # Assets will be served under the `/assets/` prefix
+                        -   PathPattern: 'assets/*'
+                            TargetOriginId: Assets # the static files on S3
+                            AllowedMethods: [GET, HEAD]
+                            ForwardedValues:
+                                # No need for all that with assets
+                                QueryString: 'false'
+                                Cookies:
+                                    Forward: none
+                            ViewerProtocolPolicy: redirect-to-https
+                            Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
+                    CustomErrorResponses:
+                        # Do not cache HTTP errors
+                        -   ErrorCode: 500
+                            ErrorCachingMinTTL: 0
+                        -   ErrorCode: 504
+                            ErrorCachingMinTTL: 0
+
+
+functions:
+    api:
+        handler: public/index.php
+        description: ''
+        timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+        layers:
+            - ${bref:layer.php-72-fpm}
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY /{proxy+}'
+
+## In order to print out the hosted domain via `serverless info` we need to define the DomainName output for CloudFormation
+Outputs:
+    WebsiteCDNOutput:
+        Value:
+            'Fn::GetAtt': [ WebsiteCDN, DomainName ]
+
+
