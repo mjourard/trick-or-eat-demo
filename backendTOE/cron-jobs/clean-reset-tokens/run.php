@@ -12,7 +12,6 @@
  * It should be run every 15 minutes on the production database.
  */
 
-require __DIR__ . '/../../src/Creds/clsCreds.php';
 require __DIR__ . '/../../src/GlobalCode/clsConstants.php';
 require __DIR__ . '/../clsDAL.php';
 

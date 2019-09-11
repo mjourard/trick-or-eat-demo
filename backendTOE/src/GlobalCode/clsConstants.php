@@ -39,7 +39,7 @@ class clsConstants
 	const SILEX_PARAM_DECIMAL  = "decimal";
 	const SILEX_PARAM_DATETIME = "datetime";
 
-	const DATABASE_NAME = "scotchbox";
+	const DATABASE_NAME = "toe";
 
 	const MINIMUM_PASSWORD_LENGTH = 8;
 

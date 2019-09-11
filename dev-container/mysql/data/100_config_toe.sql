@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.7.12, for Win64 (x86_64)
 --
--- Host: localhost    Database: scotchbox
+-- Host: localhost    Database: toe
 -- ------------------------------------------------------
 -- Server version	5.7.14
 
@@ -15,8 +15,8 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-create database scotchbox;
-use scotchbox;
+create database toe;
+use toe;
 
 --
 -- Table structure for table `bus`
@@ -383,6 +383,6 @@ CREATE TABLE `feedback` (
 --
 
 --
--- Dumping events for database 'scotchbox'
+-- Dumping events for database 'toe'
 --
 

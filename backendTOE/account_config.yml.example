@@ -1,0 +1,6 @@
+VpcId:  # Find with "aws ec2 describe-vpcs --query Vpcs[].VpcId"
+SubnetIds: # Find with "aws ec2 describe-subnets --query Subnets[].[AvailabilityZone,SubnetId,VpcId]"
+  - subnet-
+  - subnet-
+  - subnet-
+ACMCertificateArn: # Find with "aws acm list-certificates"

@@ -30,6 +30,8 @@
     "bref/bref": "^0.5.3"
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit -c ./tests/phpunit.xml"
+    "test": "./vendor/bin/phpunit -c ./tests/phpunit.xml",
+    "deploy": "serverless deploy",
+    "validate": "serverless deploy --noDeploy --stage dev --region us-east-1"
   }
 }
