@@ -1,4 +1,4 @@
-service: toe-api
+service: toe-api-v3
 
 provider:
   name: aws

@@ -7,7 +7,7 @@ services:
     volumes:
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
       - "./nginx/vhosts:/etc/nginx/conf.d/vhosts"
-      - "../backendTOE:/var/www/html/toe/back"
+      - "../backendTOE/api:/var/www/html/toe/back"
       - "../frontendTOE/dist:/var/www/html/toe/app"
     ports:
       - "8000:80"
@@ -17,7 +17,7 @@ services:
     container_name: toe_php
     build: php-fpm-gd-debug/
     volumes:
-      - "../backendTOE:/var/www/html/toe/back"
+      - "../backendTOE/api:/var/www/html/toe/back"
       - "../frontendTOE/dist:/var/www/html/toe/app"
     environment:
       - dev_mode=on
