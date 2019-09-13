@@ -2,8 +2,10 @@ service: toe-api-v3
 
 package:
   exclude:
-    - mysql_dumps/**
+    - mysql-dumps/**
     - tests/**
+    - logs/**
+    - cron-jobs/**
 provider:
   name: aws
   region: us-east-1
@@ -164,10 +166,10 @@ resources:
   Outputs:
     AppDBSecurityGroup:
       Value: !GetAtt AppDBSecurity.GroupId
-#    AppDBHost:
-#      Value: !GetAtt AppDB.Endpoint.Address
-#    AppDBPort:
-#      Value: !GetAtt AppDB.Endpoint.Port
+    AppDBHost:
+      Value: !GetAtt AppDB.Endpoint.Address
+    AppDBPort:
+      Value: !GetAtt AppDB.Endpoint.Port
 
 
 functions:
@@ -180,12 +182,18 @@ functions:
     events:
       - http: 'ANY /'
       - http: 'ANY /{proxy+}'
-  cjCleanResetTokens:
+  clean-reset-tokens:
     handler: cron-jobs/clean-reset-tokens/run.php
     layers:
       - ${bref:layer.php-72}
     events:
       - schedule: cron(45 0 1 * * *) # For the demo, only needs to run once a month. Should be changed to every hour in prod
+  init-db:
+    handler: cron-jobs/init-db/run.php
+    description: 'A cron job that will initialize the tables in the RDS backend'
+    timeout: 300 # in seconds (max time for lambda to run mysqldump)
+    layers:
+      - ${bref:layer.php-72}
 
 ## In order to print out the hosted domain via `serverless info` we need to define the DomainName output for CloudFormation
 Outputs:
