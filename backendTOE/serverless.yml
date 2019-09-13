@@ -1,5 +1,9 @@
 service: toe-api-v3
 
+package:
+  exclude:
+    - mysql_dumps/**
+    - tests/**
 provider:
   name: aws
   region: us-east-1
@@ -7,7 +11,7 @@ provider:
   vpc:
     securityGroupIds:
       - Fn::GetAtt: [AppDBSecurity, GroupId]
-    subnetIds: ${file(./account_config.yml):SubnetIds
+    subnetIds: ${file(./account_config.yml):SubnetIds}
   environment:
     TOE_DATABASE_HOST: ${self:custom.TOE_DATABASE.HOST}
     TOE_DATABASE_PORT: ${self:custom.TOE_DATABASE.PORT}
@@ -195,4 +199,4 @@ Outputs:
     Value:
       Fn::GetAtt: [AppDB, Endpoint.Address]
 
-
+# on the hooks, use aws:deploy:finalize:cleanup
