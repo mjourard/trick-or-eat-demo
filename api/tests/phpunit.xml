@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         bootstrap="./bootstrap.php"
+>
+    <testsuites>
+        <testsuite name="TrickOrEat Test Suite">
+            <directory>./../tests/</directory>
+        </testsuite>
+    </testsuites>
+    <!--Use this section to execute specific groups. Leave it commented out if you want to run all tests-->
+    <groups>
+        <!--        <include>-->
+        <!--            <group>default</group>-->
+        <!--        </include>-->
+        <exclude>
+            <group>Route-broken</group>
+        </exclude>
+    </groups>
+
+    <php>
+        <env name="dev_mode" value="on"/>
+        <env name="TOE_DEBUG_ON" value="true"/>
+        <env name="TOE_DATABASE_HOST" value="toe_mysql"/>
+        <env name="TOE_DATABASE_PORT" value="3306"/>
+        <env name="TOE_DATABASE_USER" value="root"/>
+        <env name="TOE_DATABASE_PASSWORD" value="example"/>
+        <env name="TOE_REDIS_PASSWORD" value="foobared"/>
+        <env name="TOE_REDIS_LOGGING_IP" value="toe_redis"/>
+        <env name="TOE_REDIS_LOGGING_PORT" value="6379"/>
+        <env name="TOE_ENCODED_JWT_KEY" value="dHJpY2tvcmVhdDIwMjBkZW1v"/>
+        <env name="TOE_LOGGING_LEVEL" value="INFO"/>
+    </php>
+</phpunit>

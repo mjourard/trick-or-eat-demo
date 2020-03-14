@@ -1,0 +1,39 @@
+Resources:
+  AppRedisSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      CacheSubnetGroupName: toe-redis-sng
+      Description: The subnet group for the redis cluster of trick or eat
+      SubnetIds:
+        - subnet-1bba2a40
+        - subnet-b65e17ff
+        - subnet-cd35abe0
+  AppRedis:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+#      AutoMinorVersionUpgrade: Boolean
+#      AZMode: String
+      CacheNodeType: cache.t2.micro
+#      CacheParameterGroupName: String
+#      CacheSecurityGroupNames:
+#        - String
+      CacheSubnetGroupName: !Ref AppRedisSubnetGroup
+      ClusterName: toe-redis
+      Engine: redis
+      EngineVersion: 5.0.6
+#      NotificationTopicArn: String
+      NumCacheNodes: 1
+      Port: 6379
+#      PreferredAvailabilityZone: String
+#      PreferredAvailabilityZones:
+#        - String
+#      PreferredMaintenanceWindow: String
+#      SnapshotArns:
+#        - String
+#      SnapshotName: String
+      SnapshotRetentionLimit: 0
+#      SnapshotWindow: String
+#      Tags:
+#        - Tag
+      VpcSecurityGroupIds:
+        - sg-f246768f

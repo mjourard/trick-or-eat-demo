@@ -1,0 +1,59 @@
+version: '3.1'
+
+services:
+  local.guelphtrickoreat.ca:
+    container_name: toe_nginx_front
+    image: nginx:alpine
+    volumes:
+      - "./nginx-front/nginx.conf:/etc/nginx/nginx.conf"
+      - "./nginx-front/vhosts:/etc/nginx/conf.d/vhosts"
+      - "../frontendTOE/dist:/var/www/html/toe/app"
+  localapi.guelphtrickoreat.ca:
+    container_name: toe_nginx_back
+    image: nginx:alpine
+    volumes:
+      - "./nginx-back/nginx.conf:/etc/nginx/nginx.conf"
+      - "./nginx-back/vhosts:/etc/nginx/conf.d/vhosts"
+      - "../api:/var/www/html/toe/back"
+    depends_on:
+      - toe_php
+  toe_php:
+    container_name: toe_php
+    build: php-fpm-gd-debug/
+    volumes:
+      - "../api:/var/www/html/toe/back"
+      - "../frontendTOE/dist:/var/www/html/toe/app"
+    environment:
+      - dev_mode=on
+      - LOG_FILE=/var/log/myapp/errors.log
+      - TOE_DATABASE_HOST=toe_mysql
+      - TOE_DATABASE_PORT=3306
+      - TOE_DATABASE_USER=root
+      - TOE_DATABASE_PASSWORD=example
+      - TOE_REDIS_LOGGING_IP=toe_redis
+      - TOE_REDIS_LOGGING_PORT=6379
+      - TOE_REDIS_PASSWORD=foobared
+      - TOE_ENCODED_JWT_KEY=dHJpY2tvcmVhdDIwMjBkZW1v
+      - TOE_LOGGING_LEVEL=INFO
+  toe_mysql:
+    container_name: toe_mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    volumes:
+      - mysql_data:/var/lib/mysql/
+      - "./mysql/data:/docker-entrypoint-initdb.d"
+      - "./mysql/config:/etc/mysql/conf.d"
+  toe_redis:
+    container_name: toe_redis
+    image: redis
+    command: ["redis-server", "--requirepass", "foobared", "--appendonly", "yes"]
+    restart: always
+  hoster:
+    container_name: hoster
+    image: dvdarias/docker-hoster
+    volumes:
+      - /etc/hosts:/tmp/hosts
+      - /run/docker.sock:/tmp/docker.sock
+volumes:
+  mysql_data:
