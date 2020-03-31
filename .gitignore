@@ -6,4 +6,4 @@ node_modules/
 dist/
 data/redis/
 .serverless/
-account_config.yml
+api/account_config.yaml

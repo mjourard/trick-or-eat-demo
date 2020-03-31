@@ -2,6 +2,9 @@
 
 namespace TOE\App\Controller;
 
+use DateInterval;
+use DateTime;
+use DateTimeZone;
 use Firebase\JWT\JWT;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPMailerOAuth;
@@ -32,8 +35,9 @@ class RequestResetController extends BaseController
 		}
 
 		//Get current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT).
-		$issuedAt = time(); //time of request
-		$expiredAt = $issuedAt + self::VALID_TIME; // expired time
+		$issuedAt = new DateTime('now', new DateTimeZone('utc')); //time of request
+		$expiredAt = clone $issuedAt;
+		$expiredAt->add(new DateInterval('PT' . self::VALID_TIME . 'S'));
 
 		//count existing requests (max 5)
 		$result = $this->countRequests($userInfo['user_id'], $issuedAt);
@@ -44,11 +48,10 @@ class RequestResetController extends BaseController
 		}
 
 		$data = [
-			'iat'      => $issuedAt,
-			'exp'      => $expiredAt,
+			'iat'      => $issuedAt->getTimestamp(),
+			'exp'      => $expiredAt->getTimestamp(),
 			'userID'   => $userInfo['user_id'],
 			'uniqueID' => uniqid()
-
 		];
 
 		//Create JSON webtoken
@@ -73,13 +76,13 @@ class RequestResetController extends BaseController
 		$qb->insert('password_request')
 			->values([
 				'user_id'    => ':user_id',
-				'issued_at'  => ':issued_at',
-				'expired_at' => ':expired_at',
+				'issued_at'  => 'FROM_UNIXTIME(:issued_at)',
+				'expired_at' => 'FROM_UNIXTIME(:expired_at)',
 				'unique_id'  => ':unique_id'
 			])
 			->setParameter(':user_id', $userInfo['user_id'])
-			->setParameter('issued_at', $issuedAt)
-			->setParameter(':expired_at', $expiredAt)
+			->setParameter(':issued_at', $issuedAt->getTimestamp())
+			->setParameter(':expired_at', $expiredAt->getTimestamp())
 			->setParameter(':unique_id', $data['uniqueID'], clsConstants::SILEX_PARAM_STRING);
 		$result = $qb->execute();
 
@@ -104,8 +107,8 @@ class RequestResetController extends BaseController
 	/**
 	 * Returns the number of active reset requests for the passed in user
 	 *
-	 * @param int $userID
-	 * @param int $requestTime The time being compared to the expire time
+	 * @param int      $userID
+	 * @param DateTime $requestTime The time being compared to the expire time
 	 *
 	 * @return int The number of active password reset requests
 	 */
@@ -115,11 +118,11 @@ class RequestResetController extends BaseController
 		$qb->select('count(*) as count')
 			->from('password_request')
 			->where('user_id = :user_id')
-			->andWhere('expired_at > :requestTime')
+			->andWhere('expired_at > FROM_UNIXTIME(:requestTime)')
 			->andWhere('status != :used')
 			->setParameter(':user_id', $userID)
 			->setParameter(':used', 'used')
-			->setParameter(':requestTime', $requestTime);
+			->setParameter(':requestTime', $requestTime->getTimestamp());
 
 		return $qb->execute()->fetch()['count'];
 	}
@@ -132,6 +135,7 @@ class RequestResetController extends BaseController
 	 *
 	 * @return bool|string Returns true on success, and an error message on false.
 	 * @throws \phpmailerException
+	 * @throws IdentityProviderException
 	 */
 	private function emailToken($message, $email)
 	{
@@ -172,12 +176,12 @@ class RequestResetController extends BaseController
 			if($mail->send() === false)
 			{
 				return $mail->ErrorInfo;
-			};
+			}
 		}
 		catch(IdentityProviderException $ex)
 		{
 			$this->logger->error("Reset Password Email Failed: " . $ex->getMessage(), ['email' => $email]);
-			if (clsEnv::Get(clsEnv::TOE_DEBUG_ON))
+			if(clsEnv::Get(clsEnv::TOE_DEBUG_ON))
 			{
 				return true;
 			}
@@ -224,16 +228,17 @@ class RequestResetController extends BaseController
 	{
 		$email = file_get_contents(__DIR__ . '/../../email-templates/reset-password-email.html');
 		$proto = "http";
-		if (!empty($_SERVER['SERVER_PROTOCOL']))
+		if(!empty($_SERVER['SERVER_PROTOCOL']))
 		{
 			$proto = $_SERVER['SERVER_PROTOCOL'];
 		}
 		$host = "localhost";
-		if (!empty($_SERVER['SERVER_NAME']))
+		if(!empty($_SERVER['SERVER_NAME']))
 		{
 			$host = $_SERVER['SERVER_NAME'];
 		}
 		$email = str_replace("%reset-link%", $proto . $host . "/" . clsConstants::EMAIL_RESET_LINK . $token, $email);
+
 		return str_replace("%username%", $username, $email);
 	}
 }

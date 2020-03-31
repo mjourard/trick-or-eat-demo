@@ -8,6 +8,9 @@
 
 namespace TOETests\App\Controller;
 
+use DateInterval;
+use DateTime;
+use DateTimeZone;
 use TOE\GlobalCode\clsHTTPCodes;
 use TOETests\BaseTestCase;
 use Firebase\JWT\JWT;
@@ -71,8 +74,9 @@ class ResetPasswordControllerTest extends BaseTestCase
 	private function createValidResetToken($key)
 	{
 		//Get current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT).
-		$issuedAt = time(); //time of request
-		$expiredAt = $issuedAt + 1600; // expired time
+		$issuedAt = new DateTime('now', new DateTimeZone('utc')); //time of request
+		$expiredAt = clone $issuedAt;
+		$expiredAt->add(new DateInterval('PT1600S'));
 		$uid = uniqid();
 
 		$jwt = $this->createResetToken($key, $issuedAt, $expiredAt, TEST_USER_ID, $uid);
@@ -87,8 +91,8 @@ class ResetPasswordControllerTest extends BaseTestCase
 				'unique_id'  => ':unique_id'
 			])
 			->setParameter(':user_id', TEST_USER_ID)
-			->setParameter('issued_at', $issuedAt)
-			->setParameter(':expired_at', $expiredAt)
+			->setParameter('issued_at', $issuedAt->format(clsConstants::DT_FORMAT))
+			->setParameter(':expired_at', $expiredAt->format(clsConstants::DT_FORMAT))
 			->setParameter(':unique_id', $uid, clsConstants::SILEX_PARAM_STRING);
 		$qb->execute();
 
@@ -97,27 +101,27 @@ class ResetPasswordControllerTest extends BaseTestCase
 
 	private function createInvalidResetToken($key)
 	{
-		$issuedAt = time(); //time of request
-		return $this->createResetToken($key, $issuedAt, $issuedAt - 1600, TEST_USER_ID, uniqid());
+		$issuedAt = new DateTime('now', new DateTimeZone('utc'));
+		$expiredAt = clone $issuedAt;
+		$expiredAt->sub(new DateInterval('PT1600S'));
+		return $this->createResetToken($key, $issuedAt, $expiredAt, TEST_USER_ID, uniqid());
 	}
 
-	private function createResetToken($key, $issuedAt, $expiredAt, $userId, $uniqueId)
+	private function createResetToken($key, DateTime $issuedAt, DateTime $expiredAt, $userId, $uniqueId)
 	{
 		$data = [
-			'iat'      => $issuedAt,         //issued time
-			'exp'      => $expiredAt,         //expired time
+			'iat'      => $issuedAt->getTimestamp(),         //issued time
+			'exp'      => $expiredAt->getTimestamp(),         //expired time
 			'userID'   => $userId,       // user id
 			'uniqueID' => $uniqueId          //token id
 
 		];
 
 		//Create JSON webtoken
-		$jwt = JWT::encode(
+		return JWT::encode(
 			$data,
 			$key,
 			'HS512'
 		);
-
-		return $jwt;
 	}
 }

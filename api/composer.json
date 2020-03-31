@@ -16,7 +16,8 @@
     "league/oauth2-client": "^2.2",
     "league/oauth2-google": "^2.0",
     "ext-redis": "*",
-    "bref/bref": "^0.5.5"
+    "bref/bref": "^0.5.5",
+    "symfony/console": "^4.4"
   },
   "autoload": {
     "psr-4": {
@@ -32,9 +33,11 @@
   },
   "scripts": {
     "test": "./vendor/bin/phpunit -c ./tests/phpunit.xml",
-    "sls:validate": "serverless deploy --noDeploy --stage dev --region us-east-1",
-    "sls:deploy": "serverless deploy",
-    "sls:initdb": "serverless invoke --function init-db",
+    "sls:validateinitdb": "serverless deploy --config sls_persistent_resources.yaml --noDeploy --stage dev --region us-east-1",
+    "sls:initdb": "serverless deploy --config sls_persistent_resources.yaml --region us-east-1",
+    "sls:validate": "serverless deploy --config sls_app.yaml --noDeploy --stage dev --region us-east-1",
+    "sls:deploy": "serverless deploy --config sls_app.yaml --region us-east-1",
+    "bref:initdb": "bref cli toe-api-dev-init-db -- init-db '__DIR__/../../../.docker/mysql/data'",
     "sls:remove": "serverless remove"
   }
 }

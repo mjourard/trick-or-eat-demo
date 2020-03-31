@@ -45,6 +45,8 @@ class clsConstants
 
 	const PARAMETER_KEY = 'params';
 
+	const DT_FORMAT = 'Y-m-d H:i:s';
+
 	/**
 	 * if ROLE_ALL is given to route: all incoming requests have access.
 	 * if ROLE_ALL is given to user: has access to all routes

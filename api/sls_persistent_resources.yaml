@@ -1,0 +1,63 @@
+service: toe-api-data-persistence
+
+package:
+  exclude:
+    - bin/**
+    - config/**
+    - logs/**
+    - public/**
+    - resource/**
+    - src/**
+    - tests/**
+provider:
+  name: aws
+  region: us-east-1
+  runtime: provided
+custom:
+  TOE_DATABASE:
+    HOST: !GetAtt [appDB, Endpoint.Address]
+    PORT: !GetAtt [appDB, Endpoint.Port]
+    USER: ${ssm:/toe/prod/DBApiUsername}
+    PASSWORD: ${ssm:/toe/prod/DBApiPass}
+plugins:
+  - ./vendor/bref/bref
+resources:
+  Resources:
+    AppDBParams: ${file(./resource/AppDBParams.yaml)}
+    AppDBSecurity: ${file(./resource/AppDBSecurity.yaml)}
+    AppDBSecurityIngress: ${file(./resource/AppDBSecurityIngress.yaml)}
+    AppDBSubnetGroup: ${file(./resource/AppDBSubnetGroup.yaml)}
+    appDB: ${file(./resource/AppDB.yaml)}
+    AppRedisSubnetGroup: ${file(./resource/AppRedisSubnetGroup.yaml)}
+    AppRedisSecurity: ${file(./resource/AppRedisSecurity.yaml)}
+    AppRedisSecurityIngress: ${file(./resource/AppRedisSecurityIngress.yaml)}
+    AppRedis: ${file(./resource/AppRedis.yaml)}
+  Outputs:
+    AppDBHost:
+      Value: { "Fn::GetAtt": [appDB, Endpoint.Address]}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", DBAddress ] ]
+    AppDBPort:
+      Value: { "Fn::GetAtt": [appDB, Endpoint.Port]}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", DBPort ] ]
+    AppDBUsername:
+      Value: ${self:custom.TOE_DATABASE.USER}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", DBUser ] ]
+    AppDBPassword:
+      Value: ${self:custom.TOE_DATABASE.PASSWORD}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", DBPassword ] ]
+    AppDBSecurityGroupId:
+      Value: !GetAtt AppDBSecurity.GroupId
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", DBSecurityGroupId ] ]
+    AppRedisIP:
+      Value: { "Fn::GetAtt": [AppRedis, RedisEndpoint.Address]}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", RedisAddress ] ]
+    AppRedisPort:
+      Value: { "Fn::GetAtt": [AppRedis, RedisEndpoint.Port]}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", RedisPort ] ]

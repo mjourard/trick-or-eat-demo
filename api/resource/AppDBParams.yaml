@@ -1,0 +1,4 @@
+Type: AWS::RDS::DBParameterGroup
+Properties:
+  Description: pg for the trick-or-eat database
+  Family: mysql5.7

@@ -1,113 +1,50 @@
-service: toe-api-v3
+service: toe-api
 
 package:
   exclude:
-    - mysql-dumps/**
     - tests/**
     - logs/**
-    - cron-jobs/**
+    - resource/**
+  include:
+    - ../.docker/mysql/data/**
 provider:
   name: aws
+  stage: ${opt:stage, 'dev'}
   region: us-east-1
   runtime: provided
   vpc:
     securityGroupIds:
-      - Fn::GetAtt: [AppDBSecurity, GroupId]
-    subnetIds: ${file(./account_config.yml):SubnetIds}
+      - ${self:custom.TOE_DATABASE_SG}
+    subnetIds: ${file(./account_config.yaml):SubnetIds}
   environment:
     TOE_DATABASE_HOST: ${self:custom.TOE_DATABASE.HOST}
     TOE_DATABASE_PORT: ${self:custom.TOE_DATABASE.PORT}
     TOE_DATABASE_USER: ${self:custom.TOE_DATABASE.USER}
     TOE_DATABASE_PASSWORD: ${self:custom.TOE_DATABASE.PASSWORD}
+    TOE_REDIS_LOGGING_IP: ${self:custom.TOE_REDIS.IP}
+    TOE_REDIS_LOGGING_PORT: ${self:custom.TOE_REDIS.PORT}
+    TOE_REDIS_PASSWORD: ${self:custom.TOE_REDIS.PASSWORD}
+    TOE_ENCODED_JWT_KEY: ${self:custom.TOE_JWT}
+    TOE_LOGGING_LEVEL: ${self:custom.TOE_LOGGING_LEVEL}
 custom:
+  PERSIST_STACK_NAME: toe-api-data-persistence
   TOE_DATABASE:
-    HOST: !GetAtt [AppDB, Endpoint.Address]
-    PORT: !GetAtt [AppDB, Endpoint.Port]
-    USER: ${ssm:/toe/prod/DBApiUsername}
-    PASSWORD: ${ssm:/toe/prod/DBApiPass}
+    HOST: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBHost}
+    PORT: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBPort}
+    USER: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBUsername}
+    PASSWORD: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBPassword}
+  TOE_REDIS:
+    IP: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppRedisIP}
+    PORT: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppRedisPort}
+    PASSWORD: ''
+  TOE_DATABASE_SG: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBSecurityGroupId}
+  TOE_JWT: ${ssm:/toe/prod/TOE_ENCODED_JWT_KEY}
+  TOE_LOGGING_LEVEL: 'INFO'
+
 plugins:
   - ./vendor/bref/bref
 resources:
   Resources:
-    AppDBParams:
-      Type: AWS::RDS::DBParameterGroup
-      Properties:
-        Description: pg for the trick-or-eat database
-        Family: mysql5.7
-    AppDBSecurity:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: 'rds sg for the trick-or-eat app'
-        VpcId: ${file(./account_config.yml):VpcId}
-    AppDBSecurityIngress:
-      Type: AWS::EC2::SecurityGroupIngress
-      Properties:
-        GroupId: !Ref AppDBSecurity
-        IpProtocol: tcp
-        FromPort: 3306
-        ToPort: 3306
-        SourceSecurityGroupId: !Ref AppDBSecurity
-    AppDBSubnetGroup:
-      Type: AWS::RDS::DBSubnetGroup
-      Properties:
-        DBSubnetGroupDescription: subnet group for trick-or-eat databases
-        DBSubnetGroupName: rds-trick-or-eat
-        SubnetIds: ${file(./account_config.yml):SubnetIds}
-    AppDB:
-      Type: 'AWS::RDS::DBInstance'
-      Properties:
-        AllocatedStorage: 20
-        AllowMajorVersionUpgrade: true
-        AutoMinorVersionUpgrade: true
-        BackupRetentionPeriod: 3
-        DBInstanceClass: db.t2.micro
-        DBInstanceIdentifier: trick-or-eat
-        DBName: toe
-        DBParameterGroupName: !Ref AppDBParams
-        VPCSecurityGroups:
-          - !Ref AppDBSecurity
-        DBSubnetGroupName: !Ref AppDBSubnetGroup
-        EnablePerformanceInsights: false
-        Engine: mysql
-        EngineVersion: 5.7.26
-        MasterUsername: ${ssm:/toe/prod/DBMasterUsername}
-        MasterUserPassword: ${ssm:/toe/prod/DBMasterPass}
-        MultiAZ: false
-        Port: 3306
-        PubliclyAccessible: true #TODO: change this back to false once this is launched, this is only for debugging the api
-        StorageType: standard
-    AppRedisSubnetGroup:
-      Type: AWS::ElastiCache::SubnetGroup
-      Properties:
-        CacheSubnetGroupName: toe-redis-sng
-        Description: The subnet group for the redis cluster of trick or eat
-        SubnetIds: ${file(./account_config.yml):SubnetIds}
-    AppRedisSecurity:
-      Type: AWS::EC2::SecurityGroup
-      Properties:
-        GroupDescription: 'redis sg for the trick-or-eat app'
-        VpcId: ${file(./account_config.yml):VpcId}
-    AppRedisSecurityIngress:
-      Type: AWS::EC2::SecurityGroupIngress
-      Properties:
-        GroupId: !Ref AppRedisSecurity
-        IpProtocol: tcp
-        FromPort: 6379
-        ToPort: 6379
-        SourceSecurityGroupId: !Ref AppRedisSecurity
-    AppRedis:
-      Type: AWS::ElastiCache::CacheCluster
-      Properties:
-        CacheNodeType: cache.t2.micro
-        CacheSubnetGroupName: !Ref AppRedisSubnetGroup
-        ClusterName: toe-redis
-        Engine: redis
-        EngineVersion: 5.0.6
-        NumCacheNodes: 1
-        Port: 6379
-        SnapshotRetentionLimit: 0
-        VpcSecurityGroupIds:
-          - sg-f246768f
     CloudfrontOAI:
       Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
       Properties:
@@ -162,7 +99,7 @@ resources:
           ViewerCertificate:
             MinimumProtocolVersion: TLSv1.1_2016
             SslSupportMethod: sni-only
-            AcmCertificateArn: ${file(./account_config.yml):ACMCertificateArn}
+            AcmCertificateArn: ${file(./account_config.yaml):ACMCertificateArn}
       DependsOn:
         - CloudfrontOAI
     WebsiteDNSRecord:
@@ -228,11 +165,12 @@ functions:
     events:
       - schedule: cron(45 0 1 * ? *) # For the demo, only needs to run once a month. Should be changed to every hour in prod
   init-db:
-    handler: cron-jobs/init-db/run.php
+    handler: bin/console.php
     description: 'A cron job that will initialize the tables in the RDS backend'
     timeout: 300 # in seconds (max time for lambda to run mysqldump)
     layers:
       - ${bref:layer.php-72}
+      - ${bref:layer.console}
 
 ## In order to print out the hosted domain via `serverless info` we need to define the DomainName output for CloudFormation
 Outputs:

@@ -19,7 +19,7 @@ if (empty($logFile))
 	$logFile = __DIR__ . '/../logs/error.log';
 }
 $level = Logger::WARNING;
-if (!isset(Logger::getLevels()[clsEnv::Get(clsEnv::TOE_LOGGING_LEVEL)]))
+if (isset(Logger::getLevels()[clsEnv::Get(clsEnv::TOE_LOGGING_LEVEL)]))
 {
 	$level = Logger::toMonologLevel(clsEnv::Get(clsEnv::TOE_LOGGING_LEVEL));
 }
@@ -35,12 +35,16 @@ $app->register(new Silex\Provider\MonologServiceProvider(), [
 ]);
 $app->extend('monolog', function (Logger $monolog, $app)
 {
-	$redis = new Predis\Client([
+	$params = [
 		'scheme'   => 'tcp',
 		'host'     => $app['redis.logging.ip'],
-		'port'     => $app['redis.logging.port'],
-		'password' => $app['redis.logging.password']
-	]);
+		'port'     => $app['redis.logging.port']
+	];
+	if (!empty($app['redis.logging.password']))
+	{
+		$params['password'] = $app['redis.logging.password'];
+	}
+	$redis = new Predis\Client($params);
 	$key = clsEnv::Get(clsEnv::TOE_DEBUG_ON) ? "dev-" : "";
 	$key .= clsConstants::REDIS_ERROR_KEY;
 	$monolog->pushHandler(new RedisHandler($redis, $key));

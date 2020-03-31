@@ -1,0 +1,5 @@
+Type: AWS::RDS::DBSubnetGroup
+Properties:
+  DBSubnetGroupDescription: subnet group for trick-or-eat databases
+  DBSubnetGroupName: rds-trick-or-eat
+  SubnetIds: ${file(./account_config.yaml):SubnetIds}
