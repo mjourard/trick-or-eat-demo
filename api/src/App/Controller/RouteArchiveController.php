@@ -42,7 +42,7 @@ class RouteArchiveController extends BaseController
 		//verify the route can be added to the database
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('route_id')
-			->from('ROUTE_ARCHIVE')
+			->from('route_archive')
 			->where('route_name = :name')
 			->andWhere('zone_id = :zoneId')
 			->andWhere('owner_user_id = ' . $this->userInfo->getID())
@@ -67,7 +67,7 @@ class RouteArchiveController extends BaseController
 
 		//add the record to the database
 		$qb = $this->db->createQueryBuilder();
-		$qb->insert('ROUTE_ARCHIVE')
+		$qb->insert('route_archive')
 			->values([
 				'route_file_url'        => ':image',
 				'route_name'            => ':name',
@@ -108,7 +108,7 @@ class RouteArchiveController extends BaseController
 		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('route_name')
-			->from('ROUTE_ARCHIVE')
+			->from('route_archive')
 			->where('zone_id = :zoneId')
 			->andWhere('route_id = :routeId')
 			->setParameter(':zoneId', $zoneId, clsConstants::SILEX_PARAM_INT)
@@ -124,7 +124,7 @@ class RouteArchiveController extends BaseController
 		$name = $row['route_name'];
 
 		$qb = $this->db->createQueryBuilder();
-		$qb->delete('ROUTE_ARCHIVE')
+		$qb->delete('route_archive')
 			->where('zone_id = :zoneId')
 			->andWhere('route_id = :routeId')
 			->setParameter(':zoneId', $zoneId, clsConstants::SILEX_PARAM_INT)
@@ -159,7 +159,7 @@ class RouteArchiveController extends BaseController
 			'ra.blind_accessible',
 			'ra.hearing_accessible'
 		)
-			->from('ROUTE_ARCHIVE', 'ra')
+			->from('route_archive', 'ra')
 			->leftJoin('ra', 'zone', 'z', 'ra.zone_id = z.zone_id')
 			->where('ra.zone_id = :zone_id')
 			->setParameter('zone_id', $zoneId, clsConstants::SILEX_PARAM_INT);

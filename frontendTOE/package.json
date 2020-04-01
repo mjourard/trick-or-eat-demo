@@ -51,6 +51,7 @@
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "build:dev": "webpack --config webpack.dev.js",
     "build:prod": "webpack --config webpack.prod.js",
-    "build:proddemo": "webpack --config webpack.prod_demo.js"
+    "build:proddemo": "webpack --config webpack.prod_demo.js",
+    "deploy": "bash deploy.sh"
   }
 }

@@ -43,7 +43,7 @@
 		</md-input-container>
 		
 		<p>Enter a three digit code below. This will be entered by your teammates when they join your team.</p>
-		<combination-lock digits="3" combo="$ctrl.code" on-update="$ctrl.updateCode(value, index)"></combination-lock>
+		<combination-lock digits="$ctrl.codeLength" combo="$ctrl.code" on-update="$ctrl.updateCode(value, index)"></combination-lock>
 		
 		<div layout="row" layout-align="center">
 			<md-button type="submit" class="buttonSubmit md-raised md-primary" ng-click="$ctrl.createTeam(teamName, memberCount)">Create Team</md-button>

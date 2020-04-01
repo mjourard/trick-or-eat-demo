@@ -15,7 +15,7 @@ class RegionController extends BaseController
 			'country_id',
 			'country_name'
 		)
-			->from('COUNTRY');
+			->from('country');
 
 		$results = $qb->execute()->fetchAll();
 		foreach ($results as &$country)
@@ -36,7 +36,7 @@ class RegionController extends BaseController
 			'latitude',
 			'longitude'
 		)
-			->from('REGION')
+			->from('region')
 			->where('country_id = :cid')
 			->setParameter(':cid', $countryId);
 

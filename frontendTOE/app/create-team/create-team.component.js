@@ -1,13 +1,22 @@
 function CreateTeamController($location, $mdDialog, $scope, $routeParams, Team, LOCATION_PATHS) {
     console.log("Inside the CreateTeamCtrl");
 
+    var generateCode = function(len) {
+        var str = "";
+        for (var i = 0; i < len; i++) {
+            str += Math.round(Math.random() * 10);
+        }
+        return str;
+    };
+
     var cTeam = this;
     cTeam.eventName = $routeParams.location;
     cTeam.blind = false;
     cTeam.mobility = false;
     cTeam.deaf = false;
     cTeam.drive = false;
-	cTeam.code = '123';
+    cTeam.codeLength = 3;
+	cTeam.code = generateCode(cTeam.codeLength);
 
 	$scope.none = false;
 

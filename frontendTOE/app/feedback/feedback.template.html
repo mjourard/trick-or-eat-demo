@@ -13,7 +13,7 @@
 			<textarea name="feedback" ng-model="$ctrl.comments[question.question_id]" md-maxlength="question.response_limit" rows="5" md-select-on-focus></textarea>
 		</md-input-container>
 		<div layout="row" layout-xs="column" layout-sm="column" layout-align="center">
-			<md-button type="button" class="buttonSubmit md-raised md-primary" ng-click="$ctrl.saveComment($ctrl.comments[question.question_id], question.question_id)">Save Comment</md-button>
+			<md-button type="button" class="buttonSubmit md-raised md-primary" ng-click="$ctrl.saveComment($ctrl.comments[question.question_id], question.question_id)" ng-disabled="$ctrl.comments[question.question_id] === undefined || $ctrl.comments[question.question_id].trim().length === 0">Save Comment</md-button>
 		</div>
 		<md-divider></md-divider>
 	</div>

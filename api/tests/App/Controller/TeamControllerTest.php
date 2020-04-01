@@ -159,7 +159,7 @@ class TeamControllerTest extends BaseTestCase
 		//make them the team captain again
 		$capId = $this->GetLoggedInUserId();
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('TEAM')
+		$qb->update('team')
 			->set('captain_user_id', $capId)
 			->where('team_id = ' . clsTestConstants::PERMANENT_TEAM_ID);
 		$this->assertEquals(1, $qb->execute(), "Did not reset the captain's user_id, database out of sync for testing.");
@@ -193,7 +193,7 @@ class TeamControllerTest extends BaseTestCase
 
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name = :name')
 			->setParameter(':name', clsTestConstants::TEAM_OF_ONE_NAME, clsConstants::SILEX_PARAM_STRING);
 
@@ -213,7 +213,7 @@ class TeamControllerTest extends BaseTestCase
 
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name = :name')
 			->setParameter(':name', clsTestConstants::TEAM_OF_EMPTY_NAME, clsConstants::SILEX_PARAM_STRING);
 
@@ -251,8 +251,8 @@ class TeamControllerTest extends BaseTestCase
 			't.team_id',
 			't.captain_user_id',
 			't.name')
-			->from('MEMBER', 'm')
-			->leftJoin('m', 'TEAM', 't', 'm.team_id = t.team_id')
+			->from('member', 'm')
+			->leftJoin('m', 'team', 't', 'm.team_id = t.team_id')
 			->where('m.user_id = ' . $this->GetLoggedInUserId())
 			->orWhere('m.team_id = ' . $teamId)
 			->orderBy('m.user_id', 'ASC');
@@ -267,7 +267,7 @@ class TeamControllerTest extends BaseTestCase
 
 		//delete the team
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->delete('TEAM')
+		$qb->delete('team')
 			->where('team_id = ' . $teamId);
 
 		$qb->execute();
@@ -657,7 +657,7 @@ class TeamControllerTest extends BaseTestCase
 		$qb->select(
 			'user_id'
 		)
-			->from('MEMBER')
+			->from('member')
 			->where('team_id = ' . $newTeamId);
 
 		$teammates = $qb->execute()->fetchAll();
@@ -667,19 +667,19 @@ class TeamControllerTest extends BaseTestCase
 		}
 
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', 'null')
 			->where('user_id in (' . implode(",", $teammates) . ')');
 		$qb->execute();
 
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('TEAM')
+		$qb->update('team')
 			->set('team_id', $oldTeamId)
 			->where("team_id = $newTeamId");
 		$qb->execute();
 
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', $oldTeamId)
 			->where('user_id in (' . implode(",", $teammates) . ')');
 		$qb->execute();
@@ -699,7 +699,7 @@ class TeamControllerTest extends BaseTestCase
 	private function deleteTempMembers($teamId)
 	{
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->delete('USER')
+		$qb->delete('user')
 			->where("email LIKE :email")
 			->setParameter(':email', $teamId . "_%@" . clsConstants::PLACEHOLDER_EMAIL, clsConstants::SILEX_PARAM_STRING);
 

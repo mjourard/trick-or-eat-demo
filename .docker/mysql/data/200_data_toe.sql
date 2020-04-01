@@ -15,10 +15,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
---
--- Table structure for table `bus`
---
-
 use toe;
 
 
@@ -81,7 +77,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `question` WRITE;
 /*!40000 ALTER TABLE `question` DISABLE KEYS */;
-INSERT INTO `question` VALUES (1,'Did you experience any difficulties while using this app?',2,'active', UTC_TIMESTAMP(), UTC_TIMESTAMP());
+INSERT INTO `question` VALUES (1,'Did you experience any difficulties while using this app?',280,'active', UTC_TIMESTAMP(), UTC_TIMESTAMP());
 /*!40000 ALTER TABLE `question` ENABLE KEYS */;
 UNLOCK TABLES;
 

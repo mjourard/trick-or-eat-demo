@@ -24,7 +24,7 @@ class EventController extends BaseController
 		//verify the event_id passed in is for a real event
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id', 'event_name')
-			->from('EVENT')
+			->from('event')
 			->where('event_id = :event_id')
 			->setParameter(':event_id', $params['event_id']);
 
@@ -42,7 +42,7 @@ class EventController extends BaseController
 		$hearing = $params['hearing'] === true ? 'true' : 'false';
 		#insert user data into DB
 		$qb = $this->db->createQueryBuilder();
-		$qb->update('USER')
+		$qb->update('user')
 			->set('mobility', ':mobility')
 			->set('visual', ':visual')
 			->set('hearing', ':hearing')
@@ -57,7 +57,7 @@ class EventController extends BaseController
 		$canDrive = $params['can_drive'] === true ? 'true' : 'false';
 		#insert user data into DB
 		$q = "
-            INSERT INTO MEMBER 
+            INSERT INTO member 
             (
               user_id, 
               can_drive, 
@@ -102,8 +102,8 @@ class EventController extends BaseController
 				'm.event_id',
 				't.captain_user_id'
 			)
-			->from('MEMBER', 'm')
-			->leftJoin('m', 'TEAM', "t", 'm.team_id = t.team_id')
+			->from('member', 'm')
+			->leftJoin('m', 'team', "t", 'm.team_id = t.team_id')
 			->where('m.user_id = :user_id')
 			->andWhere('t.event_id = :event_id OR t.event_id IS NULL')
 			->setParameter(':user_id', $this->userInfo->getID())
@@ -123,7 +123,7 @@ class EventController extends BaseController
 			//change the team captain to another person on the team
 			$qb = $this->db->createQueryBuilder();
 			$qb->select('user_id')
-				->from('MEMBER')
+				->from('member')
 				->where("team_id = $teamId")
 				->andWhere('user_id != ' . $this->userInfo->getID());
 			$results = $qb->execute()->fetchAll();
@@ -134,7 +134,7 @@ class EventController extends BaseController
 			if ($newId === false)
 			{
 				$qb = $this->db->createQueryBuilder();
-				$qb->delete('TEAM')
+				$qb->delete('team')
 					->where("team_id = $teamId");
 				$qb->execute();
 			}
@@ -142,7 +142,7 @@ class EventController extends BaseController
 			{
 				//set the team captain id to be someone else. Issue of concurrency where if both users register simultaniously, this could error out.
 				$qb = $this->db->createQueryBuilder();
-				$qb->update('TEAM')
+				$qb->update('team')
 					->set('captain_user_id', $newId)
 					->where("team_id = $teamId");
 				$qb->execute();
@@ -150,7 +150,7 @@ class EventController extends BaseController
 		}
 
 		$qb = $this->db->createQueryBuilder();
-		$qb->delete('MEMBER')
+		$qb->delete('member')
 			->where('user_id = :user_id')
 			->andWhere('event_id = :event_id')
 			->setParameter(':user_id', $this->userInfo->getID())
@@ -170,7 +170,7 @@ class EventController extends BaseController
 
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id', 'event_name')
-			->from('EVENT')
+			->from('event')
 			->where('region_id = :region_id')
 			->setParameter(':region_id', $regionId);
 
@@ -191,7 +191,7 @@ class EventController extends BaseController
 		$userID = $this->userInfo->getID();
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id')
-			->from('MEMBER')
+			->from('member')
 			->where("user_id = :user_id")
 			->setParameter(':user_id', $userID);
 

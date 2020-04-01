@@ -37,7 +37,7 @@
 			<p>Please select the event location you wish to attend.</p>
 			<div layout="row" layout-align="center">
 				<md-input-container class="formField" ng-if="$ctrl.events">
-					<label>Select a Location</label>
+					<label>Select an event location</label>
 					<md-select ng-model="$ctrl.event" style="color:black;">
 						<md-option ng-repeat="cEvent in $ctrl.events" ng-value="cEvent.event_id">{{cEvent.event_name}}
 						</md-option>

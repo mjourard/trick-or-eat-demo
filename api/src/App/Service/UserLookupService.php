@@ -33,7 +33,7 @@ class UserLookupService
 		//check database to make sure that user's email isn't already registered
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('user_id')
-			->from('USER')
+			->from('user')
 			->where('email = :email')
 			->setParameter(':email', $email, clsConstants::SILEX_PARAM_STRING);
 
@@ -78,7 +78,7 @@ class UserLookupService
 
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select($columns)
-			->from('USER')
+			->from('user')
 			->where('email = :email')
 			->setParameter(':email', $email, clsConstants::SILEX_PARAM_STRING);
 

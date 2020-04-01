@@ -29,8 +29,8 @@ class TeamController extends BaseController
 			't.name',
 			'COUNT(*) as count'
 		)
-			->from('TEAM', 't')
-			->leftJoin('t', 'MEMBER', 'm', 't.team_id = m.team_id')
+			->from('team', 't')
+			->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
 			->groupBy('team_id');
 
 		$results = $qb->execute()->fetchAll();
@@ -71,8 +71,8 @@ class TeamController extends BaseController
 			't.captain_user_id',
 			't.join_code'
 		)
-			->from('MEMBER', 'm')
-			->leftJoin('m', 'TEAM', 't', 'm.team_id = t.team_id')
+			->from('member', 'm')
+			->leftJoin('m', 'team', 't', 'm.team_id = t.team_id')
 			->where('m.user_id = :userId')
 			->setParameter(':userId', $userId, clsConstants::SILEX_PARAM_INT);
 
@@ -96,9 +96,9 @@ class TeamController extends BaseController
 			'u.visual',
 			'u.mobility'
 		)
-			->from('TEAM', 't')
-			->leftJoin('t', 'MEMBER', 'm', 't.team_id = m.team_id')
-			->leftJoin('m', 'USER', 'u', 'm.user_id = u.user_id')
+			->from('team', 't')
+			->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
+			->leftJoin('m', 'user', 'u', 'm.user_id = u.user_id')
 			->where("t.team_id = $teamId")
 			->andWhere("email NOT like '%@" . clsConstants::PLACEHOLDER_EMAIL . "'")
 			->orderBy('is_captain', 'DESC');
@@ -171,7 +171,7 @@ class TeamController extends BaseController
 		//verify the team isn't full
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('COUNT(*) as cnt')
-			->from('MEMBER')
+			->from('member')
 			->where('team_id = :teamId')
 			->groupBy('team_id')
 			->setParameter(':teamId', $teamId);
@@ -183,7 +183,7 @@ class TeamController extends BaseController
 
 		//assign the user to the team
 		$qb = $this->db->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', ':teamId')
 			->where('user_id = :userId')
 			->andWhere('event_id = :eventId')
@@ -201,8 +201,8 @@ class TeamController extends BaseController
 		//remove a temporary holder from the team.
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('m.user_id')
-			->from('MEMBER', 'm')
-			->leftJoin('m', 'USER', 'u', 'm.user_id = u.user_id')
+			->from('member', 'm')
+			->leftJoin('m', 'user', 'u', 'm.user_id = u.user_id')
 			->where('m.team_id = :teamId')
 			->andWhere("u.first_name = '" . clsConstants::USER_PLACEHOLDER_FIRST_NAME . "'")
 			->andWhere("u.last_name = '" . clsConstants::USER_PLACEHOLDER_LAST_NAME . "'")
@@ -216,7 +216,7 @@ class TeamController extends BaseController
 			$holderId = $results[0]['user_id'];
 			$qb = $this->db->createQueryBuilder();
 
-			$qb->delete('USER')
+			$qb->delete('user')
 				->where("user_id = $holderId");
 
 			if ($qb->execute() === 0)
@@ -250,8 +250,8 @@ class TeamController extends BaseController
 			't.team_id',
 			't.event_id'
 		)
-			->from('TEAM', 't')
-			->leftJoin('t', 'MEMBER', 'm', 't.team_id = m.team_id')
+			->from('team', 't')
+			->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
 			->where('m.user_id = :userId')
 			->setParameter(':userId', $this->userInfo->getID());
 
@@ -321,7 +321,7 @@ class TeamController extends BaseController
 		//Create the new team
 		$qb = $this->db->createQueryBuilder();
 
-		$qb->insert('TEAM')
+		$qb->insert('team')
 			->values([
 				'event_id'        => $eventId,
 				'captain_user_id' => $this->userInfo->getID(),
@@ -344,8 +344,8 @@ class TeamController extends BaseController
 			't.join_code',
 			'COUNT(m.user_id) as member_count'
 		)
-			->from('TEAM', 't')
-			->leftJoin('t', 'MEMBER', 'm', 't.team_id = m.team_id')
+			->from('team', 't')
+			->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
 			->where('t.name = :name')
 			->andWhere("t.event_id = $eventId")
 			->groupBy('t.team_id')
@@ -360,7 +360,7 @@ class TeamController extends BaseController
 
 		//assign the user to the team
 		$qb = $this->db->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', $teamId)
 			->where('user_id = ' . $this->userInfo->getID())
 			->andWhere("event_id = $eventId");
@@ -398,7 +398,7 @@ class TeamController extends BaseController
 		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id')
-			->from('MEMBER')
+			->from('member')
 			->where('user_id = :userId')
 			->setParameter(':userId', $this->userInfo->getID());
 
@@ -411,7 +411,7 @@ class TeamController extends BaseController
 
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name = :name')
 			->andWhere('event_id = :event_id')
 			->setParameter(':name', $teamName, clsConstants::SILEX_PARAM_STRING)
@@ -447,8 +447,8 @@ class TeamController extends BaseController
 			't.team_id',
 			't.event_id'
 		)
-			->from('TEAM', 't')
-			->leftJoin('t', 'MEMBER', 'm', 't.team_id = m.team_id')
+			->from('team', 't')
+			->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
 			->where('m.user_id = :userId')
 			->setParameter(':userId', $this->userInfo->getID());
 
@@ -458,7 +458,7 @@ class TeamController extends BaseController
 		$qb->select(
 			'team_id'
 		)
-			->from('MEMBER')
+			->from('member')
 			->where('user_id = :userId')
 			->setParameter(':userId', $app[clsConstants::PARAMETER_KEY]['teammate_id']);
 
@@ -503,7 +503,7 @@ class TeamController extends BaseController
 		$qb = $this->db->createQueryBuilder();
 
 		$qb->select('event_id')
-			->from('TEAM')
+			->from('team')
 			->where('team_id = :teamId')
 			->andWhere('event_id = :eventId')
 			->setParameter('teamId', $teamId)
@@ -524,7 +524,7 @@ class TeamController extends BaseController
 	{
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name = :name')
 			->andWhere('event_id = :event_id')
 			->setParameter(':name', $teamName, clsConstants::SILEX_PARAM_STRING)
@@ -542,7 +542,7 @@ class TeamController extends BaseController
 	{
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id')
-			->from('MEMBER')
+			->from('member')
 			->where("user_id = {$this->userInfo->getID()}")
 			->andWhere('team_id is NULL')
 			->setMaxResults(1);
@@ -583,9 +583,9 @@ class TeamController extends BaseController
 			'u.mobility',
 			"IF (u.first_name LIKE '%" . clsConstants::USER_PLACEHOLDER_FIRST_NAME . "%' AND u.last_name LIKE '%" . clsConstants::USER_PLACEHOLDER_LAST_NAME . "%', 1, 0) AS isPlaceHolder"
 		)
-			->from('MEMBER', 'm')
-			->leftJoin('m', 'TEAM', 't', 'm.team_id = t.team_id')
-			->leftJoin('m', 'USER', 'u', 'm.user_id = u.user_id')
+			->from('member', 'm')
+			->leftJoin('m', 'team', 't', 'm.team_id = t.team_id')
+			->leftJoin('m', 'user', 'u', 'm.user_id = u.user_id')
 			->where('t.team_id = :teamId')
 			->setParameter(':teamId', $teamId, clsConstants::SILEX_PARAM_STRING);
 
@@ -630,7 +630,7 @@ class TeamController extends BaseController
 
 		//remove from the team
 		$qb = $this->db->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', 'null')
 			->where('user_id = :user_id')
 			->setParameter(':user_id', $userId, clsConstants::SILEX_PARAM_INT);
@@ -644,13 +644,13 @@ class TeamController extends BaseController
 			if (!empty($teammateIds['false']))
 			{
 				$qb = $this->db->createQueryBuilder();
-				$qb->delete('USER')
+				$qb->delete('user')
 					->where('user_id in (' . implode(",", $teammateIds['false']) . ')');
 
 				$qb->execute();
 			}
 
-			$qb->delete('TEAM')
+			$qb->delete('team')
 				->where('team_id = :teamId')
 				->setParameter(':teamId', $teamId);
 
@@ -663,7 +663,7 @@ class TeamController extends BaseController
 		if ($captain === true)
 		{
 			$qb = $this->db->createQueryBuilder();
-			$qb->update('TEAM')
+			$qb->update('team')
 				->set('captain_user_id', $teammateIds['real'][0])
 				->where('team_id = :teamId')
 				->setParameter(':teamId', $teamId, clsConstants::SILEX_PARAM_INT);
@@ -699,8 +699,8 @@ class TeamController extends BaseController
 		$qb->select(
 			'count(*) as cnt'
 		)
-			->from('USER', 'u')
-			->leftJoin('u', 'MEMBER', 'm', 'u.user_id = m.user_id')
+			->from('user', 'u')
+			->leftJoin('u', 'member', 'm', 'u.user_id = m.user_id')
 			->where('m.team_id = :teamId')
 			->andWhere("u.email NOT like '%@" . clsConstants::PLACEHOLDER_EMAIL . "'")
 			->setParameter(':teamId', $teamId);
@@ -750,8 +750,8 @@ class TeamController extends BaseController
 		//create member rows that match the newly created user Ids. First get hte user_ids
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('u.user_id')
-			->from('USER', 'u')
-			->leftJoin('u', 'MEMBER', 'm', 'u.user_id = m.user_id')
+			->from('user', 'u')
+			->leftJoin('u', 'member', 'm', 'u.user_id = m.user_id')
 			->where("u.hearing  = '$hearing'")
 			->andWhere("u.visual = '$visual'")
 			->andWhere("u.mobility = '$mobility'")
@@ -765,7 +765,7 @@ class TeamController extends BaseController
 
 		//assign the new users their roles
 		$q = "
-			INSERT INTO USER_ROLE
+			INSERT INTO user_role
 			(
 				user_id,
 				role

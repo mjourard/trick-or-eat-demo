@@ -128,8 +128,8 @@ class RouteController extends BaseController
 			'COALESCE(SUM(tm.member_count), 0) as member_count',
 			"GROUP_CONCAT(tm.name,'$statDelim', tm.member_count SEPARATOR '$teamDelim') as teams"
 		)
-			->from('ROUTE_ARCHIVE', 'ra')
-			->leftJoin('ra', 'ROUTE', 'r', 'ra.route_id = r.route_id')
+			->from('route_archive', 'ra')
+			->leftJoin('ra', 'route', 'r', 'ra.route_id = r.route_id')
 			->leftJoin('ra', 'team_members', 'tm', 'ra.route_id = tm.route_id')
 			->where('r.event_id = :event_id')
 			->groupBy('ra.route_id')
@@ -224,7 +224,7 @@ class RouteController extends BaseController
 		{
 			$qb = $this->db->createQueryBuilder();
 			$qb->select('team_id')
-				->from('MEMBER')
+				->from('member')
 				->where('user_id = :user_id')
 				->setParameter(":user_id", $this->userInfo->getID());
 
@@ -249,12 +249,12 @@ class RouteController extends BaseController
 			'z.zoom',
 			'z.zone_name'
 		)
-			->from('MEMBER', 'm')
-			->leftJoin('m', 'TEAM', 't', 'm.team_id = t.team_id')
-			->leftJoin('t', 'ROUTE', 'r', 't.route_id = r.route_id')
-			->leftJoin('r', 'ROUTE_ARCHIVE', 'ra', 'r.route_id = ra.route_id')
-			->leftJoin('r', 'BUS', 'b', 'r.bus_id = b.bus_id')
-			->leftJoin('ra', 'ZONE', 'z', 'ra.zone_id = z.zone_id')
+			->from('member', 'm')
+			->leftJoin('m', 'team', 't', 'm.team_id = t.team_id')
+			->leftJoin('t', 'route', 'r', 't.route_id = r.route_id')
+			->leftJoin('r', 'route_archive', 'ra', 'r.route_id = ra.route_id')
+			->leftJoin('r', 'bus', 'b', 'r.bus_id = b.bus_id')
+			->leftJoin('ra', 'zone', 'z', 'ra.zone_id = z.zone_id')
 			->where('m.user_id = :user_id')
 			->andWhere('t.team_id = :team_id')
 			->andWhere('r.event_id = :event_id')
@@ -292,9 +292,9 @@ class RouteController extends BaseController
 			'ra.blind_accessible',
 			'ra.hearing_accessible'
 		)
-			->from('ROUTE', 'r')
-			->leftJoin('r', 'ROUTE_ARCHIVE', 'ra', 'r.route_id = ra.route_id')
-			->leftJoin('ra', 'ZONE', 'z', 'ra.zone_id = z.zone_id')
+			->from('route', 'r')
+			->leftJoin('r', 'route_archive', 'ra', 'r.route_id = ra.route_id')
+			->leftJoin('ra', 'zone', 'z', 'ra.zone_id = z.zone_id')
 			->where('r.event_id = :eventId')
 			->setParameter(':eventId', $eventId, clsConstants::SILEX_PARAM_INT);
 
@@ -332,9 +332,9 @@ class RouteController extends BaseController
 			'ra.blind_accessible',
 			'ra.hearing_accessible'
 		)
-			->from('ROUTE_ARCHIVE', 'ra')
-			->leftJoin('ra', 'ROUTE', 'r', 'r.route_id = ra.route_id')
-			->leftJoin('ra', 'ZONE', 'z', 'ra.zone_id = z.zone_id')
+			->from('route_archive', 'ra')
+			->leftJoin('ra', 'route', 'r', 'r.route_id = ra.route_id')
+			->leftJoin('ra', 'zone', 'z', 'ra.zone_id = z.zone_id')
 			->where('r.event_id is NULL')
 			->orWhere('NOT r.event_id = :eventId')
 			->setParameter(':eventId', $eventId, clsConstants::SILEX_PARAM_INT);
@@ -371,7 +371,7 @@ class RouteController extends BaseController
 		}
 
 		$qb = $this->db->createQueryBuilder();
-		$qb->insert('ROUTE')
+		$qb->insert('route')
 			->values([
 				'route_id'   => ':routeId',
 				'event_id'   => ':eventId',
@@ -395,7 +395,7 @@ class RouteController extends BaseController
 		}
 
 		$qb = $this->db->createQueryBuilder();
-		$qb->delete('ROUTE')
+		$qb->delete('route')
 			->where('route_id = :routeId')
 			->andWhere('event_id = :eventId')
 			->setParameter(':routeId', $app[clsConstants::PARAMETER_KEY]['routeId'], clsConstants::SILEX_PARAM_INT)
@@ -509,10 +509,10 @@ class RouteController extends BaseController
 							'r.route_id',
 							'count(m.user_id) AS member_count'
 						)
-							->from('ROUTE', 'r')
-							->leftJoin('r', 'ROUTE_ARCHIVE', 'ra', 'r.route_id = ra.route_id')
-							->leftJoin('r', 'TEAM', 't', 'r.route_id = t.route_id')
-							->leftJoin('t', 'MEMBER', 'm', 't.team_id = m.team_id')
+							->from('route', 'r')
+							->leftJoin('r', 'route_archive', 'ra', 'r.route_id = ra.route_id')
+							->leftJoin('r', 'team', 't', 'r.route_id = t.route_id')
+							->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
 							->where('r.event_id = :event_id')
 							->andWhere($driveParam)
 							->andWhere($blindParam)
@@ -690,7 +690,7 @@ class RouteController extends BaseController
 
 		$qb = $this->db->createQueryBuilder();
 
-		$qb->update('TEAM')
+		$qb->update('team')
 			->set('route_id', 'null')
 			->where('event_id = :event_id')
 			->setParameter(':event_id', $eventId);
@@ -734,7 +734,7 @@ class RouteController extends BaseController
 		$qb = $this->db->createQueryBuilder();
 
 		$qb->select('event_id')
-			->from('EVENT')
+			->from('event')
 			->where('event_id = :event_id')
 			->setParameter('event_id', $eventId, clsConstants::SILEX_PARAM_INT);
 
@@ -748,7 +748,7 @@ class RouteController extends BaseController
 		$qb->select(
 			'route_id'
 		)
-			->from('ROUTE_ARCHIVE')
+			->from('route_archive')
 			->where('route_id = :routeId')
 			->andWhere('zone_id = :zoneId')
 			->setParameter(':routeId', $routeId, clsConstants::SILEX_PARAM_INT)
@@ -770,7 +770,7 @@ class RouteController extends BaseController
 	{
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('route_id')
-			->from('ROUTE')
+			->from('route')
 			->where('route_id = :routeId')
 			->andWhere('event_id = :eventId')
 			->setParameter(':routeId', $routeId, clsConstants::SILEX_PARAM_INT)

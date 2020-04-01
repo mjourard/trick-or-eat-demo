@@ -120,7 +120,7 @@ class EventControllerTest extends BaseTestCase
 						$this->SetDatabaseConnection();
 						$qb = $this->dbConn->createQueryBuilder();
 						$qb->select('can_drive')
-							->from('MEMBER')
+							->from('member')
 							->where('user_id = :user_id')
 							->setParameter('user_id', $this->GetLoggedInUserId());
 						$result = $qb->execute()->fetchAll();
@@ -201,7 +201,7 @@ class EventControllerTest extends BaseTestCase
 
 		//set second user as captain
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->insert('TEAM')
+		$qb->insert('team')
 			->values([
 				"event_id"        => self::TEST_EVENT_ID,
 				"captain_user_id" => $this->GetLoggedInUserId(),
@@ -216,7 +216,7 @@ class EventControllerTest extends BaseTestCase
 				'team_id',
 				'captain_user_id'
 			)
-			->from('TEAM')
+			->from('team')
 			->where('event_id = :event_id')
 			->andWhere('captain_user_id = :captain_id')
 			->setParameter('event_id', self::TEST_EVENT_ID)
@@ -225,7 +225,7 @@ class EventControllerTest extends BaseTestCase
 		$teamId = $qb->execute()->fetch()['team_id'];
 
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set("team_id", $teamId)
 			->where("user_id in ($newCaptainId, {$this->GetLoggedInUserId()})");
 
@@ -242,7 +242,7 @@ class EventControllerTest extends BaseTestCase
 		//check if a new captain is assigned
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('captain_user_id')
-			->from('TEAM')
+			->from('team')
 			->where("team_id = $teamId");
 
 		$testCaptainId = $qb->execute()->fetch()['captain_user_id'];

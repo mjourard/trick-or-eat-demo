@@ -5,6 +5,7 @@ package:
     - tests/**
     - logs/**
     - resource/**
+    - node_modules/**
   include:
     - ../.docker/mysql/data/**
 provider:
@@ -29,6 +30,11 @@ provider:
     TOE_ENCODED_JWT_KEY: ${self:custom.TOE_JWT}
     TOE_LOGGING_LEVEL: ${self:custom.TOE_LOGGING_LEVEL}
     TOE_LOG_FILE: ${self:custom.TOE_LOG_FILE}
+    TOE_ACCESS_CONTROL_ALLOW_ORIGIN: ${self:custom.TOE_ACCESS_CONTROL_ALLOW_ORIGIN}
+    TOE_RESET_ACCOUNT_EMAIL: ${self:custom.TOE_PASSWORD_RESET.EMAIL
+    TOE_RESET_CLIENT_ID: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_ID
+    TOE_RESET_CLIENT_SECRET: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_SECRET
+    TOE_RESET_REFRESH_TOKEN: ${self:custom.TOE_PASSWORD_RESET.GCP_REFRESH_TOKEN
 custom:
   PERSIST_STACK_NAME: toe-api-data-persistence
   TOE_DATABASE:
@@ -44,9 +50,21 @@ custom:
   TOE_JWT: ${ssm:/toe/prod/TOE_ENCODED_JWT_KEY}
   TOE_LOGGING_LEVEL: 'INFO'
   TOE_LOG_FILE: 'php://stdout' # this will send log output to stdout and be picked up by cloudwatch
+  TOE_ACCESS_CONTROL_ALLOW_ORIGIN: ${ssm:/toe/prod/ClientDomain}
+  TOE_PASSWORD_RESET:
+    EMAIL: ${ssm:/toe/prod/PASSWORD_RESET_EMAIL}
+    GCP_CLIENT_ID: ${ssm:/toe/prod/GCP_CLIENT_ID}
+    GCP_CLIENT_SECRET: ${ssm:/toe/prod/GCP_CLIENT_SECRET}
+    GCP_REFRESH_TOKEN: ${ssm:/toe/prod/GCP_REFRESH_TOKEN}
+  customDomain:
+    domainName: ${file(./account_config.yaml):APIDomain}
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
 
 plugins:
   - ./vendor/bref/bref
+  - serverless-domain-manager
 resources:
   Resources:
     CloudfrontOAI:
@@ -146,22 +164,24 @@ functions:
          path: '/'
          method: 'ANY'
          cors:
-           origin: ${ssm:/toe/prod/ClientDomain}
+           origins:
+             - '${ssm:/toe/prod/ClientDomain}'
            headers:
              - Content-Type
              - Accept-Encoding
              - X-Bearer-Token
-           allowCredentials: false
+           allowCredentials: true
       - http:
          path: '/{proxy+}'
          method: 'ANY'
          cors:
-           origin: ${ssm:/toe/prod/ClientDomain}
+           origins:
+             - '${ssm:/toe/prod/ClientDomain}'
            headers:
              - Content-Type
              - Accept-Encoding
              - X-Bearer-Token
-           allowCredentials: false
+           allowCredentials: true
   clean-reset-tokens:
     handler: cron-jobs/clean-reset-tokens/run.php
     layers:

@@ -47,7 +47,7 @@ class ResetPasswordController extends BaseController
 		//Update user's account with new password
 		//use a transaction
 		$qb = $this->db->createQueryBuilder();
-		$qb->update('USER')
+		$qb->update('user')
 			->set('password', ':password')
 			->where('user_id = :user_id')
 			->setParameter(':user_id', $data->userID)

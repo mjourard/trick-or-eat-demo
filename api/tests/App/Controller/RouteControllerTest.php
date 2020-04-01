@@ -127,7 +127,7 @@ class RouteControllerTest extends BaseTestCase
 		//register the users for the event
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('user_id')
-			->from('USER')
+			->from('user')
 			->where("email like :email")
 			->setParameter(':email', self::TEMP_EMAIL_USERNAME . "%");
 
@@ -216,7 +216,7 @@ class RouteControllerTest extends BaseTestCase
 		//create the active routes
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('bus_id')
-			->from('BUS');
+			->from('bus');
 
 		$results = $qb->execute()->fetchAll();
 		$busIds = [];
@@ -227,7 +227,7 @@ class RouteControllerTest extends BaseTestCase
 
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('route_id')
-			->from('ROUTE_ARCHIVE');
+			->from('route_archive');
 
 		$results = $qb->execute()->fetchAll();
 		$routeIds = [];
@@ -285,7 +285,7 @@ class RouteControllerTest extends BaseTestCase
 		//get the new team ids
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name like :name')
 			->orderBy('team_id', 'asc')
 			->setParameter('name', self::TEMP_TEAM_NAME . '%', clsConstants::SILEX_PARAM_STRING);
@@ -305,7 +305,7 @@ class RouteControllerTest extends BaseTestCase
 		}
 
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', $teamIds[0])
 			->where("user_id in (" . implode(',', $teamUserIds) . ")");
 
@@ -319,7 +319,7 @@ class RouteControllerTest extends BaseTestCase
 		}
 
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', $teamIds[1])
 			->where("user_id in (" . implode(',', $teamUserIds) . ")");
 
@@ -327,7 +327,7 @@ class RouteControllerTest extends BaseTestCase
 
 		//this team won't get assigned a route
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('MEMBER')
+		$qb->update('member')
 			->set('team_id', $teamIds[2])
 			->where("user_id = {$users[8]['user_id']}");
 
@@ -338,22 +338,22 @@ class RouteControllerTest extends BaseTestCase
 
 		//clean up the database before making a bunch of asserts...
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->delete('TEAM')
+		$qb->delete('team')
 			->where('team_id in (' . implode(',', $teamIds) . ')');
 
 		$qb->execute();
 
-		$qb->delete('ROUTE')
+		$qb->delete('route')
 			->where('route_id in (' . implode(',', $routeIds) . ')');
 
 		$qb->execute();
 
-		$qb->delete('BUS')
+		$qb->delete('bus')
 			->where('bus_id > 0');
 
 		$qb->execute();
 
-		$qb->delete('ROUTE_ARCHIVE')
+		$qb->delete('route_archive')
 			->where('route_id in (' . implode(',', $routeIds) . ')');
 
 		$qb->execute();
@@ -364,12 +364,12 @@ class RouteControllerTest extends BaseTestCase
 			$userIds[] = $row['user_id'];
 		}
 
-		$qb->delete('MEMBER')
+		$qb->delete('member')
 			->where('user_id in (' . implode(',', $userIds) . ')');
 
 		$qb->execute();
 
-		$qb->delete('USER')
+		$qb->delete('user')
 			->where('user_id in (' . implode(',', $userIds) . ')');
 
 		$qb->execute();
@@ -404,7 +404,7 @@ class RouteControllerTest extends BaseTestCase
 
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name = :name')
 			->setParameter('name', clsTestConstants::PERMANENT_TEAM_NAME, clsConstants::SILEX_PARAM_STRING);
 
@@ -431,7 +431,7 @@ class RouteControllerTest extends BaseTestCase
 		//test getting route assignment data for a team that has been assigned a route
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('team_id')
-			->from('TEAM')
+			->from('team')
 			->where('name = :name')
 			->setParameter('name', clsTestConstants::PERMANENT_TEAM_NAME_WITH_ROUTE, clsConstants::SILEX_PARAM_STRING);
 

@@ -4,3 +4,4 @@ SubnetIds: # Find with "aws ec2 describe-subnets --query Subnets[].[Availability
   - subnet-
   - subnet-
 ACMCertificateArn: # Find with "aws acm list-certificates"
+APIDomain: # the domain that the api is launched under. This site was configured with api.guelphtrickoreat.ca

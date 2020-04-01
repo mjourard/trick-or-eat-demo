@@ -137,9 +137,9 @@ class FeedbackController extends BaseController
 			'question',
 			'response_limit'
 		)
-			->from('questions')
-			->where("active = 'true'")
-			->orderBy('display_order', 'ASC');
+			->from('question')
+			->where("status = 'active'")
+			->orderBy('question_id', 'ASC');
 
 		$questions = $qb->execute()->fetchAll();
 		foreach ($questions as &$question)

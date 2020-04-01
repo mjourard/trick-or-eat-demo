@@ -96,7 +96,7 @@ class RouteArchiveControllerTest extends BaseTestCase
 
 		$qb = $dbConn->createQueryBuilder();
 		$qb->select('route_id')
-			->from('ROUTE_ARCHIVE')
+			->from('route_archive')
 			->where("route_file_url = '$url'")
 			->andWhere("route_name = '$name'")
 			->andWhere("Required_people = $people")
@@ -111,7 +111,7 @@ class RouteArchiveControllerTest extends BaseTestCase
 			return $route[0]['route_id'];
 		}
 
-		$qb->insert('ROUTE_ARCHIVE')
+		$qb->insert('route_archive')
 			->values([
 				"route_file_url"        => ":url",
 				"route_name"            => ":name",
@@ -134,7 +134,7 @@ class RouteArchiveControllerTest extends BaseTestCase
 
 		$qb = $dbConn->createQueryBuilder();
 		$qb->select('route_id')
-			->from('ROUTE_ARCHIVE')
+			->from('route_archive')
 			->where("route_file_url = '$url'")
 			->andWhere("route_name = '$name'")
 			->andWhere("Required_people = $people")
@@ -159,7 +159,7 @@ class RouteArchiveControllerTest extends BaseTestCase
 	public static function RemoveRouteFromArchive($dbConn, $routeId)
 	{
 		$qb = $dbConn->createQueryBuilder();
-		$qb->delete('ROUTE_ARCHIVE')
+		$qb->delete('route_archive')
 			->where("route_id = $routeId");
 
 		$qb->execute();

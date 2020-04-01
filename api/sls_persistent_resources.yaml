@@ -9,6 +9,7 @@ package:
     - resource/**
     - src/**
     - tests/**
+    - node_modules/**
 provider:
   name: aws
   region: us-east-1

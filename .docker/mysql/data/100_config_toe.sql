@@ -345,8 +345,8 @@ DROP TABLE IF EXISTS `question`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `question` (
   `question_id` int(11) NOT NULL AUTO_INCREMENT,
-  `question` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `response_limit` int(10) DEFAULT 2,
+  `question` varchar(280) COLLATE utf8_unicode_ci NOT NULL,
+  `response_limit` int(10) DEFAULT 280 COMMENT 'the max number of characters that a response may have. Default is the length of an extended tweet.',
   `status` enum('active','inactive','retired') NOT NULL DEFAULT 'active',
   `date_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `date_added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

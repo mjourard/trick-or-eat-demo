@@ -63,7 +63,7 @@ class AuthController extends BaseController
 
 		//insert user data into DB
 		$qb = $this->db->createQueryBuilder();
-		$qb->insert('USER')
+		$qb->insert('user')
 			->values([
 				'email'      => ':email',
 				'password'   => ':password',
@@ -85,7 +85,7 @@ class AuthController extends BaseController
 		$userId = $app['user.lookup']->GetUserId($email);
 
 		$qb = $this->db->createQueryBuilder();
-		$qb->insert('USER_ROLE')
+		$qb->insert('user_role')
 			->values([
 				'user_id' => $userId,
 				'role'    => ':role'
@@ -120,8 +120,8 @@ class AuthController extends BaseController
 			'password',
 			"GROUP_CONCAT(ur.role SEPARATOR '$delim') as user_roles"
 		)
-			->from('USER', 'u')
-			->leftJoin('u', 'USER_ROLE', 'ur', 'u.user_id = ur.user_id')
+			->from('user', 'u')
+			->leftJoin('u', 'user_role', 'ur', 'u.user_id = ur.user_id')
 			->where('email = :email')
 			->setParameter(':email', strtolower($app[clsConstants::PARAMETER_KEY]["email"]));
 
@@ -167,7 +167,7 @@ class AuthController extends BaseController
 		$qb = $this->db->createQueryBuilder();
 
 		$qb->select('region_id');
-		$qb->from('REGION');
+		$qb->from('region');
 		$qb->where('region_id = :region_id');
 		$qb->setParameter('region_id', $regionId, clsConstants::SILEX_PARAM_INT);
 

@@ -131,5 +131,6 @@ $app->before(function (Request $request) use ($app)
 $app->after(function(Request $request, Response $response) use ($app)
 {
 	$response->headers->set('Access-Control-Allow-Origin', clsEnv::Get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN), true);
+	$response->headers->set("Vary", "Origin");
 	$response->headers->set('Access-Control-Allow-Credentials', 'true', true);
 });

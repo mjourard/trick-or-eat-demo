@@ -46,7 +46,7 @@ class UserController extends BaseController
 
 		//ensure there are changes to be made.
 		$qb->select('user_id')
-			->from('USER')
+			->from('user')
 			->where('user_id = user_id')
 			->andWhere('first_name = :first_name')
 			->andWhere('last_name = :last_name')
@@ -63,7 +63,7 @@ class UserController extends BaseController
 
 
 		$qb = $this->db->createQueryBuilder();
-		$qb->update('USER')
+		$qb->update('user')
 			->set('first_name', ':first_name')
 			->set('last_name', ':last_name')
 			->set('region_id', ':region_id')
@@ -118,12 +118,12 @@ class UserController extends BaseController
 			't.team_id',
 			't.name as team_name'
 		)
-			->from('USER', 'u')
-			->leftJoin('u', 'MEMBER', 'm', 'u.user_id = m.user_id')
-			->leftJoin('m', 'EVENT', 'e', 'm.event_id = e.event_id')
-			->leftJoin('m', 'TEAM', 't', 'm.team_id = t.team_id')
-			->leftJoin('u', 'REGION', 'r', 'u.region_id = r.region_id')
-			->leftJoin('r', 'COUNTRY', 'c', 'r.country_id = c.country_id')
+			->from('user', 'u')
+			->leftJoin('u', 'member', 'm', 'u.user_id = m.user_id')
+			->leftJoin('m', 'event', 'e', 'm.event_id = e.event_id')
+			->leftJoin('m', 'team', 't', 'm.team_id = t.team_id')
+			->leftJoin('u', 'region', 'r', 'u.region_id = r.region_id')
+			->leftJoin('r', 'country', 'c', 'r.country_id = c.country_id')
 			->where("u.user_id = {$this->userInfo->getID()}");
 
 		$results = $qb->execute()->fetch();

@@ -246,7 +246,7 @@ class AuthControllerTest extends BaseTestCase
 		$this->SetDatabaseConnection();
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('email');
-		$qb->from('USER');
+		$qb->from('user');
 		$qb->where("email = :email");
 		$qb->setParameter('email', self::CORRECT_EMAIL, clsConstants::SILEX_PARAM_STRING);
 

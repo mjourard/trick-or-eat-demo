@@ -345,7 +345,7 @@ class BaseTestCase extends TestCase
 
 		$email = clsTestHelpers::GetThrowAwayEmail(1);
 
-		$qb->insert('USER')
+		$qb->insert('user')
 			->values([
 				'email'       => ':email',
 				'password'    => ':password',
@@ -375,7 +375,7 @@ class BaseTestCase extends TestCase
 				'last_name',
 				'region_id'
 			)
-			->from('USER')
+			->from('user')
 			->where('email = :email')
 			->setParameter(':email', $email, clsConstants::SILEX_PARAM_STRING);
 
@@ -389,7 +389,7 @@ class BaseTestCase extends TestCase
 	{
 		$this->SetDatabaseConnection();
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->delete('USER');
+		$qb->delete('user');
 		$qb->where("email = :email");
 		$qb->setParameter('email', $email, clsConstants::SILEX_PARAM_STRING);
 		$qb->execute();
