@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.5'
 
 services:
   local.guelphtrickoreat.ca:
@@ -25,7 +25,7 @@ services:
       - "../frontendTOE/dist:/var/www/html/toe/app"
     environment:
       - dev_mode=on
-      - LOG_FILE=/var/log/myapp/errors.log
+      - TOE_LOG_FILE=/var/log/myapp/errors.log
       - TOE_DATABASE_HOST=toe_mysql
       - TOE_DATABASE_PORT=3306
       - TOE_DATABASE_USER=root

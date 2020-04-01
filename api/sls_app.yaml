@@ -12,6 +12,8 @@ provider:
   stage: ${opt:stage, 'dev'}
   region: us-east-1
   runtime: provided
+  iamManagedPolicies:
+    - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
   vpc:
     securityGroupIds:
       - ${self:custom.TOE_DATABASE_SG}
@@ -26,6 +28,7 @@ provider:
     TOE_REDIS_PASSWORD: ${self:custom.TOE_REDIS.PASSWORD}
     TOE_ENCODED_JWT_KEY: ${self:custom.TOE_JWT}
     TOE_LOGGING_LEVEL: ${self:custom.TOE_LOGGING_LEVEL}
+    TOE_LOG_FILE: ${self:custom.TOE_LOG_FILE}
 custom:
   PERSIST_STACK_NAME: toe-api-data-persistence
   TOE_DATABASE:
@@ -40,6 +43,7 @@ custom:
   TOE_DATABASE_SG: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBSecurityGroupId}
   TOE_JWT: ${ssm:/toe/prod/TOE_ENCODED_JWT_KEY}
   TOE_LOGGING_LEVEL: 'INFO'
+  TOE_LOG_FILE: 'php://stdout' # this will send log output to stdout and be picked up by cloudwatch
 
 plugins:
   - ./vendor/bref/bref

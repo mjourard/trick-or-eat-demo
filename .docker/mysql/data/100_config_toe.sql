@@ -119,8 +119,8 @@ DROP TABLE IF EXISTS `password_request`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `password_request` (
   `user_id` int(11) NOT NULL,
-  `issued_at` varchar(255) NOT NULL,
-  `expired_at` varchar(255) NOT NULL,
+  `issued_at` TIMESTAMP NOT NULL,
+  `expired_at` TIMESTAMP NOT NULL,
   `unique_id` varchar(255) NOT NULL,
   `status` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`unique_id`),
