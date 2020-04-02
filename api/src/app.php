@@ -2,6 +2,7 @@
 
 use Monolog\Handler\RedisHandler;
 use Monolog\Logger;
+use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\WebProcessor;
 use Symfony\Component\HttpFoundation\Request;
 use \Firebase\JWT\JWT;
@@ -51,6 +52,7 @@ $app->extend('monolog', function (Logger $monolog, $app)
 
 	//Adds the current request URI, request method and client IP to a log record.
 	$monolog->pushProcessor(new WebProcessor());
+	$monolog->pushProcessor(new IntrospectionProcessor());
 
 	return $monolog;
 });
@@ -63,9 +65,10 @@ $app->before(function (Request $request) use ($app)
 {
 	if (!empty($request->getContent()))
 	{
-		if (strcmp($request->headers->get('Content-Type'), 'application/json') !== 0)
+		$contentType = 'application/json';
+		if (strcmp($request->headers->get('Content-Type'), $contentType) !== 0)
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Make sure to use application/json"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Content-Type request header did not match required value of '$contentType'. Received: '{$request->headers->get('Content-Type')}'"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$data = json_decode($request->getContent(), true);

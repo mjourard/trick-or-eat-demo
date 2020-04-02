@@ -19,7 +19,7 @@
     "bref/bref": "^0.5.5",
     "symfony/console": "^4.4",
     "aws/aws-sdk-php": "~3.130.0",
-    "maxbanton/cwh": "^1.0"
+    "symfony/dotenv": "^4.4"
   },
   "autoload": {
     "psr-4": {

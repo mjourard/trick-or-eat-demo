@@ -6,6 +6,7 @@ package:
     - logs/**
     - resource/**
     - node_modules/**
+    - .env*
   include:
     - ../.docker/mysql/data/**
 provider:
@@ -20,6 +21,7 @@ provider:
       - ${self:custom.TOE_DATABASE_SG}
     subnetIds: ${file(./account_config.yaml):SubnetIds}
   environment:
+    TOE_STAGE: ${self:provider.stage}
     TOE_DATABASE_HOST: ${self:custom.TOE_DATABASE.HOST}
     TOE_DATABASE_PORT: ${self:custom.TOE_DATABASE.PORT}
     TOE_DATABASE_USER: ${self:custom.TOE_DATABASE.USER}
@@ -31,10 +33,10 @@ provider:
     TOE_LOGGING_LEVEL: ${self:custom.TOE_LOGGING_LEVEL}
     TOE_LOG_FILE: ${self:custom.TOE_LOG_FILE}
     TOE_ACCESS_CONTROL_ALLOW_ORIGIN: ${self:custom.TOE_ACCESS_CONTROL_ALLOW_ORIGIN}
-    TOE_RESET_ACCOUNT_EMAIL: ${self:custom.TOE_PASSWORD_RESET.EMAIL
-    TOE_RESET_CLIENT_ID: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_ID
-    TOE_RESET_CLIENT_SECRET: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_SECRET
-    TOE_RESET_REFRESH_TOKEN: ${self:custom.TOE_PASSWORD_RESET.GCP_REFRESH_TOKEN
+    TOE_RESET_ACCOUNT_EMAIL: ${self:custom.TOE_PASSWORD_RESET.EMAIL}
+    TOE_RESET_CLIENT_ID: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_ID}
+    TOE_RESET_CLIENT_SECRET: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_SECRET}
+    TOE_RESET_REFRESH_TOKEN: ${self:custom.TOE_PASSWORD_RESET.GCP_REFRESH_TOKEN}
 custom:
   PERSIST_STACK_NAME: toe-api-data-persistence
   TOE_DATABASE:
@@ -48,14 +50,14 @@ custom:
     PASSWORD: ''
   TOE_DATABASE_SG: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBSecurityGroupId}
   TOE_JWT: ${ssm:/toe/prod/TOE_ENCODED_JWT_KEY}
-  TOE_LOGGING_LEVEL: 'INFO'
+  TOE_LOGGING_LEVEL: 'INFO' #normally set to INFO
   TOE_LOG_FILE: 'php://stdout' # this will send log output to stdout and be picked up by cloudwatch
   TOE_ACCESS_CONTROL_ALLOW_ORIGIN: ${ssm:/toe/prod/ClientDomain}
   TOE_PASSWORD_RESET:
     EMAIL: ${ssm:/toe/prod/PASSWORD_RESET_EMAIL}
     GCP_CLIENT_ID: ${ssm:/toe/prod/GCP_CLIENT_ID}
     GCP_CLIENT_SECRET: ${ssm:/toe/prod/GCP_CLIENT_SECRET}
-    GCP_REFRESH_TOKEN: ${ssm:/toe/prod/GCP_REFRESH_TOKEN}
+    GCP_REFRESH_TOKEN: ${ssm:/toe/prod/GCP_CLIENT_REFRESH}
   customDomain:
     domainName: ${file(./account_config.yaml):APIDomain}
     basePath: ''

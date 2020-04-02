@@ -77,7 +77,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `question` WRITE;
 /*!40000 ALTER TABLE `question` DISABLE KEYS */;
-INSERT INTO `question` VALUES (1,'Did you experience any difficulties while using this app?',280,'active', UTC_TIMESTAMP(), UTC_TIMESTAMP());
+INSERT INTO `question` VALUES (1,'Did you experience any difficulties while using this app?',500,'active', UTC_TIMESTAMP(), UTC_TIMESTAMP());
 /*!40000 ALTER TABLE `question` ENABLE KEYS */;
 UNLOCK TABLES;
 

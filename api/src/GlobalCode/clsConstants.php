@@ -61,9 +61,10 @@ class clsConstants
 	const ROLE_DRIVER      = 'driver';
 
 	const ROUTE_HOSTING_DIRECTORY = __DIR__ . "/../../public/route-files";
-	const ROUTE_HOSTING_URL       = "backendtoe/public/route-files";
 
 	const REDIS_ERROR_KEY    = "errors";
 
 	const EMAIL_RESET_LINK = "#/reset-password/";
+
+	const TOE_STAGE_LOCAL = 'local';
 }

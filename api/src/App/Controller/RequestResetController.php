@@ -25,6 +25,8 @@ class RequestResetController extends BaseController
 	{
 		$this->InitializeInstance($app);
 		$params = $app[clsConstants::PARAMETER_KEY];
+		$logCtx = ['email' => $params['email']];
+		$this->logger->debug("Getting user info", $logCtx);
 		$userInfo = $app['user.lookup']->GetUserInfo($params['email'], ['user_id', 'first_name']);
 
 
@@ -40,6 +42,7 @@ class RequestResetController extends BaseController
 		$expiredAt->add(new DateInterval('PT' . self::VALID_TIME . 'S'));
 
 		//count existing requests (max 5)
+		$this->logger->debug("Counting requests", $logCtx);
 		$result = $this->countRequests($userInfo['user_id'], $issuedAt);
 
 		if($result >= self::MAX_ACTIVE_REQUESTS)
@@ -62,6 +65,7 @@ class RequestResetController extends BaseController
 		);
 
 		//invalidate all previous reset requests
+		$this->logger->debug("invalidating previous password reset requests", $logCtx);
 		$qb = $this->db->createQueryBuilder();
 		$qb->update('password_request')
 			->set('status', ':status')
@@ -72,6 +76,7 @@ class RequestResetController extends BaseController
 
 
 		//Insert the request into the database
+		$this->logger->debug("saving new reset request into the database", $logCtx);
 		$qb = $this->db->createQueryBuilder();
 		$qb->insert('password_request')
 			->values([
@@ -91,9 +96,13 @@ class RequestResetController extends BaseController
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "An error occurred on our end."), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 
+		$this->logger->debug("generating reset email html", $logCtx);
 		$message = $this->generateResetEmailHTMLBody($jwt, $userInfo['first_name']);
+		$this->logger->debug("getting user email", $logCtx);
 		$email = $this->getUserEmail($userInfo['user_id']);
+		$this->logger->debug("Sending user email", $logCtx);
 		$success = $this->emailToken($message, $email);
+		$this->logger->debug("reset email sent successfully", $logCtx);
 		if($success === true)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
@@ -227,17 +236,21 @@ class RequestResetController extends BaseController
 	private function generateResetEmailHTMLBody($token, $username)
 	{
 		$email = file_get_contents(__DIR__ . '/../../email-templates/reset-password-email.html');
-		$proto = "http";
-		if(!empty($_SERVER['SERVER_PROTOCOL']))
+		$baseUrl = clsEnv::Get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN);
+		if(empty($baseUrl) && !empty($_SERVER['HTTP_ORIGIN']))
 		{
-			$proto = $_SERVER['SERVER_PROTOCOL'];
+			$baseUrl = $_SERVER['HTTP_ORIGIN'];
 		}
-		$host = "localhost";
-		if(!empty($_SERVER['SERVER_NAME']))
+		if(empty($baseUrl) && !empty($_SERVER['HTTP_REFERER']))
 		{
-			$host = $_SERVER['SERVER_NAME'];
+			$baseUrl = $_SERVER['HTTP_REFERER'];
 		}
-		$email = str_replace("%reset-link%", $proto . $host . "/" . clsConstants::EMAIL_RESET_LINK . $token, $email);
+		$baseUrl = rtrim($baseUrl, "/");
+		if(empty($baseUrl))
+		{
+			$this->logger->error("empty base url used when generating password reset email html body");
+		}
+		$email = str_replace("%reset-link%", $baseUrl . "/" . clsConstants::EMAIL_RESET_LINK . $token, $email);
 
 		return str_replace("%username%", $username, $email);
 	}

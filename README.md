@@ -1,8 +1,24 @@
 # Trick or Eat Demo
 
-A demo site of the trick or eat app I made in University. Request a demo to boot up a database and get the full user experience!
+[guelphtrickoreat.ca](https://guelphtrickoreat.ca)
+
+A demo site of the trick or eat web app I made in University.
 
 Hosted on AWS
+
+To deploy your own version, follow the instructions in [Deployment](docs/deployment.md)  
+
+## Demo Accounts
+
+The following accounts are available if you'd like to view the app's functionality from different types of user's perspectives
+
+| Account Type  | Email | Password |
+| ------------- | ------------- | ------------- |
+| Admin  | Content Cell  |  |
+| Organizer  | Content Cell  |  |
+| Team Captain  | Content Cell  |  |
+| User On Team  | Content Cell  |  |
+| User Without Team  | Content Cell  |  |
 
 ## Docs
 

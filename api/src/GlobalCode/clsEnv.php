@@ -22,6 +22,7 @@ class clsEnv
 	const TOE_LOG_FILE = 'TOE_LOG_FILE';
 	const TOE_LOGGING_LEVEL = 'TOE_LOGGING_LEVEL';
 	const TOE_ACCESS_CONTROL_ALLOW_ORIGIN = 'TOE_ACCESS_CONTROL_ALLOW_ORIGIN';
+	const TOE_STAGE = 'TOE_STAGE'; //the stage of deployment, dev or prod
 
 	private static $cache = [];
 
@@ -45,7 +46,8 @@ class clsEnv
 		self::TOE_ENCODED_JWT_KEY             => self::KEY_TYPE_STRING,
 		self::TOE_LOG_FILE                    => self::KEY_TYPE_STRING,
 		self::TOE_LOGGING_LEVEL               => self::KEY_TYPE_STRING,
-		self::TOE_ACCESS_CONTROL_ALLOW_ORIGIN => self::KEY_TYPE_STRING
+		self::TOE_ACCESS_CONTROL_ALLOW_ORIGIN => self::KEY_TYPE_STRING,
+		self::TOE_STAGE                       => self::KEY_TYPE_STRING
 	];
 
 	/**

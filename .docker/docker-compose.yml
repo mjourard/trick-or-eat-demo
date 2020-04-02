@@ -25,7 +25,8 @@ services:
       - "../frontendTOE/dist:/var/www/html/toe/app"
     environment:
       - dev_mode=on
-      - TOE_LOG_FILE=/var/log/myapp/errors.log
+      - TOE_STAGE=local
+      - TOE_LOG_FILE=php://stdout
       - TOE_DATABASE_HOST=toe_mysql
       - TOE_DATABASE_PORT=3306
       - TOE_DATABASE_USER=root

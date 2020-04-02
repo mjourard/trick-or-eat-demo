@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c73a931ba2c927743df0b445d7033a8",
+    "content-hash": "2c743ffbc47d90028b7968ee00b5ef27",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -789,56 +789,6 @@
                 "oauth2"
             ],
             "time": "2018-03-19T17:28:55+00:00"
-        },
-        {
-            "name": "maxbanton/cwh",
-            "version": "v1.1.14",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/maxbanton/cwh.git",
-                "reference": "d62e2fb75c71263ad9481b8338c78001810bc187"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/maxbanton/cwh/zipball/d62e2fb75c71263ad9481b8338c78001810bc187",
-                "reference": "d62e2fb75c71263ad9481b8338c78001810bc187",
-                "shasum": ""
-            },
-            "require": {
-                "aws/aws-sdk-php": "^3.18",
-                "monolog/monolog": "^1.20",
-                "php": ">=5.6.0"
-            },
-            "require-dev": {
-                "maxbanton/dd": "^1.0",
-                "php-coveralls/php-coveralls": "^2.0",
-                "phpunit/phpunit": "^5.6",
-                "squizlabs/php_codesniffer": "2.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Maxbanton\\Cwh\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Max Leonov",
-                    "email": "hi@maxleonov.pw",
-                    "homepage": "https://maxleonov.pw"
-                }
-            ],
-            "description": "AWS CloudWatch Handler for Monolog library",
-            "keywords": [
-                "aws",
-                "cloudwatch",
-                "monolog"
-            ],
-            "time": "2020-01-06T12:01:56+00:00"
         },
         {
             "name": "mnapoli/silly",
@@ -1759,6 +1709,63 @@
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
             "time": "2019-07-23T11:21:36+00:00"
+        },
+        {
+            "name": "symfony/dotenv",
+            "version": "v4.4.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dotenv.git",
+                "reference": "a78e698cfb8aca8ef6814639eb5ffc17180a4326"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dotenv/zipball/a78e698cfb8aca8ef6814639eb5ffc17180a4326",
+                "reference": "a78e698cfb8aca8ef6814639eb5ffc17180a4326",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3"
+            },
+            "require-dev": {
+                "symfony/process": "^3.4.2|^4.0|^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Dotenv\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Registers environment variables from a .env file",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "dotenv",
+                "env",
+                "environment"
+            ],
+            "time": "2020-03-27T16:54:36+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
