@@ -2,6 +2,9 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const secrets = require('./webpack.secrets');
+
+const config = secrets({}, './secrets');
 
 module.exports = title => {
     return {
@@ -10,11 +13,11 @@ module.exports = title => {
         },
         plugins: [
             new CleanWebpackPlugin(),
-            new HtmlWebpackPlugin({
+            new HtmlWebpackPlugin(Object.assign({
                 title: title,
                 template: './app/index.html',
                 inject: 'true'
-            }),
+            }, config)),
             new CopyPlugin([
                 {
                     from: './*/**/*.html',
