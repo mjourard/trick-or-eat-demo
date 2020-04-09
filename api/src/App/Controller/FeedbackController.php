@@ -28,8 +28,8 @@ class FeedbackController extends BaseController
 	 */
 	public function saveComment(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 
 		//TODO: Verify the passed in question_id is in the database
 		//get the iteration #
@@ -78,8 +78,8 @@ class FeedbackController extends BaseController
 	 */
 	public function getComment(Request $request, Application $app, $questionId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
 			'comment'
@@ -109,8 +109,8 @@ class FeedbackController extends BaseController
 	 */
 	public function getCharacterLimit(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('character_maximum_length')
 			->from('information_schema.columns')
@@ -129,8 +129,8 @@ class FeedbackController extends BaseController
 
 	public function getQuestions(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
 			'question_id',

@@ -19,8 +19,8 @@ class TeamController extends BaseController
 	 */
 	public function getTeams(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 		//Get all teams
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
@@ -59,8 +59,8 @@ class TeamController extends BaseController
 	 */
 	public function getTeam(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 
 		//Get the teamId
 		$userId = $this->userInfo->getID();
@@ -135,8 +135,8 @@ class TeamController extends BaseController
 	 */
 	public function joinTeam(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 
 		//verify the user is signed up for the event
 		$teamId = $app[clsConstants::PARAMETER_KEY]['team_id'];
@@ -241,8 +241,8 @@ class TeamController extends BaseController
 	 */
 	public function leaveTeam(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
@@ -290,8 +290,8 @@ class TeamController extends BaseController
 	 */
 	public function createTeam(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 		$params = $app['params'];
 
 		if ($params['memberCount'] > clsConstants::MAX_ROUTE_MEMBERS)
@@ -394,8 +394,8 @@ class TeamController extends BaseController
 	 */
 	public function isTeamNameAvailable(Application $app, $teamName)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id')
 			->from('member')
@@ -431,8 +431,8 @@ class TeamController extends BaseController
 	 */
 	public function kickTeammate(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 
 		//Can't kick yourself from the team
 		if ($this->userInfo->getID() == $app[clsConstants::PARAMETER_KEY]['teammate_id'])

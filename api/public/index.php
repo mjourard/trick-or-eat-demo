@@ -12,6 +12,6 @@ require __DIR__ . "/../config/config.php";
 require __DIR__ . "/../config/routes.php";
 
 
-$app['debug'] = clsEnv::Get(clsEnv::TOE_DEBUG_ON);
+$app['debug'] = clsEnv::get(clsEnv::TOE_DEBUG_ON);
 $app->run();
 

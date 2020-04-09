@@ -16,9 +16,9 @@ $strtoint = function ($id)
 $app->post('/login', 'TOE\App\Controller\AuthController::login');
 $app->post('/register', 'TOE\App\Controller\AuthController::register');
 
-$app->post('/requestReset', 'TOE\App\Controller\RequestResetController::RequestReset');
-$app->get('/checkTokenStatus/{token}', 'TOE\App\Controller\ResetPasswordController::CheckTokenStatus');
-$app->post('/resetPassword', 'TOE\App\Controller\ResetPasswordController::ResetPassword');
+$app->post('/requestReset', 'TOE\App\Controller\RequestResetController::requestReset');
+$app->get('/checkTokenStatus/{token}', 'TOE\App\Controller\ResetPasswordController::checkTokenStatus');
+$app->post('/resetPassword', 'TOE\App\Controller\ResetPasswordController::resetPassword');
 
 $app->get('/countries', 'TOE\App\Controller\RegionController::getCountries');
 $app->get('/regions/{countryId}', 'TOE\App\Controller\RegionController::getRegion')
@@ -34,9 +34,9 @@ $app->post('/team/create', 'TOE\App\Controller\TeamController::createTeam');
 $app->post('/team/kick', 'TOE\App\Controller\TeamController::kickTeammate');
 $app->post('/team/leave', 'TOE\App\Controller\TeamController::leaveTeam');
 
-$app->post('/events/register', 'TOE\App\Controller\EventController::Register');
-$app->post('/events/deregister', 'TOE\App\Controller\EventController::Deregister');
-$app->get('/events/{regionId}', 'TOE\App\Controller\EventController::GetEvents')
+$app->post('/events/register', 'TOE\App\Controller\EventController::register');
+$app->post('/events/deregister', 'TOE\App\Controller\EventController::deregister');
+$app->get('/events/{regionId}', 'TOE\App\Controller\EventController::getEvents')
 	->assert('regionId', clsConstants::STANDARD_ID_REGEX)
 	->convert('regionId', $strtoint);
 
@@ -110,7 +110,7 @@ $app->error(function (\Exception $e, Request $request, $code) use ($app)
 			$message = 'We are sorry, but something went terribly wrong.';
 	}
 
-	if (clsEnv::Get(clsEnv::TOE_DEBUG_ON))
+	if (clsEnv::get(clsEnv::TOE_DEBUG_ON))
 	{
 		$message = "\n*CODE*\n$code\n*MESSAGE*\n" . $e->getMessage() . "\n*TRACE*\n" . clsUtil::RemoveFrameworkCallsFromStacktrace($e->getTraceAsString());
 	}

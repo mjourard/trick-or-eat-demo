@@ -11,11 +11,11 @@ require __DIR__ . '/../vendor/autoload.php';
 $app = new Application();
 
 $db = new DAL(
-	clsEnv::Get(clsEnv::TOE_DATABASE_USER),
-	clsEnv::Get(clsEnv::TOE_DATABASE_PASSWORD),
-	clsEnv::Get(clsEnv::TOE_DATABASE_HOST),
+	clsEnv::get(clsEnv::TOE_DATABASE_USER),
+	clsEnv::get(clsEnv::TOE_DATABASE_PASSWORD),
+	clsEnv::get(clsEnv::TOE_DATABASE_HOST),
 	'',
-	clsEnv::Get(clsEnv::TOE_DATABASE_PORT)
+	clsEnv::get(clsEnv::TOE_DATABASE_PORT)
 );
 $container = new ServiceContainer($db);
 

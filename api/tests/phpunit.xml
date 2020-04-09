@@ -16,9 +16,9 @@
     </testsuites>
     <!--Use this section to execute specific groups. Leave it commented out if you want to run all tests-->
     <groups>
-        <!--        <include>-->
-        <!--            <group>default</group>-->
-        <!--        </include>-->
+<!--                <include>-->
+<!--                    <group>Request-Password</group>-->
+<!--                </include>-->
         <exclude>
             <group>Route-broken</group>
         </exclude>
@@ -36,5 +36,6 @@
         <env name="TOE_REDIS_LOGGING_PORT" value="6379"/>
         <env name="TOE_ENCODED_JWT_KEY" value="dHJpY2tvcmVhdDIwMjBkZW1v"/>
         <env name="TOE_LOGGING_LEVEL" value="INFO"/>
+        <env name="TOE_STAGE" value="local"/>
     </php>
 </phpunit>

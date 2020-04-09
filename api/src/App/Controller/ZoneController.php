@@ -20,8 +20,8 @@ class ZoneController extends BaseController
 
 	public function createZone(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$params = $app[clsConstants::PARAMETER_KEY];
 		$response = $this->verifyParams($app, $params);
 		if($response !== null)
@@ -83,8 +83,8 @@ class ZoneController extends BaseController
 
 	public function editZone(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$params = $app[clsConstants::PARAMETER_KEY];
 		$response = $this->verifyParams($app, $params);
 		if($response !== null)
@@ -149,8 +149,8 @@ class ZoneController extends BaseController
 	 */
 	public function getZones(Application $app, $regionId, $status)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 
 		if(!$this->isStatusGood($status) && $status !== 'all' && $status !== 'working')
 		{
@@ -205,8 +205,8 @@ class ZoneController extends BaseController
 
 	public function getZone(Application $app, $zoneId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
 			'zone_id',
@@ -246,8 +246,8 @@ class ZoneController extends BaseController
 
 	public function setZoneStatus(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$status = $app[clsConstants::PARAMETER_KEY]['status'];
 		$zoneId = $app[clsConstants::PARAMETER_KEY]['zone_id'];
 

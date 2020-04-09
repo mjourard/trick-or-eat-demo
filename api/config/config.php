@@ -7,12 +7,12 @@ use TOE\GlobalCode\clsEnv;
 
 $app['db.options'] = [
 	'driver'   => 'pdo_mysql',
-	'host'     => clsEnv::Get(clsEnv::TOE_DATABASE_HOST),
-	'port'     => clsEnv::Get(clsEnv::TOE_DATABASE_PORT),
+	'host'     => clsEnv::get(clsEnv::TOE_DATABASE_HOST),
+	'port'     => clsEnv::get(clsEnv::TOE_DATABASE_PORT),
 	'dbname'   => clsConstants::DATABASE_NAME,
 	'charset'  => 'utf8',
-	'user'     => clsEnv::Get(clsEnv::TOE_DATABASE_USER),
-	'password' => clsEnv::Get(clsEnv::TOE_DATABASE_PASSWORD)
+	'user'     => clsEnv::get(clsEnv::TOE_DATABASE_USER),
+	'password' => clsEnv::get(clsEnv::TOE_DATABASE_PASSWORD)
 ];
 
 //anonymous routes are for when a user is not required to login
@@ -27,7 +27,7 @@ $app['routes.anonymous'] = [
 ];
 
 //$app['jwt.key'] = base64_decode("Sh9m44uV0J4a7Qy1BoWGkz2GuuophBEmuR11QXHLDXoPlTthoboP59Hp/BtXijicb1GWswCmOsQM5UdnmZ++7g==");
-$app['jwt.key'] = base64_decode(clsEnv::Get(clsEnv::TOE_ENCODED_JWT_KEY));
+$app['jwt.key'] = base64_decode(clsEnv::get(clsEnv::TOE_ENCODED_JWT_KEY));
 
 //parameters are how you populate the 'params' key in app. The key of the each element in the array should be the route defined in routes.php.
 $app['parameters'] = [
@@ -131,9 +131,9 @@ $app['parameters'] = [
 	]
 ];
 
-$app['redis.logging.ip'] = clsEnv::Get(clsEnv::TOE_REDIS_LOGGING_IP);
-$app['redis.logging.port'] = clsEnv::Get(clsEnv::TOE_REDIS_LOGGING_PORT);
-$app['redis.logging.password'] = clsEnv::Get(clsEnv::TOE_REDIS_PASSWORD);
+$app['redis.logging.ip'] = clsEnv::get(clsEnv::TOE_REDIS_LOGGING_IP);
+$app['redis.logging.port'] = clsEnv::get(clsEnv::TOE_REDIS_LOGGING_PORT);
+$app['redis.logging.password'] = clsEnv::get(clsEnv::TOE_REDIS_PASSWORD);
 
 //This is here due to the order that $app is defined and executed in both production and development environments
 if (getenv('dev_mode') === 'on')

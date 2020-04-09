@@ -19,9 +19,9 @@ use TOETests\clsTestConstants;
 
 class ResetPasswordController extends BaseController
 {
-	public function ResetPassword(Application $app)
+	public function resetPassword(Application $app)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 		$password = $app[clsConstants::PARAMETER_KEY]['password'];
 		$jwt = $app[clsConstants::PARAMETER_KEY]['jwt'];
 		$currentTime = new \DateTime('now', new \DateTimeZone('utc'));
@@ -82,9 +82,9 @@ class ResetPasswordController extends BaseController
 	 * @return \Symfony\Component\HttpFoundation\JsonResponse
 	 * @throws Exception
 	 */
-	public function CheckTokenStatus(Application $app, $token)
+	public function checkTokenStatus(Application $app, $token)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 		$currentTime = new \DateTime('now', new \DateTimeZone('utc'));
 
 		try

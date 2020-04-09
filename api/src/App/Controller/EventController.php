@@ -9,14 +9,14 @@ use TOE\GlobalCode\clsResponseJson;
 
 class EventController extends BaseController
 {
-	public function Register(Request $request, Application $app)
+	public function register(Request $request, Application $app)
 	{
 		/* boiler plate  */
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 		$params = $app[clsConstants::PARAMETER_KEY];
 
-		if ($this->IsRegistered())
+		if ($this->isRegistered())
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'User is already registered for an event. '), clsHTTPCodes::CLI_ERR_CONFLICT);
 		}
@@ -83,14 +83,14 @@ class EventController extends BaseController
 		return $app->json(clsResponseJson::GetJsonResponseArray(true, "", $event), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
-	public function Deregister(Request $request, Application $app)
+	public function deregister(Request $request, Application $app)
 	{
 		/* boiler plate */
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 		$params = $app[clsConstants::PARAMETER_KEY];
 
-		if (!$this->IsRegistered())
+		if (!$this->isRegistered())
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'The user is not registered for an event. '), clsHTTPCodes::CLI_ERR_ACTION_NOT_ALLOWED);
 		}
@@ -164,9 +164,9 @@ class EventController extends BaseController
 		return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_NO_CONTENT);
 	}
 
-	public function GetEvents(Application $app, $regionId)
+	public function getEvents(Application $app, $regionId)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('event_id', 'event_name')
@@ -186,7 +186,7 @@ class EventController extends BaseController
 	}
 
 	#check if user is registered for a different event
-	private function IsRegistered()
+	private function isRegistered()
 	{
 		$userID = $this->userInfo->getID();
 		$qb = $this->db->createQueryBuilder();

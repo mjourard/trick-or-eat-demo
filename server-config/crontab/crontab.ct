@@ -1,1 +1,1 @@
-45 * * * * php /var/www/html/trickoreat/backendtoe/cron-jobs/clean-reset-tokens/run.php
+45 * * * * php /var/www/html/trickoreat/api/cron-jobs/clean-reset-tokens/run.php

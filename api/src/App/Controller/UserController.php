@@ -17,9 +17,9 @@ class UserController extends BaseController
 	 */
 	public function getUserInfo(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
-		$results = $this->GetUserEntity();
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
+		$results = $this->getUserEntity();
 
 		return $app->json(clsResponseJson::GetJsonResponseArray(true, "", $results), clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
@@ -34,8 +34,8 @@ class UserController extends BaseController
 	 */
 	public function updateUserInfo(Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ALL]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
 		$params = $app[clsConstants::PARAMETER_KEY];
 		$qb = $this->db->createQueryBuilder();
 
@@ -87,7 +87,7 @@ class UserController extends BaseController
 		}
 
 		//retrieve the newly updated user object to be returned
-		$results = $this->GetUserEntity();
+		$results = $this->getUserEntity();
 
 		return $app->json(clsResponseJson::GetJsonResponseArray(true, "", $results), clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
@@ -97,7 +97,7 @@ class UserController extends BaseController
 	 *
 	 * @return array|null
 	 */
-	private function GetUserEntity()
+	private function getUserEntity()
 	{
 		if (!isset($this->db))
 		{

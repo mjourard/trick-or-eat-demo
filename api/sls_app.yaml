@@ -16,6 +16,12 @@ provider:
   runtime: provided
   iamManagedPolicies:
     - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:*
+        - ses:*
+      Resource: "*"
   vpc:
     securityGroupIds:
       - ${self:custom.TOE_DATABASE_SG}
@@ -37,6 +43,8 @@ provider:
     TOE_RESET_CLIENT_ID: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_ID}
     TOE_RESET_CLIENT_SECRET: ${self:custom.TOE_PASSWORD_RESET.GCP_CLIENT_SECRET}
     TOE_RESET_REFRESH_TOKEN: ${self:custom.TOE_PASSWORD_RESET.GCP_REFRESH_TOKEN}
+    TOE_AWS_REGION: ${self:custom.TOE_AWS_REGION}
+    TOE_EMAIL_CLIENT: ses
 custom:
   PERSIST_STACK_NAME: toe-api-data-persistence
   TOE_DATABASE:
@@ -53,6 +61,7 @@ custom:
   TOE_LOGGING_LEVEL: 'INFO' #normally set to INFO
   TOE_LOG_FILE: 'php://stdout' # this will send log output to stdout and be picked up by cloudwatch
   TOE_ACCESS_CONTROL_ALLOW_ORIGIN: ${ssm:/toe/prod/ClientDomain}
+  TOE_AWS_REGION: ${self:provider.region}
   TOE_PASSWORD_RESET:
     EMAIL: ${ssm:/toe/prod/PASSWORD_RESET_EMAIL}
     GCP_CLIENT_ID: ${ssm:/toe/prod/GCP_CLIENT_ID}

@@ -14,11 +14,11 @@ The following accounts are available if you'd like to view the app's functionali
 
 | Account Type  | Email | Password |
 | ------------- | ------------- | ------------- |
-| Admin  | Content Cell  |  |
-| Organizer  | Content Cell  |  |
-| Team Captain  | Content Cell  |  |
-| User On Team  | Content Cell  |  |
-| User Without Team  | Content Cell  |  |
+| Admin  | admin_on_team_with_route@toetests.com  | password |
+| Organizer  | organizer@toetests.com | password |
+| Team Captain  | user_on_team_as_captain@toetests.com  | password |
+| User On Team  | user_on_team@toetests.com  | password |
+| User Without Team  | user_registered_for_event@toetests.com  | password |
 
 ## Docs
 

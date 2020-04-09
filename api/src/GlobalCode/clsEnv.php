@@ -18,6 +18,11 @@ class clsEnv
 	const TOE_RESET_CLIENT_ID = 'TOE_RESET_CLIENT_ID';
 	const TOE_RESET_CLIENT_SECRET = 'TOE_RESET_CLIENT_SECRET';
 	const TOE_RESET_REFRESH_TOKEN = 'TOE_RESET_REFRESH_TOKEN';
+	const TOE_AWS_REGION = 'TOE_AWS_REGION';
+	const TOE_AWS_ACCESS_KEY = 'TOE_AWS_ACCESS_KEY';
+	const TOE_AWS_SECRET_KEY = 'TOE_AWS_SECRET_KEY';
+	const TOE_AWS_ASSUME_ROLE_ARN = 'TOE_AWS_ASSUME_ROLE_ARN';
+	const TOE_EMAIL_CLIENT = 'TOE_EMAIL_CLIENT';
 	const TOE_ENCODED_JWT_KEY = 'TOE_ENCODED_JWT_KEY';
 	const TOE_LOG_FILE = 'TOE_LOG_FILE';
 	const TOE_LOGGING_LEVEL = 'TOE_LOGGING_LEVEL';
@@ -43,6 +48,11 @@ class clsEnv
 		self::TOE_RESET_CLIENT_ID             => self::KEY_TYPE_STRING,
 		self::TOE_RESET_CLIENT_SECRET         => self::KEY_TYPE_STRING,
 		self::TOE_RESET_REFRESH_TOKEN         => self::KEY_TYPE_STRING,
+		self::TOE_AWS_REGION                  => self::KEY_TYPE_STRING,
+		self::TOE_AWS_ACCESS_KEY              => self::KEY_TYPE_STRING,
+		self::TOE_AWS_SECRET_KEY              => self::KEY_TYPE_STRING,
+		self::TOE_AWS_ASSUME_ROLE_ARN         => self::KEY_TYPE_STRING,
+		self::TOE_EMAIL_CLIENT                => self::KEY_TYPE_STRING,
 		self::TOE_ENCODED_JWT_KEY             => self::KEY_TYPE_STRING,
 		self::TOE_LOG_FILE                    => self::KEY_TYPE_STRING,
 		self::TOE_LOGGING_LEVEL               => self::KEY_TYPE_STRING,
@@ -58,7 +68,7 @@ class clsEnv
 	 *
 	 * @return bool|int|string
 	 */
-	public static function Get($key)
+	public static function get($key)
 	{
 		if(!isset(self::KEY_TYPES[$key]))
 		{

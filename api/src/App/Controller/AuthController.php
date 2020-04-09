@@ -22,12 +22,12 @@ class AuthController extends BaseController
 	 */
 	public function register(Application $app)
 	{
-		if(!$this->EmailIsGood($app[clsConstants::PARAMETER_KEY]['email'], $app))
+		if(!$this->emailIsGood($app[clsConstants::PARAMETER_KEY]['email'], $app))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad email"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		if(!$this->PasswordIsGood($app[clsConstants::PARAMETER_KEY]['password']))
+		if(!$this->passwordIsGood($app[clsConstants::PARAMETER_KEY]['password']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad password"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -46,7 +46,7 @@ class AuthController extends BaseController
 
 		$email = strtolower(trim($app[clsConstants::PARAMETER_KEY]['email']));
 
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 
 		$userId = $app['user.lookup']->GetUserId($email);
 
@@ -56,7 +56,7 @@ class AuthController extends BaseController
 		}
 
 		//verify the region passed in exists
-		if(!$this->RegionExists($app[clsConstants::PARAMETER_KEY]['region_id']))
+		if(!$this->regionExists($app[clsConstants::PARAMETER_KEY]['region_id']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "region_id of {$app[clsConstants::PARAMETER_KEY]['region_id']} is was not found in the database."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -110,7 +110,7 @@ class AuthController extends BaseController
 	 */
 	public function login(Application $app)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 		$qb = $this->db->createQueryBuilder();
 
 		$delim = ",";
@@ -162,7 +162,7 @@ class AuthController extends BaseController
 		return $app->json(clsResponseJson::GetJsonResponseArray(true, "", ["token" => $token]), clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
-	private function RegionExists($regionId)
+	private function regionExists($regionId)
 	{
 		$qb = $this->db->createQueryBuilder();
 
@@ -184,7 +184,7 @@ class AuthController extends BaseController
 	 *
 	 * @return bool returns true if the email is valid, false otherwise
 	 */
-	private function EmailIsGood($email, Application $app)
+	private function emailIsGood($email, Application $app)
 	{
 		/** @var  \Symfony\Component\Validator\Validator\ValidatorInterface $validator */
 		$validator = $app['validator'];
@@ -192,7 +192,7 @@ class AuthController extends BaseController
 		return $validator->validate($email, new Assert\Email())->count() === 0;
 	}
 
-	private function PasswordIsGood($password)
+	private function passwordIsGood($password)
 	{
 		//TODO: Modify the password input to rate the user's password strength. Any non-empty password should be accepted
 		return !empty($password);

@@ -26,8 +26,8 @@ class RouteArchiveController extends BaseController
 	 */
 	public function addRoute(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 
 		if (empty($request->files))
 		{
@@ -104,8 +104,8 @@ class RouteArchiveController extends BaseController
 	 */
 	public function deleteRoute(Application $app, $zoneId, $routeId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('route_name')
 			->from('route_archive')
@@ -148,8 +148,8 @@ class RouteArchiveController extends BaseController
 	public function getRoutes(Application $app, $zoneId)
 	{
 
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
 			'ra.route_id',

@@ -6,10 +6,10 @@ use DateInterval;
 use DateTime;
 use DateTimeZone;
 use Firebase\JWT\JWT;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PHPMailerOAuth;
 use Silex\Application;
-use SMTP;
+use TOE\App\Service\Email\aClient;
+use TOE\App\Service\Email\EmailException;
+use TOE\App\Service\Email\Message;
 use TOE\GlobalCode\clsConstants;
 use TOE\GlobalCode\clsEnv;
 use TOE\GlobalCode\clsHTTPCodes;
@@ -21,9 +21,9 @@ class RequestResetController extends BaseController
 	const VALID_TIME = 18000;
 	const MAX_ACTIVE_REQUESTS = 5;
 
-	public function RequestReset(Application $app)
+	public function requestReset(Application $app)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 		$params = $app[clsConstants::PARAMETER_KEY];
 		$logCtx = ['email' => $params['email']];
 		$this->logger->debug("Getting user info", $logCtx);
@@ -96,13 +96,11 @@ class RequestResetController extends BaseController
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "An error occurred on our end."), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 
-		$this->logger->debug("generating reset email html", $logCtx);
 		$message = $this->generateResetEmailHTMLBody($jwt, $userInfo['first_name']);
-		$this->logger->debug("getting user email", $logCtx);
 		$email = $this->getUserEmail($userInfo['user_id']);
 		$this->logger->debug("Sending user email", $logCtx);
-		$success = $this->emailToken($message, $email);
-		$this->logger->debug("reset email sent successfully", $logCtx);
+		$success = $this->emailToken($message, $email, $app['email']);
+		$this->logger->debug("reset email", $logCtx);
 		if($success === true)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
@@ -139,65 +137,31 @@ class RequestResetController extends BaseController
 	/**
 	 * Emails the reset token the specified
 	 *
-	 * @param string $message
-	 * @param string $email
+	 * @param string  $message
+	 * @param string  $email
+	 *
+	 * @param aClient $client An email client to send the reset token message from
 	 *
 	 * @return bool|string Returns true on success, and an error message on false.
-	 * @throws \phpmailerException
-	 * @throws IdentityProviderException
 	 */
-	private function emailToken($message, $email)
+	private function emailToken($message, $email, aClient $client)
 	{
-		$mail = new PHPMailerOAuth();
-		// 1 = messages only
-		// 2 = errors + messages
-		// 3 = detailed errors + messages
-		$mail->isSMTP();
-		//TODO: move this to a config file like the other configurable constants
-		$mail->SMTPDebug = SMTP::DEBUG_OFF;
-
-		$mail->oauthUserEmail = clsEnv::Get(clsEnv::TOE_RESET_ACCOUNT_EMAIL);
-		$mail->oauthClientId = clsEnv::Get(clsEnv::TOE_RESET_CLIENT_ID);
-		$mail->oauthClientSecret = clsEnv::Get(clsEnv::TOE_RESET_CLIENT_SECRET);
-		$mail->oauthRefreshToken = clsEnv::Get(clsEnv::TOE_RESET_REFRESH_TOKEN);
-
-		$mail->SMTPOptions = [
-			'ssl' => [
-				'verify_peer'       => false,
-				'verify_peer_name'  => false,
-				'allow_self_signed' => true
-			]
-		];
-
-		$mail->SMTPAuth = true;                  // enable SMTP authentication
-		$mail->SMTPSecure = "tls";            //use tls protocol
-		$mail->Host = "smtp.gmail.com";      // SMTP server
-		$mail->Port = 587;                   // SMTP port
-		$mail->AuthType = 'XOAUTH2';
-
-		$mail->setFrom('trickoreat@mealexchange.com', 'Meal Exchange');
-		$mail->Subject = "Password Reset";
-		$mail->msgHTML($message);
-		$mail->addAddress($email);
+		$messageToSend = (new Message())
+			->setTo($email)
+			->setFrom(clsEnv::get(clsEnv::TOE_RESET_ACCOUNT_EMAIL))
+			->setFromName('Guelph Trick or Eat')
+			->setSubject('Password Reset')
+			->setBody($message);
 
 		try
 		{
-			if($mail->send() === false)
-			{
-				return $mail->ErrorInfo;
-			}
+			$client->sendEmail($messageToSend);
+			return true;
 		}
-		catch(IdentityProviderException $ex)
+		catch(EmailException $ex)
 		{
-			$this->logger->error("Reset Password Email Failed: " . $ex->getMessage(), ['email' => $email]);
-			if(clsEnv::Get(clsEnv::TOE_DEBUG_ON))
-			{
-				return true;
-			}
-			throw $ex;
+			return $ex->getMessage();
 		}
-
-		return true;
 	}
 
 	/**
@@ -236,7 +200,7 @@ class RequestResetController extends BaseController
 	private function generateResetEmailHTMLBody($token, $username)
 	{
 		$email = file_get_contents(__DIR__ . '/../../email-templates/reset-password-email.html');
-		$baseUrl = clsEnv::Get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN);
+		$baseUrl = clsEnv::get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN);
 		if(empty($baseUrl) && !empty($_SERVER['HTTP_ORIGIN']))
 		{
 			$baseUrl = $_SERVER['HTTP_ORIGIN'];

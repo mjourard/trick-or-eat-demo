@@ -32,7 +32,7 @@ class BaseController
 	 *
 	 * @param \Silex\Application $app
 	 */
-	protected function InitializeInstance(Application $app)
+	protected function initializeInstance(Application $app)
 	{
 		$this->app = $app;
 		$this->db = $app['db'];
@@ -48,7 +48,7 @@ class BaseController
 	 *
 	 * @param array $permittedRoles Array of the roles permitted.
 	 */
-	protected function UnauthorizedAccess(array $permittedRoles)
+	protected function unauthorizedAccess(array $permittedRoles)
 	{
 		//change permitted roles to associative array
 		$permittedRoles = array_flip($permittedRoles);

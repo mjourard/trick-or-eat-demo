@@ -3,7 +3,7 @@
 ##How to Run Tests:
 
 1. install composer https://getcomposer.org/download/
-2. cd into the `backendTOE` directory
+2. cd into the `api` directory
 3. install the dependencies with `composer install` 
 4. run the tests through composer: `composer run test`
 

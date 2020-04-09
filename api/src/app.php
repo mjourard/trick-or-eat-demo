@@ -7,6 +7,7 @@ use Monolog\Processor\WebProcessor;
 use Symfony\Component\HttpFoundation\Request;
 use \Firebase\JWT\JWT;
 use Symfony\Component\HttpFoundation\Response;
+use TOE\App\Service\Email\ClientFactory;
 use TOE\App\Service\ParameterVerifier;
 use TOE\App\Service\UserServiceProvider;
 use TOE\GlobalCode\clsConstants;
@@ -14,15 +15,15 @@ use TOE\GlobalCode\clsEnv;
 use TOE\GlobalCode\clsHTTPCodes;
 use TOE\GlobalCode\clsResponseJson;
 
-$logFile = clsEnv::Get(clsEnv::TOE_LOG_FILE);
+$logFile = clsEnv::get(clsEnv::TOE_LOG_FILE);
 if (empty($logFile))
 {
 	$logFile = __DIR__ . '/../logs/error.log';
 }
 $level = Logger::WARNING;
-if (isset(Logger::getLevels()[clsEnv::Get(clsEnv::TOE_LOGGING_LEVEL)]))
+if (isset(Logger::getLevels()[clsEnv::get(clsEnv::TOE_LOGGING_LEVEL)]))
 {
-	$level = Logger::toMonologLevel(clsEnv::Get(clsEnv::TOE_LOGGING_LEVEL));
+	$level = Logger::toMonologLevel(clsEnv::get(clsEnv::TOE_LOGGING_LEVEL));
 }
 /* @var \Silex\Application $app */
 $app->register(new Silex\Provider\DoctrineServiceProvider());
@@ -46,7 +47,7 @@ $app->extend('monolog', function (Logger $monolog, $app)
 		$params['password'] = $app['redis.logging.password'];
 	}
 	$redis = new Predis\Client($params);
-	$key = clsEnv::Get(clsEnv::TOE_DEBUG_ON) ? "dev-" : "";
+	$key = clsEnv::get(clsEnv::TOE_DEBUG_ON) ? "dev-" : "";
 	$key .= clsConstants::REDIS_ERROR_KEY;
 	$monolog->pushHandler(new RedisHandler($redis, $key));
 
@@ -59,6 +60,10 @@ $app->extend('monolog', function (Logger $monolog, $app)
 
 $app['user.lookup'] = function($app) {
 	return new TOE\App\Service\UserLookupService($app['db']);
+};
+
+$app['email'] = function() {
+	return ClientFactory::getClient();
 };
 
 $app->before(function (Request $request) use ($app)
@@ -133,7 +138,7 @@ $app->before(function (Request $request) use ($app)
 });
 $app->after(function(Request $request, Response $response) use ($app)
 {
-	$response->headers->set('Access-Control-Allow-Origin', clsEnv::Get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN), true);
+	$response->headers->set('Access-Control-Allow-Origin', clsEnv::get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN), true);
 	$response->headers->set("Vary", "Origin");
 	$response->headers->set('Access-Control-Allow-Credentials', 'true', true);
 });

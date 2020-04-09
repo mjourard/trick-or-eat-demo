@@ -9,7 +9,7 @@ class RegionController extends BaseController
 {
 	public function getCountries(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
 			'country_id',
@@ -28,7 +28,7 @@ class RegionController extends BaseController
 
 	public function getRegion(Request $request, Application $app, $countryId)
 	{
-		$this->InitializeInstance($app);
+		$this->initializeInstance($app);
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
 			'region_id',

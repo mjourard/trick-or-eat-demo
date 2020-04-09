@@ -44,10 +44,10 @@ class RouteController extends BaseController
 	public function getRouteAssignments(Request $request, Application $app, $eventId, $orderBy)
 	{
 
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 
-		if (!$this->EventExists($eventId))
+		if (!$this->eventExists($eventId))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Event does not exist in the database."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -212,8 +212,8 @@ class RouteController extends BaseController
 	 */
 	public function getRouteAssignmentsForTeam(Request $request, Application $app, $eventId, $teamId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER, clsConstants::ROLE_PARTICIPANT]);
 		if ($eventId < 1)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "EventId must be a positive integer."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
@@ -276,8 +276,8 @@ class RouteController extends BaseController
 
 	public function getRoutesForEvent(Request $request, Application $app, $eventId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		if ($eventId < 1)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Event Id must be a positive number. Passed in '$eventId'"));
@@ -315,8 +315,8 @@ class RouteController extends BaseController
 
 	public function getUnallocatedRoutes(Request $request, Application $app, $eventId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		if ($eventId < 1)
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Event Id must be a positive number. Passed in '$eventId'"));
@@ -356,16 +356,16 @@ class RouteController extends BaseController
 
 	public function allocateRoute(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 		//verify that the route passed in exists and that it isn't already allocated to the event passed in
 
-		if (!$this->RouteExists($app[clsConstants::PARAMETER_KEY]['zoneId'], $app[clsConstants::PARAMETER_KEY]['routeId']))
+		if (!$this->routeExists($app[clsConstants::PARAMETER_KEY]['zoneId'], $app[clsConstants::PARAMETER_KEY]['routeId']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Could not find a route with ID {$app[clsConstants::PARAMETER_KEY]['routeId']} in zone {$app[clsConstants::PARAMETER_KEY]['zoneId']}"));
 		}
 
-		if ($this->RouteAllocatedToEvent($app[clsConstants::PARAMETER_KEY]['routeId'], $app[clsConstants::PARAMETER_KEY]['eventId']))
+		if ($this->routeAllocatedToEvent($app[clsConstants::PARAMETER_KEY]['routeId'], $app[clsConstants::PARAMETER_KEY]['eventId']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Route {$app[clsConstants::PARAMETER_KEY]['routeId']} is already allocated to event {$app[clsConstants::PARAMETER_KEY]['eventId']}"));
 		}
@@ -387,9 +387,9 @@ class RouteController extends BaseController
 
 	public function deallocateRoute(Request $request, Application $app)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
-		if (!$this->RouteAllocatedToEvent($app[clsConstants::PARAMETER_KEY]['routeId'], $app[clsConstants::PARAMETER_KEY]['eventId']))
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		if (!$this->routeAllocatedToEvent($app[clsConstants::PARAMETER_KEY]['routeId'], $app[clsConstants::PARAMETER_KEY]['eventId']))
 		{
 			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Route {$app[clsConstants::PARAMETER_KEY]['routeId']} is not currently allocated to {$app[clsConstants::PARAMETER_KEY]['eventId']}"));
 		}
@@ -419,8 +419,8 @@ class RouteController extends BaseController
 	 */
 	public function assignAllRoutes(Request $request, Application $app, $eventId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 
 		$canDrive = ['true', 'false'];
 		$visionOptions = ['true', 'false'];
@@ -471,7 +471,7 @@ class RouteController extends BaseController
 		//Split the list into one hash map, where the key will be the combination of conditions a route must meet to be assigned to that team. The values will be another hash map, where the key is the number of members a team has, the values being team objects.
 		foreach ($rawTeams as $team)
 		{
-			$key = $this->GetTeamRequirementsKey($team['can_drive'], $team['visual'], $team['hearing'], $team['mobility']);
+			$key = $this->getTeamRequirementsKey($team['can_drive'], $team['visual'], $team['hearing'], $team['mobility']);
 			if (!isset($teams[$key]))
 			{
 				$teams[$key] = [];
@@ -494,7 +494,7 @@ class RouteController extends BaseController
 					foreach ($mobilityOptions as $mOption)
 					{
 						//Get the array key that would be used to find the teams based on their route requirements
-						$key = $this->GetTeamRequirementsKey($dOption, $vOption, $hOption, $mOption);
+						$key = $this->getTeamRequirementsKey($dOption, $vOption, $hOption, $mOption);
 						if (!isset($teams[$key]))
 						{
 							continue;
@@ -685,8 +685,8 @@ class RouteController extends BaseController
 	 */
 	public function removeAllRouteAssignments(Request $request, Application $app, $eventId)
 	{
-		$this->InitializeInstance($app);
-		$this->UnauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([clsConstants::ROLE_ADMIN, clsConstants::ROLE_ORGANIZER]);
 
 		$qb = $this->db->createQueryBuilder();
 
@@ -708,13 +708,14 @@ class RouteController extends BaseController
 	 * @param string $hearing  Enum - 'true' or 'false'
 	 * @param string $mobility Enum - 'true' or 'false'
 	 *
-	 * @return string A hash map key for the team.
+	 * @return string A key used in a hash map for the team.
 	 */
-	private function GetTeamRequirementsKey($canDrive, $visual, $hearing, $mobility)
+	private function getTeamRequirementsKey($canDrive, $visual, $hearing, $mobility)
 	{
-		$key = ($canDrive === 'false' ? clsConstants::KEY_CANNOT_DRIVE : clsConstants::KEY_CAN_DRIVE) . ($visual === 'false' ? clsConstants::KEY_NO_VISUAL_IMPAIRMENT : clsConstants::KEY_VISUAL_IMPAIRMENT) . ($hearing === 'false' ? clsConstants::KEY_NO_HEARING_IMPAIRMENT : clsConstants::KEY_HEARING_IMPAIRMENT) . ($mobility === 'false' ? clsConstants::KEY_NO_MOBILITY_IMPAIRMENT : clsConstants::KEY_MOBILITY_IMPAIRMENT);
-
-		return $key;
+		return ($canDrive === 'false' ? clsConstants::KEY_CANNOT_DRIVE : clsConstants::KEY_CAN_DRIVE) .
+			($visual === 'false' ? clsConstants::KEY_NO_VISUAL_IMPAIRMENT : clsConstants::KEY_VISUAL_IMPAIRMENT) .
+			($hearing === 'false' ? clsConstants::KEY_NO_HEARING_IMPAIRMENT : clsConstants::KEY_HEARING_IMPAIRMENT) .
+			($mobility === 'false' ? clsConstants::KEY_NO_MOBILITY_IMPAIRMENT : clsConstants::KEY_MOBILITY_IMPAIRMENT);
 	}
 
 	/**
@@ -724,7 +725,7 @@ class RouteController extends BaseController
 	 *
 	 * @return bool
 	 */
-	private function EventExists($eventId)
+	private function eventExists($eventId)
 	{
 		if (!is_int($eventId))
 		{
@@ -742,7 +743,7 @@ class RouteController extends BaseController
 
 	}
 
-	private function RouteExists($zoneId, $routeId)
+	private function routeExists($zoneId, $routeId)
 	{
 		$qb = $this->db->createQueryBuilder();
 		$qb->select(
@@ -766,7 +767,7 @@ class RouteController extends BaseController
 	 *
 	 * @return bool true if the route is allocated to the event, false otherwise
 	 */
-	private function RouteAllocatedToEvent($routeId, $eventId)
+	private function routeAllocatedToEvent($routeId, $eventId)
 	{
 		$qb = $this->db->createQueryBuilder();
 		$qb->select('route_id')
