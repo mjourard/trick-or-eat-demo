@@ -1,4 +1,0 @@
-Type: AWS::EC2::SecurityGroup
-Properties:
-  GroupDescription: 'redis sg for the trick-or-eat app'
-  VpcId: ${file(./account_config.yaml):VpcId}

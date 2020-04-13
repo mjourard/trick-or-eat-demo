@@ -62,7 +62,6 @@ class clsConstants
 
 	const ROUTE_HOSTING_DIRECTORY = __DIR__ . "/../../public/route-files";
 
-	const REDIS_ERROR_KEY    = "errors";
 
 	const EMAIL_RESET_LINK = "#/reset-password/";
 

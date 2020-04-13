@@ -6,7 +6,6 @@ Properties:
   BackupRetentionPeriod: 3
   DBInstanceClass: db.t2.micro
   DBInstanceIdentifier: trick-or-eat
-  DBName: toe
   DBParameterGroupName: !Ref AppDBParams
   VPCSecurityGroups:
     - !Ref AppDBSecurity

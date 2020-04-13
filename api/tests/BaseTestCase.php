@@ -358,7 +358,7 @@ class BaseTestCase extends TestCase
 				'mobility'    => ':mobility'
 			])
 			->setParameter(':email', $email, clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':password', '$2y$10$SZ7H6yhS4JGTWWY6SskuxO4dyG6R3c5is2GVDJWvIIQEGaKPM4/X.', clsConstants::SILEX_PARAM_STRING)
+			->setParameter(':password', password_hash('password', PASSWORD_DEFAULT), clsConstants::SILEX_PARAM_STRING)
 			->setParameter(':first_name', 'throwaway', clsConstants::SILEX_PARAM_STRING)
 			->setParameter(':last_name', 'account', clsConstants::SILEX_PARAM_STRING)
 			->setParameter(':hearing', 'false', clsConstants::SILEX_PARAM_STRING)

@@ -1,6 +1,5 @@
 <?php
 
-use Monolog\Handler\RedisHandler;
 use Monolog\Logger;
 use Monolog\Processor\IntrospectionProcessor;
 use Monolog\Processor\WebProcessor;
@@ -37,20 +36,6 @@ $app->register(new Silex\Provider\MonologServiceProvider(), [
 ]);
 $app->extend('monolog', function (Logger $monolog, $app)
 {
-	$params = [
-		'scheme'   => 'tcp',
-		'host'     => $app['redis.logging.ip'],
-		'port'     => $app['redis.logging.port']
-	];
-	if (!empty($app['redis.logging.password']))
-	{
-		$params['password'] = $app['redis.logging.password'];
-	}
-	$redis = new Predis\Client($params);
-	$key = clsEnv::get(clsEnv::TOE_DEBUG_ON) ? "dev-" : "";
-	$key .= clsConstants::REDIS_ERROR_KEY;
-	$monolog->pushHandler(new RedisHandler($redis, $key));
-
 	//Adds the current request URI, request method and client IP to a log record.
 	$monolog->pushProcessor(new WebProcessor());
 	$monolog->pushProcessor(new IntrospectionProcessor());

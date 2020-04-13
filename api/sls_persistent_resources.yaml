@@ -29,10 +29,6 @@ resources:
     AppDBSecurityIngress: ${file(./resource/AppDBSecurityIngress.yaml)}
     AppDBSubnetGroup: ${file(./resource/AppDBSubnetGroup.yaml)}
     appDB: ${file(./resource/AppDB.yaml)}
-    AppRedisSubnetGroup: ${file(./resource/AppRedisSubnetGroup.yaml)}
-    AppRedisSecurity: ${file(./resource/AppRedisSecurity.yaml)}
-    AppRedisSecurityIngress: ${file(./resource/AppRedisSecurityIngress.yaml)}
-    AppRedis: ${file(./resource/AppRedis.yaml)}
   Outputs:
     AppDBHost:
       Value: { "Fn::GetAtt": [appDB, Endpoint.Address]}
@@ -54,11 +50,3 @@ resources:
       Value: !GetAtt AppDBSecurity.GroupId
       Export:
         Name: !Join [ "-", [ !Ref "AWS::StackName", DBSecurityGroupId ] ]
-    AppRedisIP:
-      Value: { "Fn::GetAtt": [AppRedis, RedisEndpoint.Address]}
-      Export:
-        Name: !Join [ "-", [ !Ref "AWS::StackName", RedisAddress ] ]
-    AppRedisPort:
-      Value: { "Fn::GetAtt": [AppRedis, RedisEndpoint.Port]}
-      Export:
-        Name: !Join [ "-", [ !Ref "AWS::StackName", RedisPort ] ]

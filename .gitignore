@@ -8,4 +8,5 @@ data/redis/
 .serverless/
 api/account_config.yaml
 .env
+.env.prod
 secrets.json

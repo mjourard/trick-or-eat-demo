@@ -1,5 +1,0 @@
-Type: AWS::ElastiCache::SubnetGroup
-Properties:
-  CacheSubnetGroupName: toe-redis-sng
-  Description: The subnet group for the redis cluster of trick or eat
-  SubnetIds: ${file(./account_config.yaml):SubnetIds}

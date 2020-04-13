@@ -130,13 +130,3 @@ $app['parameters'] = [
 		'status'  => clsConstants::SILEX_PARAM_STRING
 	]
 ];
-
-$app['redis.logging.ip'] = clsEnv::get(clsEnv::TOE_REDIS_LOGGING_IP);
-$app['redis.logging.port'] = clsEnv::get(clsEnv::TOE_REDIS_LOGGING_PORT);
-$app['redis.logging.password'] = clsEnv::get(clsEnv::TOE_REDIS_PASSWORD);
-
-//This is here due to the order that $app is defined and executed in both production and development environments
-if (getenv('dev_mode') === 'on')
-{
-	require __DIR__ . "/../config/config_dev.php";
-}

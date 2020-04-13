@@ -12,15 +12,15 @@ class clsTesterCreds
 {
 
 	const SUPER_ADMIN_EMAIL    = "admin@toetests.com";
-	const SUPER_ADMIN_PASSWORD = "Password1";
+	const SUPER_ADMIN_PASSWORD = "password";
 
 	const ORGANIZER_EMAIL    = "organizer@toetests.com";
-	const ORGANIZER_PASSWORD = "Password1";
+	const ORGANIZER_PASSWORD = "password";
 
 	const NORMAL_USER_EMAIL    = "normaluser@toetests.com";
-	const NORMAL_USER_PASSWORD = "Password1";
+	const NORMAL_USER_PASSWORD = "password";
 
-	const GENERIC_PASSWORD = 'Password1';
+	const GENERIC_PASSWORD = 'password';
 
 	const ADMIN_REGISTERED_EMAIL                          = 'admin_registered_for_event@toetests.com';
 	const NORMAL_USER_REGISTERED_EMAIL                    = 'user_registered_for_event@toetests.com';

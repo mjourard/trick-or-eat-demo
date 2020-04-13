@@ -32,9 +32,6 @@ provider:
     TOE_DATABASE_PORT: ${self:custom.TOE_DATABASE.PORT}
     TOE_DATABASE_USER: ${self:custom.TOE_DATABASE.USER}
     TOE_DATABASE_PASSWORD: ${self:custom.TOE_DATABASE.PASSWORD}
-    TOE_REDIS_LOGGING_IP: ${self:custom.TOE_REDIS.IP}
-    TOE_REDIS_LOGGING_PORT: ${self:custom.TOE_REDIS.PORT}
-    TOE_REDIS_PASSWORD: ${self:custom.TOE_REDIS.PASSWORD}
     TOE_ENCODED_JWT_KEY: ${self:custom.TOE_JWT}
     TOE_LOGGING_LEVEL: ${self:custom.TOE_LOGGING_LEVEL}
     TOE_LOG_FILE: ${self:custom.TOE_LOG_FILE}
@@ -52,10 +49,6 @@ custom:
     PORT: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBPort}
     USER: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBUsername}
     PASSWORD: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBPassword}
-  TOE_REDIS:
-    IP: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppRedisIP}
-    PORT: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppRedisPort}
-    PASSWORD: ''
   TOE_DATABASE_SG: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppDBSecurityGroupId}
   TOE_JWT: ${ssm:/toe/prod/TOE_ENCODED_JWT_KEY}
   TOE_LOGGING_LEVEL: 'INFO' #normally set to INFO

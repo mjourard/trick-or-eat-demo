@@ -36,10 +36,15 @@ class InitDB extends aCmd
 			}
 			if ($hasTOE)
 			{
-				$output->writeln("'toe' database already exists!");
-				$output->writeln("Ensure the data is backed up and delete the schema with 'DROP DATABASE " . clsConstants::DATABASE_NAME . "'.");
-				$output->writeln("Exiting...");
-				return 1;
+				$tables = $this->container->db->Query("SELECT DISTINCT table_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '" . clsConstants::DATABASE_NAME . "'");
+				if (!empty($tables))
+				{
+					$output->writeln("'toe' database already exists!");
+					$output->writeln("Ensure the data is backed up and delete the schema with 'DROP DATABASE " . clsConstants::DATABASE_NAME . "'.");
+					$output->writeln("Exiting...");
+
+					return 1;
+				}
 			}
 		}
 
@@ -57,6 +62,11 @@ class InitDB extends aCmd
 			$affected = $this->container->db->RawExecuteNonQuery($query);
 			$output->writeln("Finished running $file, $affected rows affected");
 		}
+
+		$res = $this->container->db->Query("SELECT COUNT(DISTINCT table_name) as cnt FROM INFORMATION_SCHEMA.COLUMNS WHERE table_schema = '" . clsConstants::DATABASE_NAME . "'");
+		$tableCount = $res[0]['cnt'];
+		$output->writeln("Database " . clsConstants::DATABASE_NAME . " now has $tableCount tables");
+
 		return 0;
 	}
 }

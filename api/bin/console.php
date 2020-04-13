@@ -8,6 +8,9 @@ use TOE\GlobalCode\clsEnv;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+$dotenv = new \Symfony\Component\Dotenv\Dotenv(true);
+$dotenv->loadEnv(__DIR__ . '/../.env');
+
 $app = new Application();
 
 $db = new DAL(

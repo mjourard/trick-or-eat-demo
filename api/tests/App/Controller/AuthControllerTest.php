@@ -187,7 +187,7 @@ class AuthControllerTest extends BaseTestCase
 
 		$logginObj = $this->GetLoginObject(
 			"thisemaildoesnotexist@gmail.com",
-			"Password1"
+			"password"
 		);
 
 		$this->client->request('POST', '/login', $logginObj);
