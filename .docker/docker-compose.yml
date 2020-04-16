@@ -46,11 +46,6 @@ services:
       - mysql_data:/var/lib/mysql/
       - "./mysql/data:/docker-entrypoint-initdb.d"
       - "./mysql/config:/etc/mysql/conf.d"
-  toe_redis:
-    container_name: toe_redis
-    image: redis
-    command: ["redis-server", "--requirepass", "foobared", "--appendonly", "yes"]
-    restart: always
   hoster:
     container_name: hoster
     image: dvdarias/docker-hoster
