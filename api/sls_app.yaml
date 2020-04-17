@@ -27,6 +27,7 @@ provider:
       - ${self:custom.TOE_DATABASE_SG}
     subnetIds: ${file(./account_config.yaml):SubnetIds}
   environment:
+    TOE_DONT_USE_DOTENV: true
     TOE_STAGE: ${self:provider.stage}
     TOE_DATABASE_HOST: ${self:custom.TOE_DATABASE.HOST}
     TOE_DATABASE_PORT: ${self:custom.TOE_DATABASE.PORT}

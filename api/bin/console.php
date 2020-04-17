@@ -1,15 +1,19 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
+
 use Symfony\Component\Console\Application;
 use TOE\App\DAL;
 use TOE\App\ServiceContainer;
-use TOE\GlobalCode\clsConstants;
 use TOE\GlobalCode\clsEnv;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$dotenv = new \Symfony\Component\Dotenv\Dotenv(true);
-$dotenv->loadEnv(__DIR__ . '/../.env');
+if (clsEnv::get(clsEnv::TOE_DONT_USE_DOTENV) !== 'true')
+{
+	$dotenv = new \Symfony\Component\Dotenv\Dotenv(true);
+	$dotenv->loadEnv(__DIR__ . '/../.env');
+}
 
 $app = new Application();
 

@@ -25,6 +25,7 @@ class clsEnv
 	const TOE_LOGGING_LEVEL = 'TOE_LOGGING_LEVEL';
 	const TOE_ACCESS_CONTROL_ALLOW_ORIGIN = 'TOE_ACCESS_CONTROL_ALLOW_ORIGIN';
 	const TOE_STAGE = 'TOE_STAGE'; //the stage of deployment, dev or prod
+	const TOE_DONT_USE_DOTENV = 'TOE_DONT_USE_DOTENV'; //if the .env files should not be looked for
 
 	private static $cache = [];
 
@@ -51,7 +52,8 @@ class clsEnv
 		self::TOE_LOG_FILE                    => self::KEY_TYPE_STRING,
 		self::TOE_LOGGING_LEVEL               => self::KEY_TYPE_STRING,
 		self::TOE_ACCESS_CONTROL_ALLOW_ORIGIN => self::KEY_TYPE_STRING,
-		self::TOE_STAGE                       => self::KEY_TYPE_STRING
+		self::TOE_STAGE                       => self::KEY_TYPE_STRING,
+		self::TOE_DONT_USE_DOTENV             => self::KEY_TYPE_STRING
 	];
 
 	/**
