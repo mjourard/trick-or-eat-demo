@@ -22,21 +22,23 @@ class InitDB extends aCmd
 		$this->setDescription('Initializes the mysql database to be ready for use for trick-or-eat');
 		$this->addArgument('querydir', InputArgument::OPTIONAL, 'A path to a directory that holds .sql files used to initialize the database. __DIR__ will be replaced by ' . __DIR__, __DIR__ . '/../../../../.docker/mysql/data');
 		$this->addOption('aurora', 'aur', InputOption::VALUE_NONE, 'Use this when populating an aurora serverless database');
+		$this->addOption('wipe', null, InputOption::VALUE_NONE, 'Use this to wipe the contents of the existing database if there is one');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$wipe = $input->getOption('wipe');
 		if($input->getOption('aurora'))
 		{
-			return $this->initAurora($input, $output);
+			return $this->initAurora($input, $output, $wipe);
 		}
 		else
 		{
-			return $this->initMysql($input, $output);
+			return $this->initMysql($input, $output, $wipe);
 		}
 	}
 
-	protected function initMysql(InputInterface $input, OutputInterface $output)
+	protected function initMysql(InputInterface $input, OutputInterface $output, $wipe)
 	{
 		//check to see if the TOE database exists, and if it does, print and exit
 		$schemas = $this->container->db->query("SHOW DATABASES");
@@ -85,8 +87,9 @@ class InitDB extends aCmd
 		return 0;
 	}
 
-	protected function initAurora(InputInterface $input, OutputInterface $output)
+	protected function initAurora(InputInterface $input, OutputInterface $output, $wipe)
 	{
+		//TODO: implement the wipe option to reset the database for tests
 		if ($this->checkAuroraDBAlreadyInit($output) !== 0)
 		{
 			return 1;

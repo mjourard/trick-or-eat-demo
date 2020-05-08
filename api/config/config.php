@@ -8,7 +8,25 @@ use TOE\GlobalCode\Constants;
 use TOE\GlobalCode\Env;
 
 $app['db.type'] = Env::get(Env::TOE_DATABASE_TYPE);
-$app['db.options'] = [
+$options = [];
+switch(Env::get(Env::TOE_DATABASE_TYPE))
+{
+	case 'aurora':
+		$options = [
+			'driverClass' => \Nemo64\DbalRdsData\RdsDataDriver::class,
+			'host' => Env::get(Env::TOE_AWS_REGION),
+			'user' => Env::get(Env::TOE_AWS_ACCESS_KEY),
+			'password' => Env::get(Env::TOE_AWS_SECRET_KEY),
+			'dbname' => Constants::DATABASE_NAME,
+			'driverOptions' => [
+				'resourceArn' => Env::get(Env::TOE_DB_ARN),
+				'secretArn' => Env::get(Env::TOE_DB_SECRET_ARN)
+			]
+		];
+		break;
+	case 'mysql':
+	default:
+		$options = [
 	'driver'   => 'pdo_mysql',
 	'host'     => Env::get(Env::TOE_DATABASE_HOST),
 	'port'     => Env::get(Env::TOE_DATABASE_PORT),
@@ -17,6 +35,8 @@ $app['db.options'] = [
 	'user'     => Env::get(Env::TOE_DATABASE_USER),
 	'password' => Env::get(Env::TOE_DATABASE_PASSWORD)
 ];
+}
+$app['db.options'] = $options;
 
 //anonymous routes are for when a user is not required to login
 $app['routes.anonymous'] = [
