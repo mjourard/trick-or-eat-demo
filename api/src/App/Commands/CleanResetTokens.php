@@ -38,7 +38,7 @@ class CleanResetTokens extends aCmd
 		}
 
 		$output->writeln("Executing query: $query");
-		$deleted =  $this->container->db->ExecuteNonQuery($query, $values);
+		$deleted =  $this->container->db->executeNonQuery($query, $values);
 		$output->writeln("Deleted $deleted from the database");
 		return 0;
 	}

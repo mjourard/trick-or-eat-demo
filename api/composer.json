@@ -41,6 +41,7 @@
     "sls:initdomain": "serverless create_domain --config sls_app.yaml --region us-east-1",
     "sls:deploy": "serverless deploy --config sls_app.yaml --region us-east-1",
     "bref:initdb": "bref cli toe-api-dev-init-db -- init-db '__DIR__/../../../.docker/mysql/data'",
-    "sls:remove": "serverless remove --config sls_app.yaml"
+    "sls:remove": "serverless remove --config sls_app.yaml",
+    "sls:removedb": "serverless remove --config sls_persistent_resources.yaml"
   }
 }

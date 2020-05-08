@@ -45,7 +45,7 @@
 					</div>
 				</md-card-content>
 				<md-card-actions layout="row" layout-align="start">
-					<md-button class="md-raised" ng-if="teammate.can_kick" ng-click="$ctrl.kickTeammate(teammate.user_id, teammate.first_name, teammate.last_name)">Kick</md-button>
+					<md-button class="md-raised" ng-if="teammate.can_kick" ng-click="$ctrl.kickTeammate(teammate.user_id, $ctrl.teamId, teammate.first_name, teammate.last_name)">Kick</md-button>
 				</md-card-actions>
 			</md-card>
 		</div>

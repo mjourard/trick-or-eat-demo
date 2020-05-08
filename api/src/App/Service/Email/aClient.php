@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 
 namespace TOE\App\Service\Email;
@@ -12,5 +13,5 @@ abstract class aClient
 	 * @return void
 	 * @throws EmailException
 	 */
-	public abstract function sendEmail(Message $msg);
+	abstract public function sendEmail(Message $msg);
 }

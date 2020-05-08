@@ -1,0 +1,21 @@
+Type: AWS::S3::Bucket
+Properties:
+  BucketName:
+    'Fn::Join':
+    - '-'
+    - - Ref: 'AWS::Region'
+      - Ref: 'AWS::AccountId'
+      - 'toe-routes'
+  AccessControl: BucketOwnerFullControl
+  CorsConfiguration:
+    CorsRules:
+      - AllowedMethods:
+          - GET
+          - PUT
+          - POST
+          - HEAD
+          - DELETE
+        AllowedOrigins:
+          - "*"
+        AllowedHeaders:
+          - "*"

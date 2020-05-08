@@ -5,3 +5,4 @@ SubnetIds: # Find with "aws ec2 describe-subnets --query Subnets[].[Availability
   - subnet-
 ACMCertificateArn: # Find with "aws acm list-certificates"
 APIDomain: # the domain that the api is launched under. This site was configured with api.guelphtrickoreat.ca
+DBSecretARN: # the secretsmanager Secret ARN of the secret that will be used to connect to the aurora serverless database

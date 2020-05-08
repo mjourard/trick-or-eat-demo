@@ -1,0 +1,7 @@
+Type: AWS::RDS::DBClusterParameterGroup
+Properties:
+  Description: pg for the trick-or-eat database
+  Family: aurora5.6
+  Parameters:
+    lower_case_table_names: 1
+    time_zone: UTC

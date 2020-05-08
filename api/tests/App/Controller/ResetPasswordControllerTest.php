@@ -11,10 +11,10 @@ namespace TOETests\App\Controller;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
-use TOE\GlobalCode\clsHTTPCodes;
+use TOE\GlobalCode\HTTPCodes;
 use TOETests\BaseTestCase;
 use Firebase\JWT\JWT;
-use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\Constants;
 use TOETests\clsTesterCreds;
 
 
@@ -29,9 +29,9 @@ class ResetPasswordControllerTest extends BaseTestCase
 	 */
 	public function testResetPassword()
 	{
-		$app = $this->CreateApplication();
-		$this->SetDatabaseConnection();
-		$this->SetClient();
+		$app = $this->createApplication();
+		$this->setDatabaseConnection();
+		$this->setClient();
 
 		//testing with an invalid token
 		$request = [
@@ -40,7 +40,7 @@ class ResetPasswordControllerTest extends BaseTestCase
 		];
 
 		$this->client->request('POST', '/resetPassword', $request);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_BAD_REQUEST);
 
 		//Test with a valid token
 		//get the old password
@@ -51,7 +51,7 @@ class ResetPasswordControllerTest extends BaseTestCase
 		];
 
 		$this->client->request('POST', '/resetPassword', $request);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_NO_CONTENT);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_NO_CONTENT);
 
 		//reset to the old password
 		$request = [
@@ -60,7 +60,7 @@ class ResetPasswordControllerTest extends BaseTestCase
 		];
 
 		$this->client->request('POST', '/resetPassword', $request);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_NO_CONTENT);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_NO_CONTENT);
 	}
 
 	/**
@@ -91,9 +91,9 @@ class ResetPasswordControllerTest extends BaseTestCase
 				'unique_id'  => ':unique_id'
 			])
 			->setParameter(':user_id', TEST_USER_ID)
-			->setParameter('issued_at', $issuedAt->format(clsConstants::DT_FORMAT))
-			->setParameter(':expired_at', $expiredAt->format(clsConstants::DT_FORMAT))
-			->setParameter(':unique_id', $uid, clsConstants::SILEX_PARAM_STRING);
+			->setParameter('issued_at', $issuedAt->format(Constants::DT_FORMAT))
+			->setParameter(':expired_at', $expiredAt->format(Constants::DT_FORMAT))
+			->setParameter(':unique_id', $uid, Constants::SILEX_PARAM_STRING);
 		$qb->execute();
 
 		return $jwt;

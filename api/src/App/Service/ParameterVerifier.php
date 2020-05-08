@@ -1,12 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace TOE\App\Service;
 use Symfony\Component\HttpFoundation\Request;
 
 class ParameterVerifier
 {
-	private $template;
-
 	private $templates;
 
 	public function __construct($templates)
@@ -23,9 +22,9 @@ class ParameterVerifier
 		$result = [];
 		if (isset($this->templates[$route]))
 		{
-			$this->template = $this->templates[$route];
+			$template = $this->templates[$route];
 
-			foreach ($this->template as $key => $type)
+			foreach ($template as $key => $type)
 			{
 				$result[$key] = $request->request->get($key);
 				if ($result[$key] === null)
@@ -34,19 +33,17 @@ class ParameterVerifier
 						'success' => false,
 						'message' => "$key is NULL or empty: " . $result[$key]
 					];
-				};
+				}
 				if (gettype($result[$key]) !== $type)
 				{
 					return [
 						'success' => false,
 						'message' => "$key is " . gettype($result[$key]) . "; need $type."
 					];
-				};
-			};
+				}
+			}
 		}
 
 		return $result;
 	}
 }
-
-?>

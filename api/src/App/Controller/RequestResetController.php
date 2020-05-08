@@ -1,137 +1,80 @@
 <?php
+declare(strict_types=1);
 
 namespace TOE\App\Controller;
 
-use DateInterval;
 use DateTime;
 use DateTimeZone;
-use Firebase\JWT\JWT;
 use Silex\Application;
 use TOE\App\Service\Email\aClient;
 use TOE\App\Service\Email\EmailException;
 use TOE\App\Service\Email\Message;
-use TOE\GlobalCode\clsConstants;
-use TOE\GlobalCode\clsEnv;
-use TOE\GlobalCode\clsHTTPCodes;
-use TOE\GlobalCode\clsResponseJson;
+use TOE\App\Service\Password\PasswordRequestManager;
+use TOE\App\Service\Password\WebToken;
+use TOE\App\Service\User\UserLookupService;
+use TOE\GlobalCode\Constants;
+use TOE\GlobalCode\Env;
+use TOE\GlobalCode\HTTPCodes;
+use TOE\GlobalCode\ResponseJson;
 
 class RequestResetController extends BaseController
 {
-	//Time until password reset token expires (in seconds)
-	const VALID_TIME = 18000;
-	const MAX_ACTIVE_REQUESTS = 5;
-
 	public function requestReset(Application $app)
 	{
 		$this->initializeInstance($app);
-		$params = $app[clsConstants::PARAMETER_KEY];
+		$params = $app[Constants::PARAMETER_KEY];
 		$logCtx = ['email' => $params['email']];
 		$this->logger->debug("Getting user info", $logCtx);
-		$userInfo = $app['user.lookup']->GetUserInfo($params['email'], ['user_id', 'first_name']);
-
+		/** @var UserLookupService $userLookup */
+		$userLookup = $app['user.lookup'];
+		$userInfo = $userLookup->getUserInfo($params['email'], ['user_id', 'first_name']);
 
 		//check if user exists
 		if($userInfo === false)
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "We couldn't find an account registered with that email."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "We couldn't find an account registered with that email."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
-		//Get current time measured in the number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT).
+		/** @var PasswordRequestManager $pwRequestManager */
+		$pwRequestManager = $app['password.request'];
+
+		//Get current time for the 'issued at' time
 		$issuedAt = new DateTime('now', new DateTimeZone('utc')); //time of request
-		$expiredAt = clone $issuedAt;
-		$expiredAt->add(new DateInterval('PT' . self::VALID_TIME . 'S'));
+		$expiredAt = $pwRequestManager->getExpireTime($issuedAt);
 
-		//count existing requests (max 5)
 		$this->logger->debug("Counting requests", $logCtx);
-		$result = $this->countRequests($userInfo['user_id'], $issuedAt);
-
-		if($result >= self::MAX_ACTIVE_REQUESTS)
+		if($pwRequestManager->maxRequestsExceeded($userInfo['user_id'], $issuedAt))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "You have requested too many reset requests recently."), clsHTTPCodes::CLI_ERR_SPECIFIC_USER_REQUEST_OVERLOAD);
+			$this->logger->warn("User has issued too many password reset requests", ['user_id' => $userInfo['user_id'], 'issued_at' => $issuedAt->format('Y-m-d H:i:s')]);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "You have requested too many reset requests recently."), HTTPCodes::CLI_ERR_SPECIFIC_USER_REQUEST_OVERLOAD);
 		}
-
-		$data = [
-			'iat'      => $issuedAt->getTimestamp(),
-			'exp'      => $expiredAt->getTimestamp(),
-			'userID'   => $userInfo['user_id'],
-			'uniqueID' => uniqid()
-		];
 
 		//Create JSON webtoken
-		$jwt = JWT::encode(
-			$data,
-			$app['jwt.key'],
-			'HS512'
-		);
+		$jwt = new WebToken($issuedAt, $expiredAt, $userInfo['user_id']);
 
 		//invalidate all previous reset requests
 		$this->logger->debug("invalidating previous password reset requests", $logCtx);
-		$qb = $this->db->createQueryBuilder();
-		$qb->update('password_request')
-			->set('status', ':status')
-			->where('user_id = :user_id')
-			->setParameter(':status', 'used', clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':user_id', $userInfo['user_id']);
-		$qb->execute();
+		$pwRequestManager->updateUserResetRequests($userInfo['user_id'], PasswordRequestManager::REQUEST_STATUS_USED);
 
 
 		//Insert the request into the database
 		$this->logger->debug("saving new reset request into the database", $logCtx);
-		$qb = $this->db->createQueryBuilder();
-		$qb->insert('password_request')
-			->values([
-				'user_id'    => ':user_id',
-				'issued_at'  => 'FROM_UNIXTIME(:issued_at)',
-				'expired_at' => 'FROM_UNIXTIME(:expired_at)',
-				'unique_id'  => ':unique_id'
-			])
-			->setParameter(':user_id', $userInfo['user_id'])
-			->setParameter(':issued_at', $issuedAt->getTimestamp())
-			->setParameter(':expired_at', $expiredAt->getTimestamp())
-			->setParameter(':unique_id', $data['uniqueID'], clsConstants::SILEX_PARAM_STRING);
-		$result = $qb->execute();
-
-		if($result === 0)
+		if(!$pwRequestManager->insertResetRequest($userInfo['user_id'], $issuedAt, $expiredAt, $jwt->getUniqueId()))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "An error occurred on our end."), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "An error occurred on our end."), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 
-		$message = $this->generateResetEmailHTMLBody($jwt, $userInfo['first_name']);
-		$email = $this->getUserEmail($userInfo['user_id']);
+		$message = $this->generateResetEmailHTML($jwt->encode($app['jwt.key']), $userInfo['first_name']);
 		$this->logger->debug("Sending user email", $logCtx);
-		$success = $this->emailToken($message, $email, $app['email']);
-		$this->logger->debug("reset email", $logCtx);
+		$success = $this->emailToken($message, $params['email'], $app['email']);
 		if($success === true)
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
+			$this->logger->debug("sent reset email", $logCtx);
+			return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
 
 		$this->logger->error($success);
-
-		return $app->json(clsResponseJson::GetJsonResponseArray(false, "An error occurred when trying to send the email: $success"), clsHTTPCodes::SERVER_SERVICE_UNAVAILABLE);
-	}
-
-	/**
-	 * Returns the number of active reset requests for the passed in user
-	 *
-	 * @param int      $userID
-	 * @param DateTime $requestTime The time being compared to the expire time
-	 *
-	 * @return int The number of active password reset requests
-	 */
-	private function countRequests($userID, $requestTime)
-	{
-		$qb = $this->db->createQueryBuilder();
-		$qb->select('count(*) as count')
-			->from('password_request')
-			->where('user_id = :user_id')
-			->andWhere('expired_at > FROM_UNIXTIME(:requestTime)')
-			->andWhere('status != :used')
-			->setParameter(':user_id', $userID)
-			->setParameter(':used', 'used')
-			->setParameter(':requestTime', $requestTime->getTimestamp());
-
-		return $qb->execute()->fetch()['count'];
+		return $app->json(ResponseJson::GetJsonResponseArray(false, "An error occurred when trying to send the email"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 	}
 
 	/**
@@ -148,7 +91,7 @@ class RequestResetController extends BaseController
 	{
 		$messageToSend = (new Message())
 			->setTo($email)
-			->setFrom(clsEnv::get(clsEnv::TOE_RESET_ACCOUNT_EMAIL))
+			->setFrom(Env::get(Env::TOE_RESET_ACCOUNT_EMAIL))
 			->setFromName('Guelph Trick or Eat')
 			->setSubject('Password Reset')
 			->setBody($message);
@@ -165,30 +108,6 @@ class RequestResetController extends BaseController
 	}
 
 	/**
-	 * Gets the email address associated with the passed in userId
-	 *
-	 * @param int $userid The id of the user that you want the email of.
-	 *
-	 * @return string|bool Returns the email address associated with that user_id, or false if that user_id doesn't exist.
-	 */
-	private function getUserEmail($userid)
-	{
-		$qb = $this->db->createQueryBuilder();
-		$qb->select('email')
-			->from('user')
-			->where('user_id = :userid')
-			->setParameter('userid', $userid, clsConstants::SILEX_PARAM_STRING);
-		$results = $qb->execute()->fetch();
-
-		if($results === false || empty($results))
-		{
-			return false;
-		}
-
-		return $results['email'];
-	}
-
-	/**
 	 * Generates an HTML page containing the link to reset a user's password.
 	 *
 	 * @param string $token    The jwt token that will be used for verification
@@ -197,10 +116,10 @@ class RequestResetController extends BaseController
 	 *
 	 * @return string
 	 */
-	private function generateResetEmailHTMLBody($token, $username)
+	private function generateResetEmailHTML($token, $username)
 	{
 		$email = file_get_contents(__DIR__ . '/../../email-templates/reset-password-email.html');
-		$baseUrl = clsEnv::get(clsEnv::TOE_ACCESS_CONTROL_ALLOW_ORIGIN);
+		$baseUrl = Env::get(Env::TOE_ACCESS_CONTROL_ALLOW_ORIGIN);
 		if(empty($baseUrl) && !empty($_SERVER['HTTP_ORIGIN']))
 		{
 			$baseUrl = $_SERVER['HTTP_ORIGIN'];
@@ -214,7 +133,7 @@ class RequestResetController extends BaseController
 		{
 			$this->logger->error("empty base url used when generating password reset email html body");
 		}
-		$email = str_replace("%reset-link%", $baseUrl . "/" . clsConstants::EMAIL_RESET_LINK . $token, $email);
+		$email = str_replace("%reset-link%", $baseUrl . "/" . Constants::EMAIL_RESET_LINK . $token, $email);
 
 		return str_replace("%username%", $username, $email);
 	}

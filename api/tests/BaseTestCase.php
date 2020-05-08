@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: LENOVO-T430
@@ -16,10 +17,8 @@ use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Client;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use TOE\GlobalCode\clsConstants;
-use TOE\GlobalCode\clsHTTPCodes;
-
-require __DIR__ . '/bootstrap.php';
+use TOE\GlobalCode\Constants;
+use TOE\GlobalCode\HTTPCodes;
 
 class BaseTestCase extends TestCase
 {
@@ -84,7 +83,7 @@ class BaseTestCase extends TestCase
 
 	private $templatePostObj;
 
-	public function CreateApplication()
+	public function createApplication()
 	{
 		$app = new Application();
 
@@ -97,7 +96,7 @@ class BaseTestCase extends TestCase
 		return $app;
 	}
 
-	public function GetApplicationDir()
+	public function getApplicationDir()
 	{
 		return $_SERVER['APP_DIR'];
 	}
@@ -108,14 +107,14 @@ class BaseTestCase extends TestCase
 	 * @return bool true if login was successful and the client is now configured to be that user, false otherwise.
 	 * @throws \Exception
 	 */
-	public function Login($email)
+	public function login($email)
 	{
-		return $this->LoginAdhoc($email, clsTesterCreds::CREDS[$email]);
+		return $this->loginAdhoc($email, clsTesterCreds::CREDS[$email]);
 	}
 
-	public function LoginAdhoc($email, $password)
+	public function loginAdhoc($email, $password)
 	{
-		$this->SetClient();
+		$this->setClient();
 
 		if ($this->loggedInEmail === $email && password_verify($this->loggedInPassword, $password))
 		{
@@ -124,7 +123,7 @@ class BaseTestCase extends TestCase
 
 		if ($this->loggedIn)
 		{
-			$this->Signout();
+			$this->signout();
 		}
 
 		$requestParams = [
@@ -144,7 +143,7 @@ class BaseTestCase extends TestCase
 
 		try
 		{
-			$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+			$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		}
 		catch (Exception $ex)
 		{
@@ -154,7 +153,7 @@ class BaseTestCase extends TestCase
 
 		$content = json_decode($this->lastResponse->getContent());
 
-		$this->assertTrue($content->success, "Response did not return a success value of true");
+		self::assertTrue($content->success, "Response did not return a success value of true");
 
 		//Set the login token in the client
 		$this->token = $content->token;
@@ -164,11 +163,11 @@ class BaseTestCase extends TestCase
 
 		//verify the token worked
 		$this->client->request('GET', '/user/userInfo');
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$content = json_decode($this->lastResponse->getContent());
 
-		$this->assertNotNull($content, "could not json_decode the userInfo returned from the server.");
-		$this->assertEquals(strtolower($email), strtolower($content->email), "Did not login as the intended email.");
+		self::assertNotNull($content, "could not json_decode the userInfo returned from the server.");
+		self::assertEquals(strtolower($email), strtolower($content->email), "Did not login as the intended email.");
 
 		//set the login data
 		$this->loggedIn = true;
@@ -179,7 +178,7 @@ class BaseTestCase extends TestCase
 		return true;
 	}
 
-	public function Signout()
+	public function signout()
 	{
 		if ($this->loggedIn === false)
 		{
@@ -195,9 +194,9 @@ class BaseTestCase extends TestCase
 		return true;
 	}
 
-	public function LoginAsAdmin()
+	public function loginAsAdmin()
 	{
-		$this->Login(clsTesterCreds::SUPER_ADMIN_EMAIL);
+		$this->login(clsTesterCreds::SUPER_ADMIN_EMAIL);
 	}
 
 	/**
@@ -205,7 +204,7 @@ class BaseTestCase extends TestCase
 	 *
 	 * @return bool
 	 */
-	public function EchoLastResponse()
+	public function echoLastResponse()
 	{
 		if ($this->client === null || $this->client->getResponse() === null)
 		{
@@ -219,22 +218,22 @@ class BaseTestCase extends TestCase
 		return true;
 	}
 
-	public function GetLoggedIn()
+	public function getLoggedIn()
 	{
 		return $this->loggedIn;
 	}
 
-	public function GetLoggedInUserId()
+	public function getLoggedInUserId()
 	{
 		return $this->loggedInUserId;
 	}
 
-	public function GetLoggedInPassword()
+	public function getLoggedInPassword()
 	{
 		return $this->loggedInPassword;
 	}
 
-	protected function GetModifiedJSONObject($modifications = [])
+	protected function getModifiedJSONObject($modifications = [])
 	{
 		if (($temp = $this->templatePostObj) === null)
 		{
@@ -254,7 +253,7 @@ class BaseTestCase extends TestCase
 		return $temp;
 	}
 
-	protected function LoadJSONObject($filePath)
+	protected function loadJSONObject($filePath)
 	{
 		if (!is_readable($filePath))
 		{
@@ -282,7 +281,7 @@ class BaseTestCase extends TestCase
 		}
 	}
 
-	protected function SetClient()
+	protected function setClient()
 	{
 		if ($this->client === null)
 		{
@@ -290,7 +289,7 @@ class BaseTestCase extends TestCase
 		}
 	}
 
-	protected function SetDatabaseConnection()
+	protected function setDatabaseConnection()
 	{
 		if ($this->dbConn === null && $this->app !== null && isset($this->app['db']))
 		{
@@ -298,14 +297,14 @@ class BaseTestCase extends TestCase
 		}
 	}
 
-	protected function InitializeTest($login)
+	protected function initializeTest($login)
 	{
-		$this->SetClient();
-		$this->SetDatabaseConnection();
-		$this->Login($login);
+		$this->setClient();
+		$this->setDatabaseConnection();
+		$this->login($login);
 	}
 
-	protected function BasicResponseCheck($expectedCode)
+	protected function basicResponseCheck($expectedCode)
 	{
 		$this->lastResponse = $this->client->getResponse();
 		$message = "";
@@ -325,22 +324,22 @@ class BaseTestCase extends TestCase
 				echo "\nmore: " . $content->more . "\n";
 			}
 		}
-		$this->assertEquals($expectedCode, $this->lastResponse->getStatusCode(), "Response did not contain the expected status code. Message: $message");
+		self::assertEquals($expectedCode, $this->lastResponse->getStatusCode(), "Response did not contain the expected status code. Message: $message");
 	}
 
-	protected function POSTResponseCheck($expectedCode, $POSTobj = false)
+	protected function checkPOSTResponse($expectedCode, $POSTobj = false)
 	{
 		$this->lastResponse = $this->client->getResponse();
 		if ($this->lastResponse->getStatusCode() !== $expectedCode && $POSTobj !== false)
 		{
 			echo "\n" . print_r($POSTobj, true) . "\n";
 		}
-		$this->assertEquals($expectedCode, $this->lastResponse->getStatusCode(), "Response did not contain the expected status code");
+		self::assertEquals($expectedCode, $this->lastResponse->getStatusCode(), "Response did not contain the expected status code");
 	}
 
-	protected function CreateThrowawayUser()
+	protected function createThrowawayUser()
 	{
-		$this->SetDatabaseConnection();
+		$this->setDatabaseConnection();
 		$qb = $this->dbConn->createQueryBuilder();
 
 		$email = clsTestHelpers::GetThrowAwayEmail(1);
@@ -357,13 +356,13 @@ class BaseTestCase extends TestCase
 				'visual'      => ':visual',
 				'mobility'    => ':mobility'
 			])
-			->setParameter(':email', $email, clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':password', password_hash('password', PASSWORD_DEFAULT), clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':first_name', 'throwaway', clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':last_name', 'account', clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':hearing', 'false', clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':visual', 'false', clsConstants::SILEX_PARAM_STRING)
-			->setParameter(':mobility', 'false', clsConstants::SILEX_PARAM_STRING);
+			->setParameter(':email', $email, Constants::SILEX_PARAM_STRING)
+			->setParameter(':password', password_hash('password', PASSWORD_DEFAULT), Constants::SILEX_PARAM_STRING)
+			->setParameter(':first_name', 'throwaway', Constants::SILEX_PARAM_STRING)
+			->setParameter(':last_name', 'account', Constants::SILEX_PARAM_STRING)
+			->setParameter(':hearing', 'false', Constants::SILEX_PARAM_STRING)
+			->setParameter(':visual', 'false', Constants::SILEX_PARAM_STRING)
+			->setParameter(':mobility', 'false', Constants::SILEX_PARAM_STRING);
 
 		$qb->execute();
 		$qb = $this->dbConn->createQueryBuilder();
@@ -377,7 +376,7 @@ class BaseTestCase extends TestCase
 			)
 			->from('user')
 			->where('email = :email')
-			->setParameter(':email', $email, clsConstants::SILEX_PARAM_STRING);
+			->setParameter(':email', $email, Constants::SILEX_PARAM_STRING);
 
 		$result = $qb->execute()->fetch();
 		$result['password'] = clsTesterCreds::NORMAL_USER_PASSWORD;
@@ -385,13 +384,13 @@ class BaseTestCase extends TestCase
 		return $result;
 	}
 
-	protected function RemoveUser($email)
+	protected function removeUser($email)
 	{
-		$this->SetDatabaseConnection();
+		$this->setDatabaseConnection();
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->delete('user');
 		$qb->where("email = :email");
-		$qb->setParameter('email', $email, clsConstants::SILEX_PARAM_STRING);
+		$qb->setParameter('email', $email, Constants::SILEX_PARAM_STRING);
 		$qb->execute();
 	}
 

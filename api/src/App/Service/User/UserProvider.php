@@ -1,10 +1,14 @@
 <?php
-namespace TOE\App\Service;
+declare(strict_types=1);
+namespace TOE\App\Service\User;
 
 class UserProvider
 {
 	private $email = null;
 
+	/**
+	 * @var int|null
+	 */
 	private $id = null;
 
 	private $userRoles = null;
@@ -18,7 +22,7 @@ class UserProvider
 		if ($decToken !== null)
 		{
 			$this->email = $decToken->data->email;
-			$this->id = $decToken->data->userId;
+			$this->id = (int)$decToken->data->userId;
 			$this->userRoles = $decToken->data->userRoles;
 		}
 	}
@@ -28,6 +32,9 @@ class UserProvider
 		return $this->email;
 	}
 
+	/**
+	 * @return int|null
+	 */
 	public function getID()
 	{
 		return $this->id;
@@ -42,7 +49,7 @@ class UserProvider
 	}
 
 	/**
-	 * @param String $passedRole One of the ROLE_ constants in clsConstants.
+	 * @param String $passedRole One of the ROLE_ constants in constants.
 	 *
 	 * @return bool returns true if the user has the passed in role assigned to them. False otherwise.
 	 *              Should not be used to authorize user roles, as that is built into the BaseController class.

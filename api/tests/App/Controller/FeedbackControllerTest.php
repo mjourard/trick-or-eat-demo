@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: Matthew Jourard
@@ -8,21 +9,21 @@
 
 namespace TOETests\App\Controller;
 
-use TOE\GlobalCode\clsHTTPCodes;
+use TOE\GlobalCode\HTTPCodes;
 use TOETests\BaseTestCase;
 use TOETests\clsTesterCreds;
 
 class FeedbackControllerTest extends BaseTestCase
 {
-	const COMMENT_MAX_SIZE = 2000;
-	const TEST_QUESTION_ID = 1;
+	public const COMMENT_MAX_SIZE = 2000;
+	public const TEST_QUESTION_ID = 1;
 
 	/**
 	 * @group Feedback
 	 */
 	public function testSaveComment()
 	{
-		$this->InitializeTest(clsTesterCreds::NORMAL_USER_EMAIL);
+		$this->initializeTest(clsTesterCreds::NORMAL_USER_EMAIL);
 		$fullComment = substr(str_repeat('abcdefghijklmnopqrstuvwxyz0123456789`-=[]\;\',./~!@#$%^&*()_+|}{":?>< ', 29), 0, self::COMMENT_MAX_SIZE);
 		$sqlInjectAttempt = '); DROP TABLE user; --';
 		$comments = [
@@ -40,7 +41,7 @@ class FeedbackControllerTest extends BaseTestCase
 				'comment' => $comment['test'],
 				'question_id' => self::TEST_QUESTION_ID
 			]);
-			$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
+			$this->basicResponseCheck(HTTPCodes::SUCCESS_RESOURCE_CREATED);
 			$this->verifyCommentSaved($comment['expected'], self::TEST_QUESTION_ID);
 		}
 	}
@@ -50,20 +51,20 @@ class FeedbackControllerTest extends BaseTestCase
 	 */
 	public function testGetCharacterLimit()
 	{
-		$this->InitializeTest(clsTesterCreds::NORMAL_USER_EMAIL);
+		$this->initializeTest(clsTesterCreds::NORMAL_USER_EMAIL);
 		$this->client->request('GET', '/feedback/comment/maxCharacterCount');
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$content = json_decode($this->lastResponse->getContent());
-		$this->assertTrue(is_int($content->limit));
-		$this->assertEquals(self::COMMENT_MAX_SIZE, $content->limit, "Character limit does not match database column size");
+		self::assertTrue(is_int($content->limit));
+		self::assertEquals(self::COMMENT_MAX_SIZE, $content->limit, "Character limit does not match database column size");
 	}
 
 	private function verifyCommentSaved($expected, $questionId)
 	{
 		$this->client->request('GET', "/feedback/comment/$questionId");
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$content = json_decode($this->lastResponse->getContent(), true);
-		$this->assertEquals($expected, $content['comment'], "Comments were not the same");
+		self::assertEquals($expected, $content['comment'], "Comments were not the same");
 	}
 
 }

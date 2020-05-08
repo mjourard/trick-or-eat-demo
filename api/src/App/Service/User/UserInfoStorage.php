@@ -1,5 +1,5 @@
 <?php
-namespace TOE\App\Service;
+namespace TOE\App\Service\User;
 
 class UserInfoStorage
 {
@@ -21,15 +21,13 @@ class UserInfoStorage
 		}
 	}
 
-	public function GetToken()
+	public function getToken()
 	{
 		return $this->token;
 	}
 
-	public function SetToken($token)
+	public function setToken($token)
 	{
 		$this->token = $token;
 	}
 }
-
-?>

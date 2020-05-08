@@ -8,7 +8,7 @@
 
 namespace TOE\GlobalCode;
 
-class clsResponseJson
+class ResponseJson
 {
 	public static function GetJsonResponseArray($success, $message, $extra = null)
 	{

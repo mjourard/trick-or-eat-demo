@@ -16,26 +16,38 @@ provider:
   runtime: provided
 custom:
   TOE_DATABASE:
-    HOST: !GetAtt [appDB, Endpoint.Address]
-    PORT: !GetAtt [appDB, Endpoint.Port]
+    HOST: !GetAtt [AppDBCluster, Endpoint.Address]
+    PORT: !GetAtt [AppDBCluster, Endpoint.Port]
     USER: ${ssm:/toe/prod/DBApiUsername}
     PASSWORD: ${ssm:/toe/prod/DBApiPass}
 plugins:
   - ./vendor/bref/bref
 resources:
   Resources:
-    AppDBParams: ${file(./resource/AppDBParams.yaml)}
+    AppDBCluster: ${file(./resource/AppDBCluster.yaml)}
+    AppDBClusterParams: ${file(./resource/AppDBClusterParams.yaml)}
     AppDBSecurity: ${file(./resource/AppDBSecurity.yaml)}
     AppDBSecurityIngress: ${file(./resource/AppDBSecurityIngress.yaml)}
     AppDBSubnetGroup: ${file(./resource/AppDBSubnetGroup.yaml)}
-    appDB: ${file(./resource/AppDB.yaml)}
+    AppS3RouteBucket: ${file(./resource/AppS3RouteBucket.yaml)}
   Outputs:
+    AppDBArn:
+      Value:
+        'Fn::Join':
+          - ":"
+          - - "arn:aws:rds"
+            - ${self:provider.region}
+            - !Ref "AWS::AccountId"
+            - "cluster"
+            - !Ref AppDBCluster
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", DBArn ] ]
     AppDBHost:
-      Value: { "Fn::GetAtt": [appDB, Endpoint.Address]}
+      Value: { "Fn::GetAtt": [AppDBCluster, Endpoint.Address]}
       Export:
         Name: !Join [ "-", [ !Ref "AWS::StackName", DBAddress ] ]
     AppDBPort:
-      Value: { "Fn::GetAtt": [appDB, Endpoint.Port]}
+      Value: { "Fn::GetAtt": [AppDBCluster, Endpoint.Port]}
       Export:
         Name: !Join [ "-", [ !Ref "AWS::StackName", DBPort ] ]
     AppDBUsername:
@@ -50,3 +62,11 @@ resources:
       Value: !GetAtt AppDBSecurity.GroupId
       Export:
         Name: !Join [ "-", [ !Ref "AWS::StackName", DBSecurityGroupId ] ]
+    AppS3RouteBucketName:
+      Value: !Ref AppS3RouteBucket
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", S3RouteBucketName ] ]
+    AppS3RouteBucketArn:
+      Value: { "Fn::GetAtt": [AppS3RouteBucket, Arn]}
+      Export:
+        Name: !Join [ "-", [ !Ref "AWS::StackName", S3RouteBucketArn ] ]

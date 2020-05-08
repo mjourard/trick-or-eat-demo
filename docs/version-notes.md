@@ -1,5 +1,15 @@
 ## Trick Or Eat Version Notes
 
+### 0.4.0
+#### 2020-04-10
+ * switched over to hosting on AWS as serverless
+    * api is hosted through API Gateway
+    * frontend is hosted through CloudFront + S3
+    * database is now aurora serverless mysql
+    * route files are hosted in S3
+    * logging goes to Cloudwatch Logs instead of redis
+ * removed the redis integration as its no longer necessary
+
 ### 0.3.9
 #### 2017-10-04
  * Added a feedback module, allowing users to leave us direct feedback in 2000 characters or less
@@ -32,7 +42,7 @@
 ### 0.3.4
 #### 2017-08-16
 ##### General
- * moved the database host and port into clsConstants for later removal into a config constants file
+ * moved the database host and port into Constants for later removal into a config constants file
  * Added a thin DAL class to the cron-jobs folder to be used in cron-job scripts
  * modified the UserInfo service to be able to get any data from the user table based on an email
  

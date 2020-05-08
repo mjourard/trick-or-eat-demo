@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: Danie
@@ -8,21 +9,21 @@
 
 namespace TOETests\App\Controller;
 
-use TOE\GlobalCode\clsHTTPCodes;
+use TOE\GlobalCode\HTTPCodes;
 use TOETests\BaseTestCase;
 use TOETests\clsTesterCreds;
 
 class RequestResetControllerTest extends BaseTestCase
 {
-	const VALID_USER_EMAIL = clsTesterCreds::ADMIN_ON_TEAM_WITH_ROUTE_EMAIL;
-    const NON_EXISTENT_USER_EMAIL = "doesnotexist@notreal.com";
+	public const VALID_USER_EMAIL = clsTesterCreds::ADMIN_ON_TEAM_WITH_ROUTE_EMAIL;
+    public const NON_EXISTENT_USER_EMAIL = "doesnotexist@notreal.com";
 
 	/**
 	 * @group Request-Password
 	 */
 	public function testRequestReset()
 	{
-		$this->SetClient();
+		$this->setClient();
 
 		//Test resetting an email that does not exist in the database
 		$request = [
@@ -30,7 +31,7 @@ class RequestResetControllerTest extends BaseTestCase
 		];
 
 		$this->client->request('POST', '/requestReset', $request);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_NOT_FOUND);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_FOUND);
 
 
 		//Test resetting a valid email address
@@ -39,6 +40,6 @@ class RequestResetControllerTest extends BaseTestCase
 		];
 
 		$this->client->request('POST', '/requestReset', $request);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: Matthew Jourard
@@ -9,8 +10,8 @@
 namespace TOETests\App\Controller;
 
 use Exception;
-use TOE\GlobalCode\clsConstants;
-use TOE\GlobalCode\clsHTTPCodes;
+use TOE\GlobalCode\Constants;
+use TOE\GlobalCode\HTTPCodes;
 use TOETests\BaseTestCase;
 use TOETests\clsTesterCreds;
 
@@ -19,30 +20,30 @@ use TOETests\clsTesterCreds;
  * The following parameters get passed to each function in the $app['params'] array:
  *
  * 'register'        => [
- *   'email'      => clsConstants::SILEX_PARAM_STRING,
- *   'password'   => clsConstants::SILEX_PARAM_STRING,
- *   'first_name' => clsConstants::SILEX_PARAM_STRING,
- *   'last_name'  => clsConstants::SILEX_PARAM_STRING,
- *   'region_id'  => clsConstants::SILEX_PARAM_INT
+ *   'email'      => public constants::SILEX_PARAM_STRING,
+ *   'password'   => public constants::SILEX_PARAM_STRING,
+ *   'first_name' => public constants::SILEX_PARAM_STRING,
+ *   'last_name'  => public constants::SILEX_PARAM_STRING,
+ *   'region_id'  => public constants::SILEX_PARAM_INT
  * ],
  * 'login'           => [
- *   'password' => clsConstants::SILEX_PARAM_STRING,
- *   'email'    => clsConstants::SILEX_PARAM_STRING
+ *   'password' => public constants::SILEX_PARAM_STRING,
+ *   'email'    => public constants::SILEX_PARAM_STRING
  * ],
  */
 class AuthControllerTest extends BaseTestCase
 {
-	const CORRECT_EMAIL   = "registerTest@test.com";
-	const GOOD_PASSWORD   = "]MvV^ek'jw69a3Hy";
-	const GOOD_FIRST_NAME = "TheQuickBrownFox";
-	const GOOD_LAST_NAME  = "JumpsOverTheLazyRedDog";
-	const GOOD_REGION_ID  = 9;
+	public const CORRECT_EMAIL   = "registerTest@test.com";
+	public const GOOD_PASSWORD   = "password";
+	public const GOOD_FIRST_NAME = "TheQuickBrownFox";
+	public const GOOD_LAST_NAME  = "JumpsOverTheLazyRedDog";
+	public const GOOD_REGION_ID  = 9;
 
-	const BAD_EMAIL     = "I'mMissingAnAtSign";
-	const BAD_PASSWORD  = "";
-	const BAD_REGION_ID = -1;
+	public const BAD_EMAIL     = "I'mMissingAnAtSign";
+	public const BAD_PASSWORD  = "";
+	public const BAD_REGION_ID = -1;
 
-	const SQL_INJECTION_PASSWORD = "' OR 1=1 OR password = '";
+	public const SQL_INJECTION_PASSWORD = "' OR 1=1 OR password = '";
 
 	/**
 	 * @group Auth
@@ -50,7 +51,7 @@ class AuthControllerTest extends BaseTestCase
 	public function testRegister()
 	{
 		//test registering with correct data
-		$registerObj = $this->GetRegisterObject(
+		$registerObj = $this->getRegisterObject(
 			self::CORRECT_EMAIL,
 			self::GOOD_PASSWORD,
 			self::GOOD_FIRST_NAME,
@@ -58,23 +59,23 @@ class AuthControllerTest extends BaseTestCase
 			self::GOOD_REGION_ID
 		);
 
-		$this->SetClient();
+		$this->setClient();
 
-		$this->Signout();
+		$this->signout();
 
-		if ($this->IsUserRegistered(self::CORRECT_EMAIL))
+		if ($this->isUserRegistered(self::CORRECT_EMAIL))
 		{
-			$this->RemoveUser(self::CORRECT_EMAIL);
+			$this->removeUser(self::CORRECT_EMAIL);
 		}
 
 		$this->client->request('POST', '/register', $registerObj);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_RESOURCE_CREATED);
 
 		//test registering with a user that already exists
 		$this->client->request('POST', '/register', $registerObj);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_CONFLICT);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_CONFLICT);
 
-		$this->RemoveUser(self::CORRECT_EMAIL);
+		$this->removeUser(self::CORRECT_EMAIL);
 
 		//test registering with an incorrectly formatted request
 		$registerObj = [
@@ -84,13 +85,13 @@ class AuthControllerTest extends BaseTestCase
 		];
 
 		$this->client->request('POST', '/register', $registerObj);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_BAD_REQUEST);
 
 		$goodTestData = [
 			[self::CORRECT_EMAIL, self::BAD_EMAIL],
 			[self::GOOD_PASSWORD, ""],
-			[$this->CreateBadString(), ""],
-			[$this->CreateBadString(), ""],
+			[$this->createBadString(), ""],
+			[$this->createBadString(), ""],
 			[self::GOOD_REGION_ID, self::BAD_REGION_ID]
 		];
 
@@ -125,7 +126,7 @@ class AuthControllerTest extends BaseTestCase
 						throw new Exception("Unimplemented 'i' value: $i");
 				}
 
-				$registerObj = $this->GetRegisterObject(
+				$registerObj = $this->getRegisterObject(
 					$email,
 					$password,
 					$fname,
@@ -134,7 +135,7 @@ class AuthControllerTest extends BaseTestCase
 				);
 
 				$this->client->request('POST', '/register', $registerObj);
-				$this->POSTResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST, $registerObj);
+				$this->checkPOSTResponse(HTTPCodes::CLI_ERR_BAD_REQUEST, $registerObj);
 			}
 		}
 	}
@@ -144,64 +145,64 @@ class AuthControllerTest extends BaseTestCase
 	 */
 	public function testLogin()
 	{
-		$this->SetClient();
+		$this->setClient();
 
 		//test with a user that exists
-		if ($this->GetLoggedIn())
+		if ($this->getLoggedIn())
 		{
-			$this->Signout();
+			$this->signout();
 		}
 
-		$logginObj = $this->GetLoginObject(
+		$logginObj = $this->getLoginObject(
 			clsTesterCreds::NORMAL_USER_EMAIL,
 			clsTesterCreds::NORMAL_USER_PASSWORD
 		);
 
 		$this->client->request('POST', '/login', $logginObj);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$this->assertNotNull(json_decode($this->lastResponse->getContent())->token, "Token did not exist or was NULL in response");
 
 		//test with a user that exists with a bad password
-		$logginObj = $this->GetLoginObject(
+		$logginObj = $this->getLoginObject(
 			clsTesterCreds::NORMAL_USER_EMAIL,
 			clsTesterCreds::NORMAL_USER_PASSWORD . "hellodarknessmyoldfriend"
 		);
 
 		$this->client->request('POST', '/login', $logginObj);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_BAD_REQUEST);
 
 		//test logging out of a user and logging in as another
-		$this->Signout();
+		$this->signout();
 
-		$logginObj = $this->GetLoginObject(
+		$logginObj = $this->getLoginObject(
 			clsTesterCreds::SUPER_ADMIN_EMAIL,
 			clsTesterCreds::SUPER_ADMIN_PASSWORD
 		);
 
 		$this->client->request('POST', '/login', $logginObj);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$this->assertNotNull(json_decode($this->lastResponse->getContent())->token, "Token did not exist or was NULL in response");
 
 		//test with a user that does not exist
-		$this->Signout();
+		$this->signout();
 
-		$logginObj = $this->GetLoginObject(
+		$logginObj = $this->getLoginObject(
 			"thisemaildoesnotexist@gmail.com",
 			"password"
 		);
 
 		$this->client->request('POST', '/login', $logginObj);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_BAD_REQUEST);
 
 		//test with attempted SQL injection
 
-		$logginObj = $this->GetLoginObject(
+		$logginObj = $this->getLoginObject(
 			clsTesterCreds::NORMAL_USER_EMAIL,
 			self::SQL_INJECTION_PASSWORD
 		);
 
 		$this->client->request('POST', '/login', $logginObj);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_BAD_REQUEST);
 	}
 
 	/**
@@ -209,7 +210,7 @@ class AuthControllerTest extends BaseTestCase
 	 *
 	 * @return string
 	 */
-	private function CreateBadString()
+	private function createBadString()
 	{
 		$bad = "'\\/[]}{";
 		$bad .= "\u{00C0}"; //A with an accent over it
@@ -217,7 +218,7 @@ class AuthControllerTest extends BaseTestCase
 		return $bad;
 	}
 
-	private function GetRegisterObject($email, $password, $firstName, $lastName, $regionId)
+	private function getRegisterObject($email, $password, $firstName, $lastName, $regionId)
 	{
 		return [
 			'email'      => $email,
@@ -228,7 +229,7 @@ class AuthControllerTest extends BaseTestCase
 		];
 	}
 
-	private function GetLoginObject($email, $password)
+	private function getLoginObject($email, $password)
 	{
 		return [
 			'email'    => $email,
@@ -236,19 +237,19 @@ class AuthControllerTest extends BaseTestCase
 		];
 	}
 
-	private function IsUserRegistered($email)
+	private function isUserRegistered($email)
 	{
 		if (empty($email))
 		{
 			return false;
 		}
 
-		$this->SetDatabaseConnection();
+		$this->setDatabaseConnection();
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select('email');
 		$qb->from('user');
 		$qb->where("email = :email");
-		$qb->setParameter('email', self::CORRECT_EMAIL, clsConstants::SILEX_PARAM_STRING);
+		$qb->setParameter('email', self::CORRECT_EMAIL, Constants::SILEX_PARAM_STRING);
 
 		//var_dump($qb->getParameterTypes());
 

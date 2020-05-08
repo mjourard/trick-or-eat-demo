@@ -1,145 +1,122 @@
 <?php
+declare(strict_types=1);
 
 namespace TOE\App\Controller;
 
 use Silex\Application;
 use \Firebase\JWT\JWT;
 use Symfony\Component\Validator\Constraints as Assert;
-use TOE\GlobalCode\clsConstants;
-use TOE\GlobalCode\clsResponseJson;
-use TOE\GlobalCode\clsHTTPCodes;
+use TOE\App\Service\Location\RegionManager;
+use TOE\App\Service\User\UserException;
+use TOE\App\Service\User\UserLookupService;
+use TOE\GlobalCode\Constants;
+use TOE\GlobalCode\ResponseJson;
+use TOE\GlobalCode\HTTPCodes;
 
 class AuthController extends BaseController
 {
-	const VALID_TIME = 18000;
+	public const VALID_TIME = 18000;
 
 	/**
 	 * Registers a new user for the trick-or-eat application.
 	 *
-	 * @param \Silex\Application $app
+	 * @param Application $app
 	 *
 	 * @return \Symfony\Component\HttpFoundation\JsonResponse
 	 */
 	public function register(Application $app)
 	{
-		if(!$this->emailIsGood($app[clsConstants::PARAMETER_KEY]['email'], $app))
+		if(!$this->emailIsGood($app[Constants::PARAMETER_KEY]['email'], $app))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad email"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad email"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		if(!$this->passwordIsGood($app[clsConstants::PARAMETER_KEY]['password']))
+		if(!$this->passwordIsGood($app[Constants::PARAMETER_KEY]['password']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Bad password"), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad password"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		$firstName = trim($app[clsConstants::PARAMETER_KEY]['first_name']);
+		$firstName = trim($app[Constants::PARAMETER_KEY]['first_name']);
 		if(empty($firstName))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "First name cannot be empty."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "First name cannot be empty."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		$lastName = trim($app[clsConstants::PARAMETER_KEY]['last_name']);
+		$lastName = trim($app[Constants::PARAMETER_KEY]['last_name']);
 		if(empty($lastName))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Last name cannot be empty."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Last name cannot be empty."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		$email = strtolower(trim($app[clsConstants::PARAMETER_KEY]['email']));
+		$email = strtolower(trim($app[Constants::PARAMETER_KEY]['email']));
 
 		$this->initializeInstance($app);
 
-		$userId = $app['user.lookup']->GetUserId($email);
+		/** @var UserLookupService $userLookup */
+		$userLookup = $app['user.lookup'];
+		$userId = $userLookup->getUserId($email);
 
 		if($userId !== false)
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "email of '$email' already registered"), clsHTTPCodes::CLI_ERR_CONFLICT);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "email of '$email' already registered"), HTTPCodes::CLI_ERR_CONFLICT);
 		}
 
 		//verify the region passed in exists
-		if(!$this->regionExists($app[clsConstants::PARAMETER_KEY]['region_id']))
+		/** @var RegionManager $regionManager */
+		$regionManager = $app['region'];
+		if(!$regionManager->regionExists($app[Constants::PARAMETER_KEY]['region_id']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "region_id of {$app[clsConstants::PARAMETER_KEY]['region_id']} is was not found in the database."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "region_id of {$app[Constants::PARAMETER_KEY]['region_id']} is was not found in the database."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		//insert user data into DB
-		$qb = $this->db->createQueryBuilder();
-		$qb->insert('user')
-			->values([
-				'email'      => ':email',
-				'password'   => ':password',
-				'first_name' => ':first_name',
-				'last_name'  => ':last_name',
-				'region_id'  => ':region_id'
-			])
-			->setParameter(':email', $email)
-			->setParameter(':password', password_hash($app[clsConstants::PARAMETER_KEY]['password'], PASSWORD_DEFAULT))
-			->setParameter(':first_name', $firstName)
-			->setParameter(':last_name', $lastName)
-			->setParameter(':region_id', $app[clsConstants::PARAMETER_KEY]['region_id']);
-
-		if(!$qb->execute() === 0)
+		try
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'There was a problem registering the user'), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
-		};
-
-		$userId = $app['user.lookup']->GetUserId($email);
-
-		$qb = $this->db->createQueryBuilder();
-		$qb->insert('user_role')
-			->values([
-				'user_id' => $userId,
-				'role'    => ':role'
-			])
-			->setParameter(':role', clsConstants::ROLE_PARTICIPANT, clsConstants::SILEX_PARAM_STRING);
-
-		if(!$qb->execute() === 0)
-		{
-			//TODO: delete the newly created user so they can attempt to sign up again
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'There was a problem registering the user\'s role.'), clsHTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			$userId = $userLookup->registerUser($email, $app[Constants::PARAMETER_KEY]['password'], $firstName, $lastName, $app[Constants::PARAMETER_KEY]['region_id']);
+			return $app->json(ResponseJson::GetJsonResponseArray(true, "registration successful", ['user_id' => $userId]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
-
-		return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
+		catch(UserException $ex)
+		{
+			$this->logger->err($ex->getMessage(), [
+				'email' => $email
+			]);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem registering the user\'s role.'), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+		}
 	}
 
 	/**
 	 * Takes in an email and password from a request and returns a response containing either a login token or an error message
 	 *
-	 * @param \Silex\Application $app
+	 * @param Application $app
 	 *
 	 * @return \Symfony\Component\HttpFoundation\JsonResponse
 	 */
 	public function login(Application $app)
 	{
 		$this->initializeInstance($app);
-		$qb = $this->db->createQueryBuilder();
-
-		$delim = ",";
-		$qb->select(
-			'u.user_id',
-			'email',
-			'password',
-			"GROUP_CONCAT(ur.role SEPARATOR '$delim') as user_roles"
-		)
-			->from('user', 'u')
-			->leftJoin('u', 'user_role', 'ur', 'u.user_id = ur.user_id')
-			->where('email = :email')
-			->setParameter(':email', strtolower($app[clsConstants::PARAMETER_KEY]["email"]));
-
-		$userInfo = $qb->execute()->fetchAll();
-		if(count($userInfo) > 1)
+		/** @var UserLookupService $userLookup */
+		$userLookup = $app['user.lookup'];
+		try
 		{
-			$app->json(clsResponseJson::GetJsonResponseArray(false, "Database inconsistency; more than one user matches these login details."), clsHTTPCodes::SERVER_GENERIC_ERROR);
-		};
+			$userInfo = $userLookup->getUserInfo(
+				strtolower($app[Constants::PARAMETER_KEY]["email"]),
+				['user_id', 'email', 'password'],
+				true
+			);
+		}
+		catch(UserException $ex)
+		{
+			$this->logger->err($ex->getMessage(), ['email' => $app[Constants::PARAMETER_KEY]["email"]]);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Problem with passed in email. Please contact the trick-or-eat team."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+		}
 
-		if(empty($userInfo))
+		if(empty($userInfo) || empty($userInfo['user_id']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "Email not registered."), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
-		};
-		$userInfo = $userInfo[0];
-		if(!password_verify($app[clsConstants::PARAMETER_KEY]['password'], $userInfo['password']))
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Email not registered."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+		}
+		if(!password_verify($app[Constants::PARAMETER_KEY]['password'], $userInfo['password']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'Incorrect password.'), clsHTTPCodes::CLI_ERR_BAD_REQUEST);
-		};
+			return $app->json(ResponseJson::GetJsonResponseArray(false, 'Incorrect password.'), HTTPCodes::CLI_ERR_BAD_REQUEST);
+		}
 		$issuedAt = time();
 		$expire = $issuedAt + self::VALID_TIME;
 		$data = [
@@ -149,7 +126,7 @@ class AuthController extends BaseController
 				// Data related to the signer user
 				'userId'    => $userInfo['user_id'], // userid from the users table
 				'email'     => $userInfo['email'], // User name
-				'userRoles' => explode($delim, $userInfo['user_roles'])
+				'userRoles' => $userInfo['user_roles']
 			]
 		];
 		$jwt = JWT::encode(
@@ -157,30 +134,16 @@ class AuthController extends BaseController
 			$app['jwt.key'],
 			'HS512'
 		);
-		$token = ['jwt' => $jwt];
-
-		return $app->json(clsResponseJson::GetJsonResponseArray(true, "", ["token" => $token]), clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ["token" => ['jwt' => $jwt]]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
-	private function regionExists($regionId)
-	{
-		$qb = $this->db->createQueryBuilder();
 
-		$qb->select('region_id');
-		$qb->from('region');
-		$qb->where('region_id = :region_id');
-		$qb->setParameter('region_id', $regionId, clsConstants::SILEX_PARAM_INT);
-
-		$results = $qb->execute();
-
-		return !empty($results->fetchAll());
-	}
 
 	/**
 	 * Validates the passed in email
 	 *
 	 * @param String             $email
-	 * @param \Silex\Application $app
+	 * @param Application $app
 	 *
 	 * @return bool returns true if the email is valid, false otherwise
 	 */

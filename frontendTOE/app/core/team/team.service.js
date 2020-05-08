@@ -96,8 +96,11 @@ angular.module('core.team', [])
 			});
 		};
 
-		Team.kickTeammate = function(teammateId) {
-			return Request.post('/team/kick', {teammate_id: parseInt(teammateId)})
+		Team.kickTeammate = function(teammateId, teamId) {
+			return Request.post('/team/kick', {
+				teammate_id: parseInt(teammateId),
+				team_id: parseInt(teamId)
+			})
 				.then(function success(response) {
 					return response;
 				}, function failure(response) {

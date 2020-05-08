@@ -24,19 +24,7 @@ services:
       - "../api:/var/www/html/toe/back"
       - "../frontendTOE/dist:/var/www/html/toe/app"
     environment:
-      - dev_mode=on
       - TOE_STAGE=local
-      - TOE_LOG_FILE=php://stdout
-      - TOE_DATABASE_HOST=toe_mysql
-      - TOE_DATABASE_PORT=3306
-      - TOE_DATABASE_USER=root
-      - TOE_DATABASE_PASSWORD=example
-      - TOE_REDIS_LOGGING_IP=toe_redis
-      - TOE_REDIS_LOGGING_PORT=6379
-      - TOE_REDIS_PASSWORD=foobared
-      - TOE_ENCODED_JWT_KEY=dHJpY2tvcmVhdDIwMjBkZW1v
-      - TOE_LOGGING_LEVEL=INFO
-      - TOE_ACCESS_CONTROL_ALLOW_ORIGIN=http://local.guelphtrickoreat.ca
   toe_mysql:
     container_name: toe_mysql
     image: mysql:5.7

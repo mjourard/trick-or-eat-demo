@@ -1,11 +1,18 @@
 <?php
+declare(strict_types=1);
+
 namespace TOE\App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Silex\Application;
-use TOE\GlobalCode\clsConstants;
-use TOE\GlobalCode\clsHTTPCodes;
-use TOE\GlobalCode\clsResponseJson;
+use TOE\App\Service\Event\EventManager;
+use TOE\App\Service\Event\RegistrationManager;
+use TOE\App\Service\Team\TeamException;
+use TOE\App\Service\Team\TeamManager;
+use TOE\App\Service\User\UserLookupService;
+use TOE\GlobalCode\Constants;
+use TOE\GlobalCode\HTTPCodes;
+use TOE\GlobalCode\ResponseJson;
 
 class EventController extends BaseController
 {
@@ -13,188 +20,90 @@ class EventController extends BaseController
 	{
 		/* boiler plate  */
 		$this->initializeInstance($app);
-		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
-		$params = $app[clsConstants::PARAMETER_KEY];
+		$this->unauthorizedAccess([Constants::ROLE_ALL]);
+		$params = $app[Constants::PARAMETER_KEY];
+		/** @var EventManager $eventManager */
+		$eventManager = $app['event'];
+		/** @var RegistrationManager $registrationManager */
+		$registrationManager = $app['event.registration'];
 
-		if ($this->isRegistered())
+		if($registrationManager->isRegistered($this->userInfo->getID(), $params['event_id']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'User is already registered for an event. '), clsHTTPCodes::CLI_ERR_CONFLICT);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, 'User is already registered for an event.'), HTTPCodes::CLI_ERR_CONFLICT);
 		}
 
 		//verify the event_id passed in is for a real event
-		$qb = $this->db->createQueryBuilder();
-		$qb->select('event_id', 'event_name')
-			->from('event')
-			->where('event_id = :event_id')
-			->setParameter(':event_id', $params['event_id']);
-
-		$event = $qb->execute()->fetchAll();
-		if (empty($event))
+		$event = $eventManager->getEvent($params['event_id']);
+		if(empty($event))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "There was no event with ID {$params['event_id']}."), clsHTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "There was no event with ID {$params['event_id']}."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
-		$event = $event[0];
-		$event['event_id'] = (int)$event['event_id'];
 
-		//TODO: investigate how to properly use the true/false enum with doctrine, as this is super ugly
-		$mobility = $params['mobility'] === true ? 'true' : 'false';
-		$visual = $params['visual'] === true ? 'true' : 'false';
-		$hearing = $params['hearing'] === true ? 'true' : 'false';
-		#insert user data into DB
-		$qb = $this->db->createQueryBuilder();
-		$qb->update('user')
-			->set('mobility', ':mobility')
-			->set('visual', ':visual')
-			->set('hearing', ':hearing')
-			->where('user_id = :user_id')
-			->setParameter(':mobility', $mobility)
-			->setParameter(':visual', $visual)
-			->setParameter(':hearing', $hearing)
-			->setParameter(':user_id', $this->userInfo->getID());
+		/** @var UserLookupService $userLookup */
+		$userLookup = $app['user.lookup'];
+		$userLookup->updateAccessibilityInfo($this->userInfo->getID(), $params['mobility'], $params['visual'], $params['hearing']);
 
-		$qb->execute();
-
-		$canDrive = $params['can_drive'] === true ? 'true' : 'false';
-		#insert user data into DB
-		$q = "
-            INSERT INTO member 
-            (
-              user_id, 
-              can_drive, 
-              event_id
-            ) 
-            VALUES 
-            (
-              :user_id, 
-              '$canDrive', 
-              :event_id
-            ) 
-            ON DUPLICATE KEY UPDATE 
-              can_drive = values(can_drive), 
-              event_id = values(event_id)";
-		$query = $this->db->prepare($q);
-		$query->bindValue(':user_id', $this->userInfo->getID());
-		$query->bindValue(':event_id', $params['event_id']);
-		if (!$query->execute())
+		if(!$registrationManager->registerForEvent($this->userInfo->getID(), $params['event_id'], $params['can_drive']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'There was a problem executing the insert query'), clsHTTPCodes::SERVER_GENERIC_ERROR);
-		};
+			$this->logger->err('unable to register user to event.', ['user_id' => $this->userInfo->getID(), 'event_id' => $params['event_id']]);
 
-		return $app->json(clsResponseJson::GetJsonResponseArray(true, "", $event), clsHTTPCodes::SUCCESS_RESOURCE_CREATED);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem registering you for the event. Contact staff for the trick-or-eat event.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+		}
+
+		return $app->json(ResponseJson::GetJsonResponseArray(true, "", $event), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
 	public function deregister(Request $request, Application $app)
 	{
-		/* boiler plate */
 		$this->initializeInstance($app);
-		$this->unauthorizedAccess([clsConstants::ROLE_ALL]);
-		$params = $app[clsConstants::PARAMETER_KEY];
-
-		if (!$this->isRegistered())
+		$this->unauthorizedAccess([Constants::ROLE_ALL]);
+		$params = $app[Constants::PARAMETER_KEY];
+		/** @var EventManager $eventManager */
+		$eventManager = $app['event'];
+		/** @var RegistrationManager $registrationManager */
+		$registrationManager = $app['event.registration'];
+		if(!$registrationManager->isRegistered($this->userInfo->getID(), $params['event_id']))
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, 'The user is not registered for an event. '), clsHTTPCodes::CLI_ERR_ACTION_NOT_ALLOWED);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, 'The user is not registered for the event.'), HTTPCodes::CLI_ERR_ACTION_NOT_ALLOWED);
 		}
 
-		//Get the team data that the user is on.
-		$qb = $this->db->createQueryBuilder();
-		$qb->select(
-				'm.team_id',
-				'm.event_id',
-				't.captain_user_id'
-			)
-			->from('member', 'm')
-			->leftJoin('m', 'team', "t", 'm.team_id = t.team_id')
-			->where('m.user_id = :user_id')
-			->andWhere('t.event_id = :event_id OR t.event_id IS NULL')
-			->setParameter(':user_id', $this->userInfo->getID())
-			->setParameter(':event_id', $params['event_id']);
-		$results = $qb->execute()->fetchAll();
-
-		if (empty($results))
+		//handle the user's existing team i.e. if they are a team captain, if the team is empty without them, etc.
+		/** @var TeamManager $teamManager */
+		$teamManager = $app['team'];
+		try
 		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "The user was not registered for the event passed in."), clsHTTPCodes::CLI_ERR_ACTION_NOT_ALLOWED);
+			$teamManager->removeUserFromTeam($this->userInfo->getID(), $params['event_id']);
+		}
+		catch(TeamException $ex)
+		{
+			$this->logger->err("problem while deregistering a user from an event", [
+				'user_id' => $this->userInfo->getID(),
+				'event_id' => $params['event_id'],
+				'err' => $ex->getMessage()
+			]);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "No rows affected when deleting member row."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		$teamId = $results[0]['team_id'];
-
-		//If user has a team and they are team captain:
-		if ($teamId !== null && $results[0]['captain_user_id'] === $this->userInfo->getID())
+		//remove the user's member entry in the database
+		if (!$eventManager->deregisterUser($this->userInfo->getID(), $params['event_id']))
 		{
-			//change the team captain to another person on the team
-			$qb = $this->db->createQueryBuilder();
-			$qb->select('user_id')
-				->from('member')
-				->where("team_id = $teamId")
-				->andWhere('user_id != ' . $this->userInfo->getID());
-			$results = $qb->execute()->fetchAll();
-
-			$newId = !empty($results) ? $results[0]['user_id'] : false;
-
-			//If they are the only member of the team, delete the team
-			if ($newId === false)
-			{
-				$qb = $this->db->createQueryBuilder();
-				$qb->delete('team')
-					->where("team_id = $teamId");
-				$qb->execute();
-			}
-			else
-			{
-				//set the team captain id to be someone else. Issue of concurrency where if both users register simultaniously, this could error out.
-				$qb = $this->db->createQueryBuilder();
-				$qb->update('team')
-					->set('captain_user_id', $newId)
-					->where("team_id = $teamId");
-				$qb->execute();
-			}
+			$this->logger->err("Unable to delete user's row in 'member' table", [
+				'user_id' => $this->userInfo->getID(),
+				'event_id' => $params['event_id']
+			]);
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Removed user from the team but unable to deregister them from the event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		$qb = $this->db->createQueryBuilder();
-		$qb->delete('member')
-			->where('user_id = :user_id')
-			->andWhere('event_id = :event_id')
-			->setParameter(':user_id', $this->userInfo->getID())
-			->setParameter(':event_id', $params['event_id']);
-
-		if ($qb->execute() === 0)
-		{
-			return $app->json(clsResponseJson::GetJsonResponseArray(false, "No rows affected when deleting member row."), clsHTTPCodes::SERVER_GENERIC_ERROR);
-		}
-
-		return $app->json(clsResponseJson::GetJsonResponseArray(true, ""), clsHTTPCodes::SUCCESS_NO_CONTENT);
+		return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
 	}
 
 	public function getEvents(Application $app, $regionId)
 	{
 		$this->initializeInstance($app);
 
-		$qb = $this->db->createQueryBuilder();
-		$qb->select('event_id', 'event_name')
-			->from('event')
-			->where('region_id = :region_id')
-			->setParameter(':region_id', $regionId);
+		/** @var EventManager $eventManager */
+		$eventManager = $app['event'];
 
-		$results = $qb->execute()->fetchAll();
-
-		foreach ($results as &$event)
-		{
-			$event['event_id'] = (int)$event['event_id'];
-		}
-
-		return $app->json(["success" => true, "events" => $results], clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
-
-	}
-
-	#check if user is registered for a different event
-	private function isRegistered()
-	{
-		$userID = $this->userInfo->getID();
-		$qb = $this->db->createQueryBuilder();
-		$qb->select('event_id')
-			->from('member')
-			->where("user_id = :user_id")
-			->setParameter(':user_id', $userID);
-
-		return !empty($qb->execute()->fetchAll());
+		return $app->json(["success" => true, "events" => $eventManager->getEventsByRegion($regionId)], HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 }

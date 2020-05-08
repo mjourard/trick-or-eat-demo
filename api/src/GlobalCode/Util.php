@@ -12,7 +12,7 @@
 
 namespace TOE\GlobalCode;
 
-class clsUtil
+class Util
 {
 	/**
 	 * Removes all lines from a stacktrace that contain 'vendor' or 'phpunit' in them.

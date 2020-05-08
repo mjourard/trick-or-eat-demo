@@ -2,12 +2,13 @@ function TeamController($location, $mdDialog, Team, LOCATION_PATHS) {
 	var team = this;
 	team.teamName = "";
 	team.teammates = [];
+	team.teamId = null;
 	team.joinCode = "";
 	team.imagePath = LOCATION_PATHS.images + '/trick-or-treat-placeholder.jpg';
 
-	team.kickTeammate = function (teammateId, teammateFirstName, teammateLastName) {
+	team.kickTeammate = function (teammateId, teamId, teammateFirstName, teammateLastName) {
 		confirmDialog('Kick Teammate', "Are you sure you want to kick " + teammateFirstName + ' ' + teammateLastName + '?', 'Kick Teammate', 'Kick', function() {
-			Team.kickTeammate(teammateId).then(function (response) {
+			Team.kickTeammate(teammateId, teamId).then(function (response) {
 				if (response.data.success) {
 					team.refreshTeam()
 				} else {
@@ -34,6 +35,7 @@ function TeamController($location, $mdDialog, Team, LOCATION_PATHS) {
 	team.refreshTeam = function () {
 		Team.getTeam().then(function (response) {
 			if (response.hasOwnProperty('name') && response.name) {
+				team.teamId = response.id;
 				team.teamName = response.name;
 				team.teammates = response.teammates;
 				team.joinCode = response.code;

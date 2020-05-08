@@ -43,10 +43,10 @@ class DAL
 		$this->charset = $charset;
 		$this->inTransaction = false;
 
-		$this->SetDefaultDatabaseName($defaultDBName);
+		$this->setDefaultDatabaseName($defaultDBName);
 	}
 
-	public function SetDefaultDatabaseName($dbName)
+	public function setDefaultDatabaseName($dbName)
 	{
 		if(is_string($dbName) && $this->defaultDBName !== $dbName)
 		{
@@ -64,7 +64,7 @@ class DAL
 	 * @return array An array of associative arrays of ALL rows returned by the prepared query
 	 * @throws DALException
 	 */
-	public function Query($query, $values = [])
+	public function query($query, $values = [])
 	{
 		$stmt = $this->pdo->prepare($query);
 		$res = $stmt->execute($values);
@@ -84,7 +84,7 @@ class DAL
 	 * @return array|false An associative array of the first row returned by the prepared query
 	 * @throws DALException
 	 */
-	public function QueryFirstDBRow($query, $values = [])
+	public function queryFirstDBRow($query, $values = [])
 	{
 		$stmt = $this->pdo->prepare($query);
 		$res = $stmt->execute($values);
@@ -110,7 +110,7 @@ class DAL
 	 * @return int
 	 * @throws DALException
 	 */
-	public function ExecuteNonQuery($query, $values = [])
+	public function executeNonQuery($query, $values = [])
 	{
 		$stmt = $this->pdo->prepare($query);
 		$res = $stmt->execute($values);
@@ -129,7 +129,7 @@ class DAL
 	 * @return int The number of rows affected by the sql query
 	 * @throws DALException
 	 */
-	public function RawExecuteNonQuery($query)
+	public function rawExecuteNonQuery($query)
 	{
 		$res = $this->pdo->exec($query);
 		if ($res === false)
@@ -142,7 +142,7 @@ class DAL
 	/**
 	 * @return int
 	 */
-	public function GetLastInsertedIds()
+	public function getLastInsertedIds()
 	{
 		return (int)$this->pdo->lastInsertId();
 	}
@@ -150,7 +150,7 @@ class DAL
 	/**
 	 * @return bool
 	 */
-	public function BeginTransaction()
+	public function beginTransaction()
 	{
 		$this->inTransaction = $this->pdo->beginTransaction();
 		return $this->inTransaction;
@@ -160,7 +160,7 @@ class DAL
 	 * @return bool
 	 * @throws DALException
 	 */
-	public function CommitTransaction()
+	public function commitTransaction()
 	{
 		if(!$this->inTransaction)
 		{
@@ -175,7 +175,7 @@ class DAL
 	 * @return bool
 	 * @throws DALException
 	 */
-	public function RollbackTransaction()
+	public function rollbackTransaction()
 	{
 		if(!$this->inTransaction)
 		{
@@ -183,6 +183,6 @@ class DAL
 		}
 		$this->inTransaction = false;
 
-		return $this->pdo->rollback();
+		return $this->pdo->rollBack();
 	}
 }

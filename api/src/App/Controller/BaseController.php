@@ -10,12 +10,12 @@ namespace TOE\App\Controller;
 
 use Monolog\Processor\WebProcessor;
 use Silex\Application;
-use TOE\GlobalCode\clsConstants;
-USE TOE\GlobalCode\clsHTTPCodes;
+use TOE\GlobalCode\Constants;
+USE TOE\GlobalCode\HTTPCodes;
 
 class BaseController
 {
-	/** @var  \TOE\App\Service\UserProvider */
+	/** @var  \TOE\App\Service\User\UserProvider */
 	protected $userInfo = null;
 
 	/** @var  \Doctrine\DBAL\Connection */
@@ -55,17 +55,17 @@ class BaseController
 
 		if ($this->userInfo === null)
 		{
-			$this->app->abort(clsHTTPCodes::CLI_ERR_NOT_AUTHORIZED, "Unauthorized access - no info");
+			$this->app->abort(HTTPCodes::CLI_ERR_NOT_AUTHORIZED, "Unauthorized access - no info");
 		}
 
-		if (isset($permittedRoles[clsConstants::ROLE_ALL]))
+		if (isset($permittedRoles[Constants::ROLE_ALL]))
 		{
 			return;
 		}
 
 		foreach ($this->userInfo->getUserRoles() as $role)
 		{
-			if ($role === clsConstants::ROLE_ALL)
+			if ($role === Constants::ROLE_ALL)
 			{
 				return;
 			}
@@ -76,6 +76,6 @@ class BaseController
 			}
 		}
 
-		$this->app->abort(clsHTTPCodes::CLI_ERR_NOT_AUTHORIZED, "Unauthorized access");
+		$this->app->abort(HTTPCodes::CLI_ERR_NOT_AUTHORIZED, "Unauthorized access");
 	}
 }

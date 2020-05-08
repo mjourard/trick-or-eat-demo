@@ -9,7 +9,7 @@
 
 namespace TOETests\App\Controller;
 
-use TOE\GlobalCode\clsHTTPCodes;
+use TOE\GlobalCode\HTTPCodes;
 use TOETests\BaseTestCase;
 
 class RegionControllerTest extends BaseTestCase
@@ -23,9 +23,9 @@ class RegionControllerTest extends BaseTestCase
 	public function testGetCountries()
 	{
 
-		$this->SetClient();
+		$this->setClient();
 		$this->client->request('GET', '/countries');
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 
 		$content = json_decode($this->lastResponse->getContent());
 		$this->assertTrue($content->success);
@@ -48,7 +48,7 @@ class RegionControllerTest extends BaseTestCase
 	 */
 	public function testGetRegions()
 	{
-		$this->SetClient();
+		$this->setClient();
 		//test sending valid country_id's
 
 		$countryCodes = [
@@ -76,7 +76,7 @@ class RegionControllerTest extends BaseTestCase
 		foreach ($countryCodes as $country => $id)
 		{
 			$this->client->request('GET', '/regions/' . $id);
-			$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_DATA_RETRIEVED);
+			$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 			$content = json_decode($this->lastResponse->getContent());
 			$this->assertCount(count($expectedRegions[$country]), $content->regions);
 			foreach ($content->regions as $row)
@@ -88,10 +88,10 @@ class RegionControllerTest extends BaseTestCase
 
 		//attempt to send a bad country id
 		$this->client->request('GET', '/regions/' . self::BAD_COUNTRY_ID);
-		$this->BasicResponseCheck(clsHTTPCodes::CLI_ERR_NOT_FOUND);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_FOUND);
 
 		//attempt to send an ID of a country that does not exist
 		$this->client->request('GET', '/regions/' . self::VALID_NON_EXISTANT_ID);
-		$this->BasicResponseCheck(clsHTTPCodes::SUCCESS_NO_CONTENT);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_NO_CONTENT);
 	}
 }

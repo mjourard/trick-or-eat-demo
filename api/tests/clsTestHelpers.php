@@ -9,7 +9,7 @@
 namespace TOETests;
 
 use Doctrine\DBAL\Connection;
-use TOE\GlobalCode\clsConstants;
+use TOE\GlobalCode\Constants;
 
 class clsTestHelpers
 {
@@ -31,7 +31,7 @@ class clsTestHelpers
 		$query = "
 		SELECT `AUTO_INCREMENT`
 		FROM  INFORMATION_SCHEMA.TABLES
-		WHERE TABLE_SCHEMA = '" . clsConstants::DATABASE_NAME . "'
+		WHERE TABLE_SCHEMA = '" . Constants::DATABASE_NAME . "'
 		AND   TABLE_NAME   = '$tableName';
 		";
 
