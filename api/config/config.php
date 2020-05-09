@@ -13,28 +13,38 @@ switch(Env::get(Env::TOE_DATABASE_TYPE))
 {
 	case 'aurora':
 		$options = [
-			'driverClass' => \Nemo64\DbalRdsData\RdsDataDriver::class,
-			'host' => Env::get(Env::TOE_AWS_REGION),
-			'user' => Env::get(Env::TOE_AWS_ACCESS_KEY),
-			'password' => Env::get(Env::TOE_AWS_SECRET_KEY),
-			'dbname' => Constants::DATABASE_NAME,
+			'driverClass'   => \Nemo64\DbalRdsData\RdsDataDriver::class,
+			'host'          => Env::get(Env::TOE_AWS_REGION),
+			'user'          => Env::get(Env::TOE_AWS_ACCESS_KEY),
+			'password'      => Env::get(Env::TOE_AWS_SECRET_KEY),
+			'dbname'        => Constants::DATABASE_NAME,
 			'driverOptions' => [
 				'resourceArn' => Env::get(Env::TOE_DB_ARN),
-				'secretArn' => Env::get(Env::TOE_DB_SECRET_ARN)
+				'secretArn'   => Env::get(Env::TOE_DB_SECRET_ARN)
 			]
 		];
+		//this part is necessary for deploying to lambda when these Env vars are unset and expected to be null
+		//within the doctrine dbal driver
+		if (empty($options['user']))
+		{
+			unset($options['user']);
+		}
+		if (empty($options['password']))
+		{
+			unset($options['password']);
+		}
 		break;
 	case 'mysql':
 	default:
 		$options = [
-	'driver'   => 'pdo_mysql',
-	'host'     => Env::get(Env::TOE_DATABASE_HOST),
-	'port'     => Env::get(Env::TOE_DATABASE_PORT),
-	'dbname'   => Constants::DATABASE_NAME,
-	'charset'  => 'utf8',
-	'user'     => Env::get(Env::TOE_DATABASE_USER),
-	'password' => Env::get(Env::TOE_DATABASE_PASSWORD)
-];
+			'driver'   => 'pdo_mysql',
+			'host'     => Env::get(Env::TOE_DATABASE_HOST),
+			'port'     => Env::get(Env::TOE_DATABASE_PORT),
+			'dbname'   => Constants::DATABASE_NAME,
+			'charset'  => 'utf8',
+			'user'     => Env::get(Env::TOE_DATABASE_USER),
+			'password' => Env::get(Env::TOE_DATABASE_PASSWORD)
+		];
 }
 $app['db.options'] = $options;
 

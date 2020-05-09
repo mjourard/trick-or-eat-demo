@@ -38,10 +38,14 @@ class InitDB extends aCmd
 		}
 	}
 
-	protected function initMysql(InputInterface $input, OutputInterface $output, $wipe)
+	protected function initMysql(InputInterface $input, OutputInterface $output, bool $wipe)
 	{
 		//check to see if the TOE database exists, and if it does, print and exit
 		$schemas = $this->container->db->query("SHOW DATABASES");
+		if ($wipe)
+		{
+			$this->container->db->query("DROP DATABASE " . Constants::DATABASE_NAME . ";");
+		}
 
 		if(!empty($schemas))
 		{
@@ -87,10 +91,23 @@ class InitDB extends aCmd
 		return 0;
 	}
 
-	protected function initAurora(InputInterface $input, OutputInterface $output, $wipe)
+	protected function initAurora(InputInterface $input, OutputInterface $output, bool $wipe)
 	{
 		//TODO: implement the wipe option to reset the database for tests
-		if ($this->checkAuroraDBAlreadyInit($output) !== 0)
+		if ($wipe)
+		{
+			try
+			{
+				$this->container->aurora->queryDB("DROP DATABASE " . Constants::DATABASE_NAME . ";");
+			}
+			catch(\Exception $ex)
+			{
+				$output->writeln("Error while trying to wipe database: " . $ex->getMessage());
+				$output->writeln("Exiting...");
+				return 1;
+			}
+		}
+		if ($this->checkAuroraDBAlreadyInit($output) !== false)
 		{
 			return 1;
 		}
@@ -149,7 +166,7 @@ class InitDB extends aCmd
 			{
 				$output->writeln("Aurora Serverless might be warming up. Check the current capacity size of the cluster");
 
-				return 1;
+				return true;
 			}
 			else
 			{
@@ -177,11 +194,10 @@ class InitDB extends aCmd
 				$output->writeln("Ensure the data is backed up and delete the schema with 'DROP DATABASE " . Constants::DATABASE_NAME . "'.");
 				$output->writeln("Exiting...");
 
-				//TODO: re-enable
-//				return 1;
+				return true;
 			}
 		}
 
-		return 0;
+		return false;
 	}
 }

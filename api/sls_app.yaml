@@ -26,6 +26,17 @@ provider:
       Action:
         - s3:*
       Resource: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppS3RouteBucketArn}
+    - Effect: Allow
+      Resource: '*'
+      Action:
+        - rds-data:ExecuteStatement
+        - rds-data:BeginTransaction
+        - rds-data:CommitTransaction
+        - rds-data:RollbackTransaction
+    - Effect: Allow
+      Resource: ${self:custom.TOE_SERVERLESS_DB.SECRET_ARN}
+      Action:
+        - secretsmanager:GetSecretValue
   environment:
     TOE_DONT_USE_DOTENV: true
     TOE_STAGE: ${self:provider.stage}
