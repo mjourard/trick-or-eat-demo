@@ -40,14 +40,16 @@ class RouteManager extends BaseDBService
 			])
 			->setParameter(':route_file_url', $route->routeFilePath)
 			->setParameter(':name', $route->routeName)
+			->setParameter(':required_people', $route->requiredPeople)
 			->setParameter(':type', $route->type)
 			->setParameter(':mobile', $route->wheelchairAccessible)
 			->setParameter(':visual', $route->blindAccessible)
 			->setParameter(':hearing', $route->hearingAccessible)
-			->setParameter(':zone_id', $route->zoneId);
+			->setParameter(':zone_id', $route->zoneId)
+			->setParameter(':owner_user_id', $route->ownerUserId);
 		if($qb->execute() > 0)
 		{
-			$route->routeId = $qb->getConnection()->lastInsertId();
+			$route->routeId = (int)$qb->getConnection()->lastInsertId();
 		}
 
 		return $route;
@@ -66,6 +68,7 @@ class RouteManager extends BaseDBService
 		$qb->delete('route_archive')
 			->where('route_id = :routeId')
 			->setParameter(':routeId', $id, Constants::SILEX_PARAM_INT);
+
 		return $qb->execute() > 0;
 	}
 
@@ -95,10 +98,11 @@ class RouteManager extends BaseDBService
 			->where('route_id = :route_id')
 			->setParameter(':route_id', $id, Constants::SILEX_PARAM_INT);
 		$rows = $qb->execute()->fetchAll();
-		if (empty($rows))
+		if(empty($rows))
 		{
 			return null;
 		}
+
 		return new Route($rows[0]);
 	}
 
@@ -199,6 +203,7 @@ class RouteManager extends BaseDBService
 			->andWhere('zone_id = :zoneId')
 			->setParameter(':routeId', $routeId, Constants::SILEX_PARAM_INT)
 			->setParameter(':zoneId', $zoneId, Constants::SILEX_PARAM_INT);
+
 		return !empty($qb->execute()->fetchAll());
 	}
 }

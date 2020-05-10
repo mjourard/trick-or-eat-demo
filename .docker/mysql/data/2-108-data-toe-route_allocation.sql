@@ -6,8 +6,8 @@ USE toe;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-LOCK TABLES `team` WRITE;
-INSERT INTO `team` VALUES (1,1,8,'routetestingteam-PERMANENT','123'),(2,1,14,'routetestingteam-withroute-PERMANENT','123'),(3,2,15,'otherroutetestingteam-PERMANENT','123'),(4,1,16,'Team Of One!','123'),(5,1,17,'Empty Team of 2','123'),(6,1,20,'fullteam-PERMANENT','123');
+LOCK TABLES `route_allocation` WRITE;
+INSERT INTO `route_allocation` VALUES (1,1,1,'2017-10-09 00:56:17',NULL);
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

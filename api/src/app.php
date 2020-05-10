@@ -7,6 +7,7 @@ use Monolog\Processor\WebProcessor;
 use Symfony\Component\HttpFoundation\Request;
 use \Firebase\JWT\JWT;
 use Symfony\Component\HttpFoundation\Response;
+use TOE\App\Service\Bus\BusServiceProvider;
 use TOE\App\Service\Email\EmailServiceProvider;
 use TOE\App\Service\Event\EventServiceProvider;
 use TOE\App\Service\Feedback\FeedbackServiceProvider;
@@ -52,6 +53,7 @@ $app->extend('monolog', function (Logger $monolog, $app)
 
 // app specific services
 $app->register(new AssignmentServiceProvider());
+$app->register(new BusServiceProvider());
 $app->register(new EventServiceProvider());
 $app->register(new FeedbackServiceProvider());
 $app->register(new LocationServiceProvider());

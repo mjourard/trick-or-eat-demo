@@ -152,4 +152,39 @@ class EventManager extends BaseDBService
 			->setParameter('event_id', $eventId, Constants::SILEX_PARAM_INT);
 		return !empty($qb->execute()->fetchAll());
 	}
+
+	/**
+	 * Adds a new event to the database
+	 *
+	 * WIP. Should record the event organizer as well as the main gathering location of the event but those are improvements for later
+	 *
+	 * @param int       $regionId
+	 * @param string    $eventName
+	 * @param \DateTime $dateOfEvent
+	 *
+	 * @return int|false The new event id, or false if it couldn't be inserted
+	 */
+	public function createNewEvent(int $regionId, string $eventName, \DateTime $dateOfEvent)
+	{
+		$affected = $this->dbConn->createQueryBuilder()
+			->insert('event')
+			->values([
+				'region_id' => ':region_id',
+				'event_name' => ':event_name',
+				'year' => ':year'
+			])
+			->setParameter(':region_id', $regionId)
+			->setParameter(':event_name', $eventName)
+			->setParameter(':year', $dateOfEvent->format('Y-m-d'))
+			->execute();
+		if ($affected === 0)
+		{
+			return false;
+		}
+		if (empty($eventId = $this->dbConn->lastInsertId()))
+		{
+			return false;
+		}
+		return (int)$eventId;
+	}
 }

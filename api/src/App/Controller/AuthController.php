@@ -7,6 +7,7 @@ use Silex\Application;
 use \Firebase\JWT\JWT;
 use Symfony\Component\Validator\Constraints as Assert;
 use TOE\App\Service\Location\RegionManager;
+use TOE\App\Service\User\NewUser;
 use TOE\App\Service\User\UserException;
 use TOE\App\Service\User\UserLookupService;
 use TOE\GlobalCode\Constants;
@@ -69,9 +70,11 @@ class AuthController extends BaseController
 			return $app->json(ResponseJson::GetJsonResponseArray(false, "region_id of {$app[Constants::PARAMETER_KEY]['region_id']} is was not found in the database."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
+		$newUser = new NewUser($email, $app[Constants::PARAMETER_KEY]['password'], $firstName, $lastName, $app[Constants::PARAMETER_KEY]['region_id']);
+
 		try
 		{
-			$userId = $userLookup->registerUser($email, $app[Constants::PARAMETER_KEY]['password'], $firstName, $lastName, $app[Constants::PARAMETER_KEY]['region_id']);
+			$userId = $userLookup->registerUser($newUser);
 			return $app->json(ResponseJson::GetJsonResponseArray(true, "registration successful", ['user_id' => $userId]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
 		catch(UserException $ex)

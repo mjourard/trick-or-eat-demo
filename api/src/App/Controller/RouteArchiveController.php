@@ -11,10 +11,10 @@ namespace TOE\App\Controller;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
-use TOE\App\Service\Route\iObjectStorage;
-use TOE\App\Service\Route\Route;
-use TOE\App\Service\Route\RouteManagementException;
-use TOE\App\Service\Route\RouteManager;
+use TOE\App\Service\Route\Archive\iObjectStorage;
+use TOE\App\Service\Route\Archive\Route;
+use TOE\App\Service\Route\Archive\RouteManagementException;
+use TOE\App\Service\Route\Archive\RouteManager;
 use TOE\GlobalCode\Constants;
 use TOE\GlobalCode\ResponseJson;
 

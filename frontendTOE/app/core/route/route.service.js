@@ -160,8 +160,7 @@ angular.module('core.route')
 			return Request.post('/routes/allocate', postObj).then(function success(response) {
 				return true;
 			}, function failure(response) {
-				console.log(response);
-				return false;
+				return response.data;
 			});
 
 		};
@@ -172,8 +171,11 @@ angular.module('core.route')
 				eventId: eventId
 			};
 			return Request.delete('/routes/deallocate', postObj).then(function success(response) {
+				if (response.data.success) {
+					return true;
+				}
 				console.log(response);
-				return true;
+				return response.data;
 			}, function failure(response) {
 				console.log(response);
 				return false;

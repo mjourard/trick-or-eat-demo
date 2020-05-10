@@ -25,6 +25,7 @@
                     <group>Reset-Password</group>
                     <group>Route-Archive</group>
                     <group>Route-new</group>
+                    <group>Route</group>
                     <group>Team</group>
                     <group>User</group>
                     <group>Zone</group>

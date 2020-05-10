@@ -44,7 +44,22 @@ class InitDB extends aCmd
 		$schemas = $this->container->db->query("SHOW DATABASES");
 		if ($wipe)
 		{
-			$this->container->db->query("DROP DATABASE " . Constants::DATABASE_NAME . ";");
+			try
+			{
+				$this->container->db->query("DROP DATABASE " . Constants::DATABASE_NAME . ";");
+			}
+			catch(\Exception $ex)
+			{
+				if (stripos($ex->getMessage(), "database doesn't exist") !== false)
+				{
+					$output->writeln("Database doesn't exist. Nothing to wipe");
+				}
+				else
+				{
+					throw $ex;
+				}
+			}
+
 		}
 
 		if(!empty($schemas))
@@ -78,7 +93,7 @@ class InitDB extends aCmd
 		$files = array_diff(scandir($dir), ['.', '..']);
 		foreach($files as $file)
 		{
-			$query = file_get_contents($file);
+			$query = file_get_contents($dir . "/" . $file);
 			$affected = $this->container->db->rawExecuteNonQuery($query);
 			$output->writeln("Finished running $file, $affected rows affected");
 		}

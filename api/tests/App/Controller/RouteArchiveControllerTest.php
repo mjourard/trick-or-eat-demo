@@ -28,24 +28,24 @@ class RouteArchiveControllerTest extends BaseTestCase
 		$this->client->request('GET', '/zones/routes/999999');
 		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$routes = json_decode($this->lastResponse->getContent())->routes;
-		$this->assertEmpty($routes, "Routes did not return an empty array.");
+		self::assertEmpty($routes, "Routes did not return an empty array.");
 
 		//test with one route in the database
-		$newRouteId = RouteArchiveControllerTest::AddRouteToArchive($this->dbConn, "fill", "fill", 5, "Bus", true, true, true, 1, $this->getLoggedInUserId());
+		$newRouteId = RouteArchiveControllerTest::addRouteToArchive($this->dbConn, "fill", "fill", 5, "Bus", true, true, true, 1, $this->getLoggedInUserId());
 		$this->client->request('GET', '/zones/routes/1');
 		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$routes = json_decode($this->lastResponse->getContent())->routes;
-		$this->assertNotEmpty($routes, "Routes did not return a populated array.");
-		$this->assertEquals($newRouteId, $routes[0]->route_id, "route_id did not match");
+		self::assertNotEmpty($routes, "Routes did not return a populated array.");
+		self::assertEquals($newRouteId, $routes[0]->route_id, "route_id did not match");
 
 		$routeIds = [$newRouteId];
 
 		//test with multiple routes in the database
-		$newRouteId = RouteArchiveControllerTest::AddRouteToArchive($this->dbConn, "fill2", "fill2", 5, "Bus", true, true, true, 1, $this->getLoggedInUserId());
+		$newRouteId = RouteArchiveControllerTest::addRouteToArchive($this->dbConn, "fill2", "fill2", 5, "Bus", true, true, true, 1, $this->getLoggedInUserId());
 		$this->client->request('GET', '/zones/routes/1');
 		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		$routes = json_decode($this->lastResponse->getContent())->routes;
-		$this->assertNotEmpty($routes, "Routes did not return a populated array.");
+		self::assertNotEmpty($routes, "Routes did not return a populated array.");
 
 
 		$routeIds[] = $newRouteId;
@@ -53,8 +53,8 @@ class RouteArchiveControllerTest extends BaseTestCase
 
 		foreach($routeIds as $index => $routeId)
 		{
-			$this->assertEquals($routeId, $routes[$index]->route_id, "route_id did not match");
-			RouteArchiveControllerTest::RemoveRouteFromArchive($this->dbConn, $routeId);
+			self::assertEquals($routeId, $routes[$index]->route_id, "route_id did not match");
+			RouteArchiveControllerTest::removeRouteFromArchive($this->dbConn, $routeId);
 		}
 	}
 
@@ -89,7 +89,7 @@ class RouteArchiveControllerTest extends BaseTestCase
 	 *
 	 * @return int The id of the route that was just added
 	 */
-	public static function AddRouteToArchive($dbConn, $url, $name, $people, $type, $mobile, $blind, $hearing, $zoneId, $ownerId)
+	public static function addRouteToArchive($dbConn, $url, $name, $people, $type, $mobile, $blind, $hearing, $zoneId, $ownerId)
 	{
 		$mobile = $mobile ? "true" : "false";
 		$blind = $blind ? "true" : "false";
@@ -157,7 +157,7 @@ class RouteArchiveControllerTest extends BaseTestCase
 	 * @param \Doctrine\DBAL\Connection $dbConn
 	 * @param $routeId
 	 */
-	public static function RemoveRouteFromArchive($dbConn, $routeId)
+	public static function removeRouteFromArchive($dbConn, $routeId)
 	{
 		$qb = $dbConn->createQueryBuilder();
 		$qb->delete('route_archive')

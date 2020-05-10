@@ -1,7 +1,7 @@
 /**
  * Created by LENOVO-T430 on 1/30/2017.
  */
-function EventRoutesController($scope, $timeout, Event, Route, User) {
+function EventRoutesController($mdDialog, $scope, $timeout, Event, Route, User) {
 	//ensure to write this in such a way that it can be used for both creation and editing
 	var self = this;
 	var regionId = User.getRegionId();
@@ -27,6 +27,21 @@ function EventRoutesController($scope, $timeout, Event, Route, User) {
 			Route.removeRoute(routeId, eventId).then(function(response) {
 				if (response === true) {
 					self.updateRoutes(eventId);
+				} else {
+					let msg = response.message;
+					if (response.teams) {
+						msg += "<br><br>Teams:";
+						response.teams.forEach(team => {
+							msg += "<br> " + team.team_id + ": " + team.name
+						})
+					}
+					$mdDialog.show(
+						$mdDialog.alert()
+							.clickOutsideToClose(true)
+							.title('Route Deallocation Failed')
+							.htmlContent(msg)
+							.ok('OK')
+					);
 				}
 			});
 		}
@@ -37,6 +52,14 @@ function EventRoutesController($scope, $timeout, Event, Route, User) {
 			Route.addRoute(zoneId, routeId, eventId).then(function(response) {
 				if (response === true) {
 					self.updateRoutes(eventId);
+				} else {
+					$mdDialog.show(
+						$mdDialog.alert()
+							.clickOutsideToClose(true)
+							.title("Unable to Allocate Route To Event")
+							.textContent(response.message)
+							.ok('Okay')
+					);
 				}
 			});
 		}
@@ -52,5 +75,5 @@ function EventRoutesController($scope, $timeout, Event, Route, User) {
 
 angular.module('eventRoutes').component('eventRoutes', {
 	templateUrl: 'event-routes/event-routes.template.html',
-	controller: ['$scope', '$timeout', 'Event', 'Route', 'User', EventRoutesController]
+	controller: ['$mdDialog', '$scope', '$timeout', 'Event', 'Route', 'User', EventRoutesController]
 });

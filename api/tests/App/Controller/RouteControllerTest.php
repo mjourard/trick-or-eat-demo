@@ -9,6 +9,16 @@ declare(strict_types=1);
 
 namespace TOETests\App\Controller;
 
+use League\OAuth2\Client\Grant\AbstractGrant;
+use TOE\App\Service\Bus\BusManager;
+use TOE\App\Service\Event\EventManager;
+use TOE\App\Service\Event\RegistrationManager;
+use TOE\App\Service\Route\Archive\Route;
+use TOE\App\Service\Route\Archive\RouteManager;
+use TOE\App\Service\Route\Assignment\AssignmentManager;
+use TOE\App\Service\Team\TeamManager;
+use TOE\App\Service\User\NewUser;
+use TOE\App\Service\User\UserLookupService;
 use TOE\GlobalCode\Constants;
 use TOE\GlobalCode\HTTPCodes;
 use TOETests\BaseTestCase;
@@ -17,20 +27,20 @@ use TOETests\clsTesterCreds;
 
 class RouteControllerTest extends BaseTestCase
 {
-	public  const GOOD_EVENT_ID = 1;
-	public  const BAD_EVENT_ID  = -1;
+	public const GOOD_EVENT_ID = 1;
+	public const BAD_EVENT_ID = -1;
 
-	public  const TEMP_EMAIL_USERNAME = "routeControllerTestEmail";
-	public  const TEMP_TEAM_NAME      = "routetestingteam";
+	public const TEMP_EMAIL_USERNAME = "routeControllerTestEmail";
+	public const TEMP_TEAM_NAME = "routetestingteam";
 
-	public  const TEMP_ROUTE_NAME     = "2-AB-route-2-modded.kmz";
-	public  const TEMP_ROUTE_FILE_URL = "/2-59db0030f23b7.kmz";
-	public  const TEMP_ROUTE_TYPE     = "Bus";
-	public  const TEMP_BUS_NAME       = "";
-	public  const TEMP_ROUTE_ID       = 1;
+	public const TEMP_ROUTE_NAME = "2-AB-route-2-modded.kmz";
+	public const TEMP_ROUTE_FILE_URL = "/2-59db0030f23b7.kmz";
+	public const TEMP_ROUTE_TYPE = "Bus";
+	public const TEMP_BUS_NAME = "";
+	public const TEMP_ROUTE_ID = 1;
 
-	public  const ALLOCATE_OBJECT_FILE = "/routes/allocate.json";
-	public  const ALLOCATE_DATA        = [
+	public const ALLOCATE_OBJECT_FILE = "/routes/allocate.json";
+	public const ALLOCATE_DATA = [
 		"zoneId"  => [],
 		"routeId" => [],
 		"eventId" => []
@@ -41,15 +51,81 @@ class RouteControllerTest extends BaseTestCase
 	 */
 	public function testAllocateRoute()
 	{
+		$this->login(clsTesterCreds::NORMAL_USER_EMAIL);
+		$this->client->request('POST', '/routes/allocate', [
+			'zoneId'  => 1,
+			'routeId' => 1,
+			'eventId' => 1
+		]);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
+
+		$this->login(clsTesterCreds::ORGANIZER_EMAIL);
+
 		//test with a route that doesn't exist
-		self::markTestIncomplete();
-//		$this->LoadJSONObject(clsTestConstants::TEST_DATA_FOLDER_PATH . self::ALLOCATE_OBJECT_FILE);
+		$this->client->request('POST', '/routes/allocate', [
+			'zoneId'  => 9999,
+			'routeId' => 1,
+			'eventId' => 1
+		]);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_FOUND);
 
 		//test with an event that doesn't exist
+		$this->client->request('POST', '/routes/allocate', [
+			'zoneId'  => 1,
+			'routeId' => 9999,
+			'eventId' => 1
+		]);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_FOUND);
 
-		//test with an event that is not allocated
+		$this->client->request('POST', '/routes/allocate', [
+			'zoneId'  => 1,
+			'routeId' => 1,
+			'eventId' => 9999
+		]);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_FOUND);
 
-		//test with an event that is already allocated
+		//test with a route that is already allocated
+		$this->client->request('POST', '/routes/allocate', [
+			'zoneId'  => 2,
+			'routeId' => 1,
+			'eventId' => 1
+		]);
+		$this->basicResponseCheck(HTTPCodes::CLI_ERR_BAD_REQUEST);
+
+		//test with a route that is allocated
+		/** @var RouteManager $routeManager */
+		$routeManager = $this->app['route.manager'];
+		$route = $routeManager->saveRouteInfo(new Route([
+			'route_file_url'        => 'image.jpg',
+			'route_name'            => __FUNCTION__ . "-test",
+			'required_people'       => '5',
+			'type'                  => AssignmentManager::ROUTE_TYPE_WALK,
+			'wheelchair_accessible' => 'true',
+			'blind_accessible'      => 'true',
+			'hearing_accessible'    => 'true',
+			'zone_id'               => 1,
+			'owner_user_id'         => $this->getLoggedInUserId()
+		]));
+		$this->client->request('POST', '/routes/allocate', [
+			'zoneId'  => 1,
+			'routeId' => $route->routeId,
+			'eventId' => 1
+		]);
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$content = json_decode($this->lastResponse->getContent());
+		self::assertNotNull($content);
+		self::assertTrue($content->success);
+		self::assertNotEmpty($content->route_allocation_id);
+		$this->setDatabaseConnection();
+		$this->dbConn->createQueryBuilder()
+			->delete('route_allocation')
+			->where('route_allocation_id = ' . $content->route_allocation_id)
+			->execute();
+
+		$this->dbConn->createQueryBuilder()
+			->delete('route_archive')
+			->where('route_id = ' . $route->routeId)
+			->execute();
 	}
 
 	/**
@@ -61,25 +137,29 @@ class RouteControllerTest extends BaseTestCase
 	}
 
 	/**
-	 * @group Route-broken
+	 * @group Route
 	 */
 	public function testGetRouteAssignments()
 	{
-		//self::markTestIncomplete();
 		//test attempting to get all route assignments as regular user
 		$this->login(clsTesterCreds::NORMAL_USER_EMAIL);
 
-		$this->client->request('GET', '/routes/' . self::GOOD_EVENT_ID . '/getRouteAssignments');
+		$this->client->request('GET', $this->getRouteAssignmentsUrl(self::GOOD_EVENT_ID, 'route_id'));
 		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
 
 		//test sending a bad event_id
 		$this->loginAsAdmin();
 
-		$this->client->request('GET', '/routes/' . self::BAD_EVENT_ID . '/getRouteAssignments');
+		$this->client->request('GET', $this->getRouteAssignmentsUrl(self::BAD_EVENT_ID, 'route_id'));
 		$this->basicResponseCheck(HTTPCodes::CLI_ERR_NOT_FOUND);
 
+		/** @var EventManager $eventManager */
+		$eventManager = $this->app['event'];
+		$eventId = $eventManager->createNewEvent(EventControllerTest::REGION_ID_WITH_EVENT, __FUNCTION__ . "-emptyevent", new \DateTime('now', new \DateTimeZone('utc')));
+		self::assertNotEmpty($eventId, "Unable to create new event");
+
+		$this->client->request('GET', $this->getRouteAssignmentsUrl($eventId, 'route_id'));
 		//test getting back data from an event with no teams signed up yet
-		$this->client->request('GET', '/routes/' . self::GOOD_EVENT_ID . '/getRouteAssignments');
 		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
 
 		$content = json_decode($this->lastResponse->getContent());
@@ -93,264 +173,139 @@ class RouteControllerTest extends BaseTestCase
 		self::assertEquals(0, $content->stats->teamCount);
 		self::assertEquals(0, $content->stats->unassignedTeams);
 
-		//test getting back data with multiple teams signed up
+		//cleanup the new event
+		$this->setDatabaseConnection();
+		$this->dbConn->createQueryBuilder()
+			->delete('event')
+			->where("event_id = $eventId");
 
+		//test getting back data with multiple teams signed up
 		//assign some teams
+		/** @var UserLookupService $userLookup */
+		$userLookup = $this->app['user.lookup'];
 
 		//create the users to be inserted
-		$this->setDatabaseConnection();
-		$q = "
-			INSERT INTO USER
-			( 
-				email, 
-				password, 
-				first_name, 
-				last_name, 
-				date_joined, 
-				region_id, 
-				hearing, 
-				visual, 
-				mobility
-			)
-			VALUES";
+
 
 		//TODO: add some names that have unicode characters in them.
 		//TODO: increase the number of teams signed up to something like 1000. Find an upper limit
-		for ($i = 0; $i < 9; $i++)
+		$newUsers = [];
+		for($i = 0; $i < 9; $i++)
 		{
-			$q .= "('" . self::TEMP_EMAIL_USERNAME . "$i@test.com" . '\',\'$2y$10$SZ7H6yhS4JGTWWY6SskuxO4dyG6R3c5is2GVDJWvIIQEGaKPM4/X.\'' . ",'pion$i','disposable',NOW(),9,true,true,true),";
+			$newUsers[] = new NewUser(
+				self::TEMP_EMAIL_USERNAME . "$i@test.com",
+				'password',
+				"pion$i",
+				'disposable',
+				9,
+				Constants::ROLE_PARTICIPANT,
+				true,
+				true,
+				true
+			);
 		}
-		$q = rtrim($q, ",");
-
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
+		$users = $userLookup->registerUsers($newUsers);
 
 		//register the users for the event
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->select('user_id')
-			->from('user')
-			->where("email like :email")
-			->setParameter(':email', self::TEMP_EMAIL_USERNAME . "%");
-
-		$users = $qb->execute()->fetchAll();
-
-		$q = "
-			INSERT INTO USER_ROLE
-			(
-				user_id,
-				role
-			)
-			VALUES
-		";
-		foreach ($users as $row)
+		/** @var RegistrationManager $regManager */
+		$regManager = $this->app['event.registration'];
+		foreach($users as $userId)
 		{
-			$q .= "({$row['user_id']}, '" . Constants::ROLE_PARTICIPANT . "'),";
+			$regManager->registerForEvent($userId, self::GOOD_EVENT_ID, false);
 		}
-		$q = rtrim($q, ",");
-
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
-
-		$q = "
-			INSERT INTO MEMBER
-			(
-				user_id,
-				event_id,
-				can_drive
-			)
-			VALUES
-		";
-		foreach ($users as $row)
-		{
-			$q .= "({$row['user_id']}, " . self::GOOD_EVENT_ID . ", 'false'),";
-		}
-		$q = rtrim($q, ",");
-
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
 
 		//create the routes to insert
-		$q = "
-			INSERT INTO ROUTE_ARCHIVE
-			(
-			 	route_file_url,
-			 	route_name,
-			 	required_people,
-			 	type,
-			 	wheelchair_accessible,
-			 	blind_accessible,
-			 	hearing_accessible,
-			 	zone_id,
-			 	owner_user_id
-			)
-			VALUES
-		";
-
-		for ($i = 0; $i < 2; $i++)
+		/** @var RouteManager $routeManager */
+		$routeManager = $this->app['route.manager'];
+		$routeIds = [];
+		for($i = 0; $i < 2; $i++)
 		{
-			$q .= "('image.jpg','route$i', 5, 'Walk', true, true, true, 1, {$this->getLoggedInUserId()}),";
+			$route = new Route([
+				'route_file_url'        => 'image.jpg',
+				'route_name'            => "route$i",
+				'required_people'       => '5',
+				'type'                  => AssignmentManager::ROUTE_TYPE_WALK,
+				'wheelchair_accessible' => 'true',
+				'blind_accessible'      => 'true',
+				'hearing_accessible'    => 'true',
+				'zone_id'               => 1,
+				'owner_user_id'         => $this->getLoggedInUserId(),
+			]);
+			$route = $routeManager->saveRouteInfo($route);
+			self::assertNotEmpty($route->routeId, "Unable to save route info for route $i");
+			$routeIds[] = $route->routeId;
 		}
-		$q = rtrim($q, ",");
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
 
 		//create the buses used for routes
-		$q = "
-			INSERT INTO BUS
-			(
-				bus_name,
-				start_time,
-				end_time,
-				zone_id
-			)
-			VALUES
-		";
-
-		for ($i = 0; $i < 2; $i++)
+		/** @var BusManager $busManager */
+		$busManager = $this->app['bus'];
+		$busIds = [];
+		$now = new \DateTime('now', new \DateTimeZone('utc'));
+		$later = clone $now;
+		$later->add(new \DateInterval('PT3H'));
+		for($i = 0; $i < 2; $i++)
 		{
-			$q .= "('bus$i',NOW(), NOW(), 1),";
+			$busId = $busManager->addBus("bus$i", $now, $later, 1);
+			self::assertNotEmpty($busId, "Unable to create bus in database");
+			$busIds[] = $busId;
 		}
-		$q = rtrim($q, ",");
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
 
 		//create the active routes
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->select('bus_id')
-			->from('bus');
-
-		$results = $qb->execute()->fetchAll();
-		$busIds = [];
-		foreach ($results as $row)
+		/** @var AssignmentManager $assignmentManager */
+		$assignmentManager = $this->app['route.assignment'];
+		$routeAllocationIds = [];
+		for($i = 0; $i < count($routeIds); $i++)
 		{
-			$busIds[] = $row['bus_id'];
+			$id = $assignmentManager->allocateRouteToEvent($routeIds[$i], self::GOOD_EVENT_ID);
+			self::assertNotEmpty($id, "No route allocation id produced on route $i");
+			$routeAllocationIds[] = $id;
 		}
-
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->select('route_id')
-			->from('route_archive');
-
-		$results = $qb->execute()->fetchAll();
-		$routeIds = [];
-		foreach ($results as $row)
+		foreach($routeAllocationIds as $idx => $routeAllocationId)
 		{
-			$routeIds[] = $row['route_id'];
+			self::assertTrue($assignmentManager->assignBusToRouteAllocation($routeAllocationId, $busIds[$idx]));
 		}
-
-		self::assertEquals(count($busIds), count($routeIds), "Different number of buses vs routes in the database. Should be the same, check integrity of test database.");
-
-		$q = "
-			INSERT INTO ROUTE
-			(
-				route_id,
-				event_id,
-				start_time,
-				bus_id
-			)
-			VALUES
-			";
-
-		for ($i = 0; $i < count($busIds); $i++)
-		{
-			$q .= "({$routeIds[$i]}, " . self::GOOD_EVENT_ID . ", NOW(), {$busIds[$i]}),";
-		}
-		$q = rtrim($q, ",");
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
 
 		//create the teams
-		$q = "
-			INSERT INTO TEAM
-			(
-				event_id,
-				route_id,
-				captain_user_id,
-				name
-			)
-			VALUES
-			";
+		/** @var TeamManager $teamManager */
+		$teamManager = $this->app['team'];
+		$captainIds = [$users[0], $users[5], $users[8]];
 
-		$captainIds = [$users[0]['user_id'], $users[5]['user_id'], $users[8]['user_id']];
-
-		for ($i = 0; $i < count($routeIds); $i++)
-		{
-			$q .= "(" . self::GOOD_EVENT_ID . ", {$routeIds[$i]}, {$captainIds[$i]}, '" . self::TEMP_TEAM_NAME . "$i'),";
-		}
-
-		$q .= "(" . self::GOOD_EVENT_ID . ", NULL, {$captainIds[count($routeIds)]}, '" . self::TEMP_TEAM_NAME . "-noroute')";
-		$query = $this->dbConn->prepare($q);
-		self::assertTrue($query->execute());
-
-		//assign the members to the new teams
-
-		//get the new team ids
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->select('team_id')
-			->from('team')
-			->where('name like :name')
-			->orderBy('team_id', 'asc')
-			->setParameter('name', self::TEMP_TEAM_NAME . '%', Constants::SILEX_PARAM_STRING);
-
-		$results = $qb->execute()->fetchAll();
 		$teamIds = [];
-		foreach ($results as $row)
+
+		$teamIds[] = $teamManager->createTeam($users[0], self::GOOD_EVENT_ID, self::TEMP_TEAM_NAME . "0", '123', false, false, false, false, 5);
+		$teamIds[] = $teamManager->createTeam($users[5], self::GOOD_EVENT_ID, self::TEMP_TEAM_NAME . "1", '123', false, false, false, false, 3);
+		$teamIds[] = $teamManager->createTeam($users[8], self::GOOD_EVENT_ID, self::TEMP_TEAM_NAME . "2", '123', false, false, false, false, 1);
+
+
+		//assign the routes to the teams
+		foreach($routeAllocationIds as $idx => $routeAllocationId)
 		{
-			$teamIds[] = $row['team_id'];
+			self::assertTrue($assignmentManager->assignRouteToTeam($teamIds[$idx], $routeAllocationId), "Unable to assign team {$teamIds[$idx]} (idx $idx) with route allocation $routeAllocationId");
 		}
 
-		//create the 'full' team
-		$teamUserIds = [];
-		for ($i = 0; $i < 5; $i++)
-		{
-			$teamUserIds[] = $users[$i]['user_id'];
-		}
-
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('member')
-			->set('team_id', $teamIds[0])
-			->where("user_id in (" . implode(',', $teamUserIds) . ")");
-
-		$qb->execute();
-
-		//create the 'partial' team
-		$teamUserIds = [];
-		for ($i = 5; $i < 8; $i++)
-		{
-			$teamUserIds[] = $users[$i]['user_id'];
-		}
-
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('member')
-			->set('team_id', $teamIds[1])
-			->where("user_id in (" . implode(',', $teamUserIds) . ")");
-
-		$qb->execute();
-
-		//this team won't get assigned a route
-		$qb = $this->dbConn->createQueryBuilder();
-		$qb->update('member')
-			->set('team_id', $teamIds[2])
-			->where("user_id = {$users[8]['user_id']}");
-
-		$qb->execute();
 
 		//FINALLY, get route assignments and make sure all the data is as expected
-		$this->client->request('GET', '/routes/' . self::GOOD_EVENT_ID . '/getRouteAssignments');
+		$this->client->request('GET', $this->getRouteAssignmentsUrl(self::GOOD_EVENT_ID, 'route_id'));
 
 		//clean up the database before making a bunch of asserts...
+		$this->dbConn->createQueryBuilder()
+			->delete('team_route')
+			->where('team_id in (' . implode(',', $teamIds) . ')')
+			->execute();
+
+		$this->dbConn->createQueryBuilder()
+			->delete('team')
+			->where('team_id in (' . implode(',', $teamIds) . ')')
+			->execute();
+
+		$this->dbConn->createQueryBuilder()
+			->delete('route_allocation')
+			->where('route_id in (' . implode(',', $routeIds) . ')')
+			->execute();
+
 		$qb = $this->dbConn->createQueryBuilder();
-		$qb->delete('team')
-			->where('team_id in (' . implode(',', $teamIds) . ')');
-
-		$qb->execute();
-
-		$qb->delete('route')
-			->where('route_id in (' . implode(',', $routeIds) . ')');
-
-		$qb->execute();
-
 		$qb->delete('bus')
-			->where('bus_id > 0');
+			->where($qb->expr()->in('bus_id', $busIds));
 
 		$qb->execute();
 
@@ -359,19 +314,13 @@ class RouteControllerTest extends BaseTestCase
 
 		$qb->execute();
 
-		$userIds = [];
-		foreach ($users as $row)
-		{
-			$userIds[] = $row['user_id'];
-		}
-
 		$qb->delete('member')
-			->where('user_id in (' . implode(',', $userIds) . ')');
+			->where('user_id in (' . implode(',', $users) . ')');
 
 		$qb->execute();
 
 		$qb->delete('user')
-			->where('user_id in (' . implode(',', $userIds) . ')');
+			->where('user_id in (' . implode(',', $users) . ')');
 
 		$qb->execute();
 
@@ -383,12 +332,11 @@ class RouteControllerTest extends BaseTestCase
 		self::assertTrue($content->success);
 		self::assertNotEmpty($content->routes);
 		self::assertNotEmpty($content->unassignedTeams, "Unassigned teams contains: " . print_r($content->unassignedTeams, true));
-		self::assertEquals(2, $content->stats->totalRoutes);
-		self::assertEquals(1, $content->stats->fullRoutes);
+		self::assertEquals(3, $content->stats->totalRoutes);
+		self::assertEquals(0, $content->stats->fullRoutes);
 		self::assertEquals(0, $content->stats->emptyRoutes);
-		self::assertEquals(3, $content->stats->teamCount);
-		self::assertEquals(1, $content->stats->unassignedTeams);
-
+		self::assertEquals(8, $content->stats->teamCount);
+		self::assertEquals(5, $content->stats->unassignedTeams);
 	}
 
 	/**
@@ -452,7 +400,6 @@ class RouteControllerTest extends BaseTestCase
 		self::assertEquals(self::TEMP_ROUTE_TYPE, $content->routes[0]->type, "route type was not expected");
 		self::assertEquals(self::TEMP_ROUTE_NAME, $content->routes[0]->route_name, "route name was not expected");
 		self::assertEquals(self::TEMP_ROUTE_FILE_URL, $content->routes[0]->route_file_url, "route image was not expected");
-
 	}
 
 	/**
@@ -476,7 +423,6 @@ class RouteControllerTest extends BaseTestCase
 	 */
 	public function testAssignAllRoutes()
 	{
-		//TODO: this entire test
 		self::markTestIncomplete();
 		//test with basic user login
 
@@ -499,7 +445,17 @@ class RouteControllerTest extends BaseTestCase
 		//test with no routes assigned
 		//TODO: fill in these test cases as well
 		self::markTestIncomplete();
-
 		//test with some routes assigned
 	}
+
+	protected function getRouteAssignmentsUrl(int $eventId, $orderByColumn, bool $orderIsAsc = true)
+	{
+		if(!$orderIsAsc)
+		{
+			$orderByColumn = "-" . $orderByColumn;
+		}
+
+		return '/routes/' . $eventId . '/getRouteAssignments/orderBy/' . $orderByColumn;
+	}
+
 }

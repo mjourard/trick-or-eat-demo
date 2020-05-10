@@ -107,7 +107,7 @@ class UserLookupService extends BaseDBService
 		$columns = ['region_id', 'user_id'];
 		foreach($columns as $column)
 		{
-			if (isset($results[$column]))
+			if(isset($results[$column]))
 			{
 				$results[$column] = (int)$results[$column];
 			}
@@ -119,7 +119,7 @@ class UserLookupService extends BaseDBService
 	/**
 	 * Gets a user entity object. For controller use only.
 	 *
-	 * @param int   $userId The id of the user to get an entity for
+	 * @param int   $userId      The id of the user to get an entity for
 	 * @param array $userInfoArr The user info array for that user to combine with the output
 	 *
 	 * @return array|null
@@ -147,7 +147,7 @@ class UserLookupService extends BaseDBService
 			->leftJoin('u', 'region', 'r', 'u.region_id = r.region_id')
 			->leftJoin('r', 'country', 'c', 'r.country_id = c.country_id')
 			->where("u.user_id = :user_id")
-		->setParameter(':user_id', $userId);
+			->setParameter(':user_id', $userId);
 
 		$results = $qb->execute()->fetch();
 
@@ -166,18 +166,13 @@ class UserLookupService extends BaseDBService
 	/**
 	 * Registers a user to the TOE website, creating their account
 	 *
-	 * @param string $email
-	 * @param string $password
-	 * @param string $firstName
-	 * @param string $lastName
-	 * @param string $regionId
-	 * @param string $role
+	 * @param NewUser $newUser
 	 *
 	 * @return string The id of the user that was created
 	 * @throws UserException
 	 * @throws \Doctrine\DBAL\ConnectionException
 	 */
-	public function registerUser($email, $password, $firstName, $lastName, $regionId, $role = Constants::ROLE_PARTICIPANT)
+	public function registerUser(NewUser $newUser)
 	{
 		try
 		{
@@ -192,11 +187,11 @@ class UserLookupService extends BaseDBService
 					'last_name'  => ':last_name',
 					'region_id'  => ':region_id'
 				])
-				->setParameter(':email', $email)
-				->setParameter(':password', password_hash($password, PASSWORD_DEFAULT))
-				->setParameter(':first_name', $firstName)
-				->setParameter(':last_name', $lastName)
-				->setParameter(':region_id', $regionId);
+				->setParameter(':email', $newUser->email)
+				->setParameter(':password', password_hash($newUser->password, PASSWORD_DEFAULT))
+				->setParameter(':first_name', $newUser->firstName)
+				->setParameter(':last_name', $newUser->lastName)
+				->setParameter(':region_id', $newUser->regionId);
 			if(!$qb->execute() === 0)
 			{
 				$this->dbConn->rollBack();
@@ -209,7 +204,7 @@ class UserLookupService extends BaseDBService
 					'user_id' => $userId,
 					'role'    => ':role'
 				])
-				->setParameter(':role', $role, Constants::SILEX_PARAM_STRING);
+				->setParameter(':role', $newUser->role, Constants::SILEX_PARAM_STRING);
 			if(!$qb->execute() === 0)
 			{
 				$this->dbConn->rollBack();
@@ -224,6 +219,104 @@ class UserLookupService extends BaseDBService
 		}
 
 		return $userId;
+	}
+
+	/**
+	 * @param NewUser[] $newUsers
+	 *
+	 * @return array The ids of the newly registered users
+	 * @throws UserException
+	 * @throws \Doctrine\DBAL\ConnectionException
+	 */
+	public function registerUsers(array $newUsers)
+	{
+		try
+		{
+			$this->dbConn->beginTransaction();
+			//insert user data into DB
+			$q = <<<REGISTERUSERS
+INSERT INTO user (
+	email,
+	password,
+	first_name,
+	last_name,
+	region_id
+)
+VALUES
+REGISTERUSERS;
+
+			$replaceLookup = [];
+			foreach($newUsers as $idx => $newUser)
+			{
+				$q .= sprintf("(:email%s, :password%s, :first_name%s, :last_name%s, :region_id%s),", $idx, $idx, $idx, $idx, $idx);
+				$replaceLookup[":email$idx"] = $newUser->email;
+			}
+			$q = rtrim($q, ",");
+			$query = $this->dbConn->prepare($q);
+			$lookup = [];
+
+			foreach($newUsers as $idx => $newUser)
+			{
+				$query->bindValue("email$idx", $newUser->email);
+				$query->bindValue("password$idx", password_hash($newUser->password, PASSWORD_DEFAULT));
+				$query->bindValue("first_name$idx", $newUser->firstName);
+				$query->bindValue("last_name$idx", $newUser->lastName);
+				$query->bindValue("region_id$idx", $newUser->regionId);
+				$lookup[$newUser->email] = $newUser;
+			}
+
+			if(!$query->execute() === 0)
+			{
+				$this->dbConn->rollBack();
+				throw new UserException("Unable to insert new rows into the user table");
+			}
+
+			$qb = $this->dbConn->createQueryBuilder();
+			$qb->select(['user_id', 'email'])
+				->from('user')
+				->where($qb->expr()->in('email', array_keys($replaceLookup)));
+			foreach($replaceLookup as $key => $value)
+			{
+				$qb->setParameter($key, $value);
+			}
+
+			$rows = $qb->execute()->fetchAll();
+			$q = <<<ADDNEWROLES
+INSERT INTO user_role (
+	user_id,
+	role
+)
+VALUES
+ADDNEWROLES;
+
+			$userIds = [];
+			foreach($rows as $idx => $row)
+			{
+				$q .= sprintf("(:user_id%d, :role%d),", $idx, $idx);
+				$userIds[] = (int)$row['user_id'];
+			}
+			$q = rtrim($q, ",");
+			$query = $this->dbConn->prepare($q);
+			foreach($rows as $idx => $row)
+			{
+				$query->bindValue("user_id$idx", $row['user_id']);
+				$query->bindValue("role$idx", $lookup[$row['email']]->role);
+			}
+
+			if(!$query->execute() === 0)
+			{
+				$this->dbConn->rollBack();
+				throw new UserException("Unable to insert new rows into the user_role table");
+			}
+			$this->dbConn->commit();
+		}
+		catch(\Exception $ex)
+		{
+			$this->dbConn->rollBack();
+			throw new UserException("An unkown error occurred while registering a new user: " . $ex->getMessage());
+		}
+
+		return $userIds;
 	}
 
 	/**
@@ -262,7 +355,7 @@ class UserLookupService extends BaseDBService
 	 * @param int    $userId
 	 * @param string $firstName
 	 * @param string $lastName
-	 * @param int       $regionId
+	 * @param int    $regionId
 	 *
 	 * @return bool true if the user had any values changed, false otherwise
 	 */
@@ -278,6 +371,7 @@ class UserLookupService extends BaseDBService
 			->setParameter(':last_name', $lastName, Constants::SILEX_PARAM_STRING)
 			->setParameter(':region_id', $regionId, Constants::SILEX_PARAM_STRING)
 			->setParameter(':user_id', $userId);
+
 		return $qb->execute() === 1;
 	}
 }

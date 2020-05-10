@@ -230,17 +230,17 @@ class RouteController extends BaseController
 		//verify that the route passed in exists and that it isn't already allocated to the event passed in
 		if(!$routeManager->routeExists($zoneId, $routeId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Could not find a route with ID $routeId in zone $zoneId"));
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "Could not find a route with ID $routeId in zone $zoneId"), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		/** @var AssignmentManager $assignmentManager */
 		$assignmentManager = $app['route.assignment'];
 		if($assignmentManager->isRouteAllocatedToEvent($routeId, $eventId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, sprintf("Route %d is already allocated to event %d", $routeId, $eventId)));
+			return $app->json(ResponseJson::GetJsonResponseArray(false, sprintf("Route with id %d is already allocated to event with id %d", $routeId, $eventId)), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		if(!$assignmentManager->allocateRouteToEvent($routeId, $eventId))
+		if( ($allocationId = $assignmentManager->allocateRouteToEvent($routeId, $eventId)) === false)
 		{
 			$this->logger->err("Unable to allocate route to event", [
 				'route_id' => $routeId,
@@ -251,7 +251,7 @@ class RouteController extends BaseController
 			return $app->json(ResponseJson::GetJsonResponseArray(false, "Unable to allocate route to event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""));
+		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['route_allocation_id' => $allocationId]));
 	}
 
 	public function deallocateRoute(Request $request, Application $app)
@@ -266,6 +266,11 @@ class RouteController extends BaseController
 		if(!$assignmentManager->isRouteAllocatedToEvent($routeId, $eventId))
 		{
 			return $app->json(ResponseJson::GetJsonResponseArray(false, "Route {$app[Constants::PARAMETER_KEY]['routeId']} is not currently allocated to {$app[Constants::PARAMETER_KEY]['eventId']}"));
+		}
+		//check if the route is currently assigned to a team
+		if (!empty($teams = $assignmentManager->getRouteTeamsInfo($routeId, $eventId)))
+		{
+			return $app->json(ResponseJson::GetJsonResponseArray(false, "There are teams currently assigned to that route", ['teams' => $teams]));
 		}
 
 		if(!$assignmentManager->deallocateRouteFromEvent($routeId, $eventId))
@@ -441,7 +446,7 @@ class RouteController extends BaseController
 						{
 							try
 							{
-								$assignmentManager->assignRoutes($eventId, $assignments);
+								$assignmentManager->assignRoutes($assignments);
 							}
 							catch(RouteAssignmentException $ex)
 							{

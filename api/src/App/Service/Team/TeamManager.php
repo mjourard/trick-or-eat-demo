@@ -3,14 +3,10 @@ declare(strict_types=1);
 
 namespace TOE\App\Service\Team;
 
-
 use Doctrine\DBAL\FetchMode;
 use TOE\App\Service\BaseDBService;
-use TOE\App\Service\User\UserInfoStorage;
 use TOE\App\Service\User\UserProvider;
 use TOE\GlobalCode\Constants;
-use TOE\GlobalCode\HTTPCodes;
-use TOE\GlobalCode\ResponseJson;
 
 //TODO: remove the queryBuilder functions in favour of creating the query builders where they are needed. Relic from a failed attempt at utilizing Aurora serverless api
 class TeamManager extends BaseDBService
@@ -149,7 +145,43 @@ class TeamManager extends BaseDBService
 	 */
 	public function getTeamsWithoutRoutes($eventId)
 	{
-		$q = $this->getTeamsWithoutRoutesQuery();
+		$q = "
+		SELECT 
+			m.team_id,
+			t.name AS team_name,
+			t.captain_user_id,
+			CASE MAX(m.can_drive = 'true')
+				WHEN 1 then 'true'
+                ELSE 'false' END
+                AS can_drive,
+			CASE MAX(u.hearing = 'true')
+				WHEN 1 then 'true'
+                ELSE 'false' END
+                AS hearing,
+			CASE MAX(u.visual = 'true')
+				WHEN 1 then 'true'
+                ELSE 'false' END
+                AS visual,
+			CASE MAX(u.mobility = 'true') 
+				WHEN 1 then 'true'
+                ELSE 'false' END
+                AS mobility,
+			count(m.team_id) AS member_count
+		FROM member m
+		LEFT JOIN user u
+			ON m.user_id = u.user_id
+		LEFT JOIN team t
+			ON m.team_id = t.team_id
+		LEFT JOIN team_route tr 
+			ON t.team_id = tr.team_id
+		LEFT JOIN route_allocation ra
+			ON tr.route_allocation_id = ra.route_allocation_id
+			AND ra.event_id = :event_id
+		WHERE m.event_id = :event_id
+		AND ra.route_allocation_id is NULL 
+		GROUP BY m.team_id
+		HAVING member_count > 0
+		ORDER BY t.name";
 
 		$query = $this->dbConn->prepare($q);
 		$query->bindValue('event_id', $eventId);
@@ -768,42 +800,6 @@ class TeamManager extends BaseDBService
 	#endregion
 
 	#region raw queries
-	protected function getTeamsWithoutRoutesQuery()
-	{
-		return "
-		SELECT 
-			m.team_id,
-			t.name AS team_name,
-			t.captain_user_id,
-			CASE MAX(m.can_drive = 'true')
-				WHEN 1 then 'true'
-                ELSE 'false' END
-                AS can_drive,
-			CASE MAX(u.hearing = 'true')
-				WHEN 1 then 'true'
-                ELSE 'false' END
-                AS hearing,
-			CASE MAX(u.visual = 'true')
-				WHEN 1 then 'true'
-                ELSE 'false' END
-                AS visual,
-			CASE MAX(u.mobility = 'true') 
-				WHEN 1 then 'true'
-                ELSE 'false' END
-                AS mobility,
-			count(m.team_id) AS member_count
-		FROM member m
-		LEFT JOIN user u
-			ON m.user_id = u.user_id
-		LEFT JOIN team t
-			ON m.team_id = t.team_id
-		WHERE m.event_id = :event_id
-		AND t.route_id is NULL
-		GROUP BY m.team_id
-		HAVING member_count > 0
-		ORDER BY t.name";
-	}
-
 	/**
 	 * Gets a query for inserting a number of false users into the user table for calculating future team sizes
 	 *

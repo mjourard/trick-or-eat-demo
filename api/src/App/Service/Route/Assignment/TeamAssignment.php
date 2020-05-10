@@ -6,12 +6,12 @@ namespace TOE\App\Service\Route\Assignment;
 
 class TeamAssignment
 {
-	public $routeId;
+	public $routeAllocationId;
 	public $teamId;
 
-	public function __construct($routeId, $teamId)
+	public function __construct($routeAllocationId, $teamId)
 	{
-		$this->routeId = $routeId;
+		$this->routeAllocationId = $routeAllocationId;
 		$this->teamId = $teamId;
 	}
 }

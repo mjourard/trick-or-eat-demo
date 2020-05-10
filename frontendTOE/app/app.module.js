@@ -7,6 +7,7 @@ require('angular-route');
 require('ng-file-upload');
 require('angular-material');
 require('angular-material-data-table');
+require('angular-sanitize');
 
 angular.module('app', [
     'core',
@@ -35,6 +36,7 @@ angular.module('app', [
     'ngFileUpload',
     'ngMaterial',
     'ngRoute',
+    'ngSanitize',
     'viewTeam'
 ])
     .run(['$rootScope', '$route', '$location', 'AUTH_EVENTS', 'LOCATION_PATHS', 'Auth', function ($rootScope, $route, $location, AUTH_EVENTS, LOCATION_PATHS, Auth) {
