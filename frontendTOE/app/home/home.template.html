@@ -2,8 +2,8 @@
 	<h1>Home</h1>
 	<!-- If you are not logged in -->
 	<div ng-if="!isAuthenticated()">
-		<p ng-if="!isAuthenticated()">To register for this event, please Login or if you do not have an account, please
-			Sign Up</p>
+		<p ng-if="!isAuthenticated()">To register for this event, please <strong>Login</strong> or if you do not have an account, please
+			<strong>Sign Up</strong></p>
 		<div layout="row" layout-align="center center">
 			<md-button ng-click="$ctrl.loginModal($event)" class="buttonSubmit md-raised">Login</md-button>
 			<md-button ng-href="#{{locationPaths.signUp}}" class="buttonSubmit md-raised">Sign Up</md-button>
