@@ -10,6 +10,7 @@ angular.module('core',
 		'core.map',
 		'core.request',
 		'core.route',
+		'core.sitehealth',
 		'core.team',
 		'core.user',
 		'core.zone'
@@ -22,6 +23,7 @@ require('./location/location.module');
 require('./map/map.module');
 require('./request/request.module');
 require('./route/route.module');
+require('./site-health/site-health.module');
 require('./team/team.module');
 require('./time-display/time-display.filter');
 require('./user/user.module');

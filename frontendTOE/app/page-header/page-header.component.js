@@ -1,4 +1,4 @@
-function PageHeaderController($location, $mdDialog, $mdSidenav, $scope, User, Auth, USER_ROLES, LOCATION_PATHS) {
+function PageHeaderController($location, $mdDialog, $mdSidenav, $timeout, $scope, User, Auth, SiteHealth, USER_ROLES, LOCATION_PATHS) {
     var head = this;
     $scope.userfName = null;
     $scope.userRoles = USER_ROLES;
@@ -17,6 +17,9 @@ function PageHeaderController($location, $mdDialog, $mdSidenav, $scope, User, Au
     head.links = [
         {}
     ];
+    head.issueLevel = null;
+    head.issueMessage = null;
+    head.issueHover = null;
 
     /**
      * Toggles the header menu sidenav
@@ -50,9 +53,40 @@ function PageHeaderController($location, $mdDialog, $mdSidenav, $scope, User, Au
             $location.path(LOCATION_PATHS.home)
         })
     };
+
+    head.getSiteIssues = function() {
+        SiteHealth.getSiteIssues().then(issues => {
+            if (issues === null) {
+                head.issueLevel = null;
+                head.issueMessage = null;
+                head.issueHover = null;
+                return;
+            }
+            head.issueLevel = issues.lvl;
+            head.issueMessage = issues.message;
+            head.issueHover = issues.hover;
+            $timeout(head.getSiteIssues, 15*1000);
+        });
+    }
+
+    head.showIssueDetailed = function() {
+        if (head.issueMessage === null) {
+            return;
+        }
+        $mdDialog.show(
+            $mdDialog.alert()
+                .clickOutsideToClose(true)
+                .title(head.issueLevel)
+                .textContent(head.issueMessage)
+                .ariaLabel('Alert: ' + head.issueLevel)
+                .ok('Okay')
+        );
+    }
+
+    head.getSiteIssues();
 }
 
 angular.module('pageHeader').component('pageHeader', {
     templateUrl: 'page-header/page-header.template.html',
-    controller: ['$location', '$mdDialog', '$mdSidenav', '$scope', 'User', 'Auth', 'USER_ROLES', 'LOCATION_PATHS', PageHeaderController]
+    controller: ['$location', '$mdDialog', '$mdSidenav', '$timeout', '$scope', 'User', 'Auth', 'SiteHealth', 'USER_ROLES', 'LOCATION_PATHS', PageHeaderController]
 });

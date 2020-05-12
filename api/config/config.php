@@ -56,7 +56,8 @@ $app['routes.anonymous'] = [
 	'register',
 	'regions',
 	'requestReset',
-	'resetPassword'
+	'resetPassword',
+	'health_siteissues'
 ];
 
 //$app['jwt.key'] = base64_decode("Sh9m44uV0J4a7Qy1BoWGkz2GuuophBEmuR11QXHLDXoPlTthoboP59Hp/BtXijicb1GWswCmOsQM5UdnmZ++7g==");

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -97,6 +98,8 @@ $app->get('/feedback/comment/{questionId}', 'TOE\App\Controller\FeedbackControll
 	->assert('questionId', Constants::STANDARD_ID_REGEX)
 	->convert('questionId', $strtoint);
 $app->get('/feedback/comment/maxCharacterCount', 'TOE\App\Controller\FeedbackController::getCharacterLimit');
+
+$app->get('/health/siteissues', 'TOE\App\Controller\SiteHealthController::getSiteIssues');
 
 //This is the catch-all error handler. All uncaught errors and exceptions are sent here.
 $app->error(function (\Exception $e, Request $request, $code) use ($app)
