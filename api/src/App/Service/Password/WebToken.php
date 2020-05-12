@@ -34,7 +34,7 @@ class WebToken
 			'iat'      => $this->issuedAt->getTimestamp(),
 			'exp'      => $this->expiresAt->getTimestamp(),
 			'userID'   => $this->userId,
-			'uniqueID' => uniqid()
+			'uniqueID' => $this->uniqueId
 		];
 	}
 

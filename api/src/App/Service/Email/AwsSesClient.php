@@ -18,7 +18,6 @@ class AwsSesClient extends aClient
 	public function __construct($configArgs)
 	{
 		$args = [
-			'profile' => 'default',
 			'version' => '2010-12-01',
 			'region'  => 'us-east-1'
 		];
@@ -28,6 +27,7 @@ class AwsSesClient extends aClient
 		}
 		if (!empty($configArgs['RoleArn']))
 		{
+			$args['profile'] = 'default';
 			$args['RoleArn'] = $configArgs['RoleArn'];
 		}
 		if (!empty($configArgs['key']) && !empty($configArgs['secret']))

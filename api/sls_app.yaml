@@ -209,7 +209,7 @@ functions:
              - X-Bearer-Token
            allowCredentials: true
   clean-reset-tokens:
-    handler: cron-jobs/clean-reset-tokens/run.php
+    handler: bin/console.php
     layers:
       - ${bref:layer.php-72}
     events:
