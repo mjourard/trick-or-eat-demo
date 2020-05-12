@@ -32,7 +32,7 @@ class RequestResetController extends BaseController
 		//check if user exists
 		if($userInfo === false)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "We couldn't find an account registered with that email."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "We couldn't find an account registered with that email."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		/** @var PasswordRequestManager $pwRequestManager */
@@ -46,7 +46,7 @@ class RequestResetController extends BaseController
 		if($pwRequestManager->maxRequestsExceeded($userInfo['user_id'], $issuedAt))
 		{
 			$this->logger->warn("User has issued too many password reset requests", ['user_id' => $userInfo['user_id'], 'issued_at' => $issuedAt->format('Y-m-d H:i:s')]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "You have requested too many reset requests recently."), HTTPCodes::CLI_ERR_SPECIFIC_USER_REQUEST_OVERLOAD);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "You have requested too many reset requests recently."), HTTPCodes::CLI_ERR_SPECIFIC_USER_REQUEST_OVERLOAD);
 		}
 
 		//Create JSON webtoken
@@ -61,7 +61,7 @@ class RequestResetController extends BaseController
 		$this->logger->debug("saving new reset request into the database", $logCtx);
 		if(!$pwRequestManager->insertResetRequest($userInfo['user_id'], $issuedAt, $expiredAt, $jwt->getUniqueId()))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "An error occurred on our end."), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "An error occurred on our end."), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 
 		$message = $this->generateResetEmailHTML($jwt->encode($app['jwt.key']), $userInfo['first_name']);
@@ -70,11 +70,11 @@ class RequestResetController extends BaseController
 		if($success === true)
 		{
 			$this->logger->debug("sent reset email", $logCtx);
-			return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+			return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
 
 		$this->logger->error($success);
-		return $app->json(ResponseJson::GetJsonResponseArray(false, "An error occurred when trying to send the email"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+		return $app->json(ResponseJson::getJsonResponseArray(false, "An error occurred when trying to send the email"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 	}
 
 	/**

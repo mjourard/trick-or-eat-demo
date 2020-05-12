@@ -40,10 +40,10 @@ class FeedbackController extends BaseController
 				'user_id'     => $this->userInfo->getID(),
 				'question_id' => $app[Constants::PARAMETER_KEY]['question_id']
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem saving your comment.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'There was a problem saving your comment.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
 	/**
@@ -63,7 +63,7 @@ class FeedbackController extends BaseController
 		/** @var FeedbackManager $feedbackManager */
 		$feedbackManager = $app['feedback'];
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['comment' => $feedbackManager->getComment($this->userInfo->getID(), $questionId)]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['comment' => $feedbackManager->getComment($this->userInfo->getID(), $questionId)]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -82,7 +82,7 @@ class FeedbackController extends BaseController
 		$feedbackManager = $app['feedback'];
 		try
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['limit' => $feedbackManager->getCharacterLimit()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+			return $app->json(ResponseJson::getJsonResponseArray(true, "", ['limit' => $feedbackManager->getCharacterLimit()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		}
 		catch(FeedbackException $ex)
 		{
@@ -90,7 +90,7 @@ class FeedbackController extends BaseController
 				'err' => $ex->getMessage(),
 				'type' => get_class($ex)
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "The feedback datastore doesn't exist"), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "The feedback datastore doesn't exist"), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 	}
 
@@ -109,6 +109,6 @@ class FeedbackController extends BaseController
 		/** @var FeedbackManager $feedbackManager */
 		$feedbackManager = $app['feedback'];
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['questions' => $feedbackManager->getQuestions()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['questions' => $feedbackManager->getQuestions()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 }

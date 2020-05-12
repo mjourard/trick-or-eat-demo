@@ -44,7 +44,7 @@ class RouteArchiveController extends BaseController
 
 		if(empty($request->files))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "No files received to upload."));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "No files received to upload."));
 		}
 
 		/* @var $file \Symfony\Component\HttpFoundation\File\UploadedFile */
@@ -58,19 +58,19 @@ class RouteArchiveController extends BaseController
 
 		if($this->routeManager->getExistingRouteId($route) !== false)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "You already have a route '{$route->routeName}' in zone {$app[Constants::PARAMETER_KEY]['zone_id']}"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "You already have a route '{$route->routeName}' in zone {$app[Constants::PARAMETER_KEY]['zone_id']}"));
 		}
 
 		try
 		{
 			$route = $this->objectStorage->saveRouteFile($file, $route);
 			$route = $this->routeManager->saveRouteInfo($route);
-			return $app->json(ResponseJson::GetJsonResponseArray(true, "Upload Successful", ['route_id' => $route->routeId]));
+			return $app->json(ResponseJson::getJsonResponseArray(true, "Upload Successful", ['route_id' => $route->routeId]));
 		}
 		catch(RouteManagementException $e)
 		{
 			$this->logger->error($e->getMessage());
-			return $app->json(ResponseJson::GetJsonResponseArray(false, $e->getMessage()), 400);
+			return $app->json(ResponseJson::getJsonResponseArray(false, $e->getMessage()), 400);
 		}
 	}
 
@@ -92,13 +92,13 @@ class RouteArchiveController extends BaseController
 
 		if($route === null)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "No route found with Zone ID of $zoneId and route id of $routeId"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "No route found with Zone ID of $zoneId and route id of $routeId"));
 		}
 
 		$this->routeManager->retireRoute($routeId);
 		$this->objectStorage->deleteRouteFile($route);
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "Route {$route->routeName} removed"));
+		return $app->json(ResponseJson::getJsonResponseArray(true, "Route {$route->routeName} removed"));
 	}
 
 	/**
@@ -115,7 +115,7 @@ class RouteArchiveController extends BaseController
 		$this->initializeInstance($app);
 		$this->unauthorizedAccess([Constants::ROLE_ADMIN, Constants::ROLE_ORGANIZER]);
 		$routes = $this->routeManager->getRoutesInZone($zoneId);
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ["routes" => $routes]));
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ["routes" => $routes]));
 	}
 
 	/**

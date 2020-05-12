@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * A utility class for putting random functions that don't deserve their own class.
@@ -22,7 +23,7 @@ class Util
 	 *
 	 * @return string
 	 */
-	public static function RemoveFrameworkCallsFromStacktrace($trace)
+	public static function removeFrameworkFromStacktrace($trace)
 	{
 		$trace = explode("\n", $trace);
 		foreach ($trace as $key => &$line)

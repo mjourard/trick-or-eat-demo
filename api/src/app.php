@@ -71,7 +71,7 @@ $app->before(function (Request $request) use ($app)
 		$contentType = 'application/json';
 		if (strcmp($request->headers->get('Content-Type'), $contentType) !== 0)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Content-Type request header did not match required value of '$contentType'. Received: '{$request->headers->get('Content-Type')}'"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Content-Type request header did not match required value of '$contentType'. Received: '{$request->headers->get('Content-Type')}'"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$data = json_decode($request->getContent(), true);
@@ -92,7 +92,7 @@ $app->before(function (Request $request) use ($app)
 		$token = $request->headers->get('X-Bearer-Token');
 		if (!$token)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'Not logged in (no auth header).'), HTTPCodes::CLI_ERR_AUTH_REQUIRED);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'Not logged in (no auth header).'), HTTPCodes::CLI_ERR_AUTH_REQUIRED);
 		}
 		/* if the program stays in this try{}
 		 * it means that the user has logged in OK

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: LENOVO-T430
@@ -10,7 +11,7 @@ namespace TOE\GlobalCode;
 
 class ResponseJson
 {
-	public static function GetJsonResponseArray($success, $message, $extra = null)
+	public static function getJsonResponseArray($success, $message, $extra = null)
 	{
 		$array = [
 			"success" => $success,

@@ -17,10 +17,7 @@ You will also need the following services configured and the appropriate secrets
 This can be handled by either Google Cloud Platform or AWS. I've found AWS to be easier. They are described in the Development Setup document.
 
 #### Google Maps
-You will need an api key so that the routes for users is rendered properly.
-
-#### AWS S3
-Create a bucket that will store your frontend code. It should be setup such that nothing is publicly accessible.
+You will need an api key so that the routes for users are rendered properly.
 
 #### AWS Systems Manager - Parameter Store
 These parameter store values are used in the creation and deployment of the api:
@@ -48,6 +45,16 @@ Add the `--overwrite` flag if you need to update the values
 
 Follow the steps found in [Development Setup](docs/application-setup.md) to ensure all dependency files are installed locally.
 
+Once you've done that, `cd` into the **api** directory and run the following composer commands:
+
+1. `composer run sls:initdb`
+2. `composer run sls:deploy`
+3. `composer run bref:initdb`
+
+These commands in order:
+1. deploy the database infrastructure along with creates a bucket to store route files
+2. deploy the application code 
+3. initializes the database with the appropriate database tables and records
 
 
 ## Frontend
@@ -63,8 +70,11 @@ The backend sits behind Cloudfront, API Gateway and Lambda. Deployment of that c
 `npm i -g serverless`
 `npm i -g serverless-pseudo-parameters`
 
-Once you've done that, you can cd into the `backendTOE` directory and run `serverless deploy` and the new cloudformation stack based on the serverless.yml file defined will be in AWS. 
+Once you've done that, you can cd into the `api` directory and run `serverless deploy` and the new cloudformation stack based on the serverless.yml file defined will be in AWS. 
 
 ## Testing
 
-Now just do a smoke test of checking a few of the screens, as they should be fine if all integration tests passed locally
+Create a **.env** file with environment variables that will connect to your production aurora database and run the tests with `composer run test`. If there are no failures, you're ready to go.
+
+#### Note
+If you haven't used the database recently (i.e. haven't loaded a new page from the prod site at all in the last 30 minutes), it will take ~15 seconds to spin up new compute resources for the database. Basically if the tests fail the first time, count to 15 and run again. 

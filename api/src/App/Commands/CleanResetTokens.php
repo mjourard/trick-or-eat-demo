@@ -20,7 +20,7 @@ class CleanResetTokens extends aCmd
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-
+		$this->notifyUserOfDBType($output);
 		//delete all expired tokens
 		$query = "DELETE FROM password_request";
 		$values = [];
@@ -38,8 +38,19 @@ class CleanResetTokens extends aCmd
 		}
 
 		$output->writeln("Executing query: $query");
-		$deleted =  $this->container->db->executeNonQuery($query, $values);
-		$output->writeln("Deleted $deleted from the database");
+		$q = $this->container->dbConn->prepare($query);
+		foreach($values as $key => $value)
+		{
+			$q->bindValue($key, $value);
+		}
+		$res = $q->execute();
+		if (!$res)
+		{
+			$output->writeln("There was an error while trying to delete reset tokens from the datbase");
+			$output->writeln(print_r($q->errorInfo(), true));
+			return 1;
+		}
+		$output->writeln("Deleted $res from the database");
 		return 0;
 	}
 }

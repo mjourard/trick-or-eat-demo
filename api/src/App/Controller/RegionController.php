@@ -16,7 +16,7 @@ class RegionController extends BaseController
 		/** @var RegionManager $regionManager */
 		$regionManager = $app['region'];
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ["countries" => $regionManager->getAllCountries()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ["countries" => $regionManager->getAllCountries()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	public function getRegion(Request $request, Application $app, $countryId)
@@ -28,9 +28,9 @@ class RegionController extends BaseController
 		$regions = $regionManager->getRegionsOfCountry($countryId);
 		if (empty($regions))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(true, "No regions for country with ID $countryId"), HTTPCodes::SUCCESS_NO_CONTENT);
+			return $app->json(ResponseJson::getJsonResponseArray(true, "No regions for country with ID $countryId"), HTTPCodes::SUCCESS_NO_CONTENT);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['regions' => $regions]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['regions' => $regions]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 }

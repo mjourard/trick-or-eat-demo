@@ -29,24 +29,24 @@ class AuthController extends BaseController
 	{
 		if(!$this->emailIsGood($app[Constants::PARAMETER_KEY]['email'], $app))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad email"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Bad email"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if(!$this->passwordIsGood($app[Constants::PARAMETER_KEY]['password']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad password"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Bad password"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$firstName = trim($app[Constants::PARAMETER_KEY]['first_name']);
 		if(empty($firstName))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "First name cannot be empty."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "First name cannot be empty."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$lastName = trim($app[Constants::PARAMETER_KEY]['last_name']);
 		if(empty($lastName))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Last name cannot be empty."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Last name cannot be empty."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$email = strtolower(trim($app[Constants::PARAMETER_KEY]['email']));
@@ -59,7 +59,7 @@ class AuthController extends BaseController
 
 		if($userId !== false)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "email of '$email' already registered"), HTTPCodes::CLI_ERR_CONFLICT);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "email of '$email' already registered"), HTTPCodes::CLI_ERR_CONFLICT);
 		}
 
 		//verify the region passed in exists
@@ -67,7 +67,7 @@ class AuthController extends BaseController
 		$regionManager = $app['region'];
 		if(!$regionManager->regionExists($app[Constants::PARAMETER_KEY]['region_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "region_id of {$app[Constants::PARAMETER_KEY]['region_id']} is was not found in the database."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "region_id of {$app[Constants::PARAMETER_KEY]['region_id']} is was not found in the database."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$newUser = new NewUser($email, $app[Constants::PARAMETER_KEY]['password'], $firstName, $lastName, $app[Constants::PARAMETER_KEY]['region_id']);
@@ -75,14 +75,14 @@ class AuthController extends BaseController
 		try
 		{
 			$userId = $userLookup->registerUser($newUser);
-			return $app->json(ResponseJson::GetJsonResponseArray(true, "registration successful", ['user_id' => $userId]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+			return $app->json(ResponseJson::getJsonResponseArray(true, "registration successful", ['user_id' => $userId]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
 		catch(UserException $ex)
 		{
 			$this->logger->err($ex->getMessage(), [
 				'email' => $email
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem registering the user\'s role.'), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'There was a problem registering the user\'s role.'), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 	}
 
@@ -109,16 +109,16 @@ class AuthController extends BaseController
 		catch(UserException $ex)
 		{
 			$this->logger->err($ex->getMessage(), ['email' => $app[Constants::PARAMETER_KEY]["email"]]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Problem with passed in email. Please contact the trick-or-eat team."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Problem with passed in email. Please contact the trick-or-eat team."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
 		if(empty($userInfo) || empty($userInfo['user_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Email not registered."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Email not registered."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 		if(!password_verify($app[Constants::PARAMETER_KEY]['password'], $userInfo['password']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'Incorrect password.'), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'Incorrect password.'), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 		$issuedAt = time();
 		$expire = $issuedAt + self::VALID_TIME;
@@ -137,7 +137,7 @@ class AuthController extends BaseController
 			$app['jwt.key'],
 			'HS512'
 		);
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ["token" => ['jwt' => $jwt]]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ["token" => ['jwt' => $jwt]]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 

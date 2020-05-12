@@ -29,14 +29,14 @@ class EventController extends BaseController
 
 		if($registrationManager->isRegistered($this->userInfo->getID(), $params['event_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'User is already registered for an event.'), HTTPCodes::CLI_ERR_CONFLICT);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'User is already registered for an event.'), HTTPCodes::CLI_ERR_CONFLICT);
 		}
 
 		//verify the event_id passed in is for a real event
 		$event = $eventManager->getEvent($params['event_id']);
 		if(empty($event))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "There was no event with ID {$params['event_id']}."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "There was no event with ID {$params['event_id']}."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		/** @var UserLookupService $userLookup */
@@ -47,10 +47,10 @@ class EventController extends BaseController
 		{
 			$this->logger->err('unable to register user to event.', ['user_id' => $this->userInfo->getID(), 'event_id' => $params['event_id']]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem registering you for the event. Contact staff for the trick-or-eat event.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'There was a problem registering you for the event. Contact staff for the trick-or-eat event.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", $event), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", $event), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
 	public function deregister(Request $request, Application $app)
@@ -64,7 +64,7 @@ class EventController extends BaseController
 		$registrationManager = $app['event.registration'];
 		if(!$registrationManager->isRegistered($this->userInfo->getID(), $params['event_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'The user is not registered for the event.'), HTTPCodes::CLI_ERR_ACTION_NOT_ALLOWED);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'The user is not registered for the event.'), HTTPCodes::CLI_ERR_ACTION_NOT_ALLOWED);
 		}
 
 		//handle the user's existing team i.e. if they are a team captain, if the team is empty without them, etc.
@@ -81,7 +81,7 @@ class EventController extends BaseController
 				'event_id' => $params['event_id'],
 				'err' => $ex->getMessage()
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "No rows affected when deleting member row."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "No rows affected when deleting member row."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
 		//remove the user's member entry in the database
@@ -91,10 +91,10 @@ class EventController extends BaseController
 				'user_id' => $this->userInfo->getID(),
 				'event_id' => $params['event_id']
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Removed user from the team but unable to deregister them from the event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Removed user from the team but unable to deregister them from the event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
 	}
 
 	public function getEvents(Application $app, $regionId)

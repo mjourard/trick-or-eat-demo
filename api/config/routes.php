@@ -112,9 +112,9 @@ $app->error(function (\Exception $e, Request $request, $code) use ($app)
 
 	if (Env::get(Env::TOE_DEBUG_ON))
 	{
-		$message = "\n*CODE*\n$code\n*MESSAGE*\n" . $e->getMessage() . "\n*TRACE*\n" . Util::RemoveFrameworkCallsFromStacktrace($e->getTraceAsString());
+		$message = "\n*CODE*\n$code\n*MESSAGE*\n" . $e->getMessage() . "\n*TRACE*\n" . Util::removeFrameworkFromStacktrace($e->getTraceAsString());
 	}
 
-	return $app->json(ResponseJson::GetJsonResponseArray(false, $message), $code);
+	return $app->json(ResponseJson::getJsonResponseArray(false, $message), $code);
 });
 

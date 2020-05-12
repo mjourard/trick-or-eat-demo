@@ -29,7 +29,7 @@ class TeamController extends BaseController
 		/** @var TeamManager $teamManager */
 		$teamManager = $app['team'];
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['teams' => $teamManager->getTeams()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['teams' => $teamManager->getTeams()]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -59,7 +59,7 @@ class TeamController extends BaseController
 		$teamInfo = $teamManager->getTeamInfo($this->userInfo->getID());
 		if(empty($teamInfo) || $teamInfo['team_id'] === null)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "No team found for the logged in user"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "No team found for the logged in user"));
 		}
 
 		//Get the team information
@@ -72,7 +72,7 @@ class TeamController extends BaseController
 			'code'      => $teamInfo['join_code']
 		];
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['team' => $team]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['team' => $team]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -100,37 +100,37 @@ class TeamController extends BaseController
 		$joinCode = $app[Constants::PARAMETER_KEY]['join_code'];
 		if($eventManager->isRegistered($this->userInfo->getID(), $eventId) === false)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "User is not registered for the event the team is registered for."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "User is not registered for the event the team is registered for."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$curTeamInfo = $teamManager->getTeamInfo($this->userInfo->getID());
 		if(!empty($curTeamInfo) && $curTeamInfo['team_id'] === $eventId)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "User is already on a team for this event."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "User is already on a team for this event."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 
 		if($teamManager->isTeamAtEvent($teamId, $eventId) === false)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "The team is not signed up for the event passed in.", ["team_id" => $teamId, "event_id" => $eventId]), HTTPCodes::CLI_ERR_CONFLICT);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "The team is not signed up for the event passed in.", ["team_id" => $teamId, "event_id" => $eventId]), HTTPCodes::CLI_ERR_CONFLICT);
 		}
 
 		//verify the join code supplied was correct
 
 		if($teamManager->isJoinCodeCorrect($teamId, $joinCode) === false)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Incorrect code used to join the team."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Incorrect code used to join the team."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if($teamManager->isTeamFull($teamId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Team has the maximum number of members allowed on it already."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Team has the maximum number of members allowed on it already."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		//assign the user to the team
 		$teamManager->assignUserToTeam($this->userInfo->getID(), $teamId, $eventId);
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
 	/**
@@ -157,13 +157,13 @@ class TeamController extends BaseController
 		//verify the person leaving a team is on a team
 		if(empty($teamInfo))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'User not registered to a team.'), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'User not registered to a team.'), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		//remove the user from the team
 		$teamManager->removeUserFromTeam($this->userInfo->getID(), $teamInfo['event_id']);
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ''), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ''), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -188,12 +188,12 @@ class TeamController extends BaseController
 
 		if($params['memberCount'] > Constants::MAX_ROUTE_MEMBERS)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Teams cannot have more than " . Constants::MAX_ROUTE_MEMBERS . " members."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Teams cannot have more than " . Constants::MAX_ROUTE_MEMBERS . " members."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if(preg_match(Constants::JOIN_CODE_REGEX, $params['join_code']) !== 1)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "The code to join the team must be a 3 digit code, gave: " . $params['join_code']), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "The code to join the team must be a 3 digit code, gave: " . $params['join_code']), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		//TODO: have the event_id be passed in from the frontend and verify the user is signed up for the event
@@ -201,13 +201,13 @@ class TeamController extends BaseController
 		$results = $registrationManager->getEventRegisteredAtByUser($this->userInfo->getID());
 		if(empty($results))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Not signed up for an event yet or already on a team."), HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Not signed up for an event yet or already on a team."), HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
 		}
 
 		$eventId = $results['event_id'];
 		if($teamManager->isTeamNameTaken($eventId, $params['Name']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Team name is taken."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Team name is taken."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		try
@@ -234,10 +234,10 @@ class TeamController extends BaseController
 				'err'       => $ex->getMessage()
 			]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "An error occurred while trying to create your team. Please try again later."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "An error occurred while trying to create your team. Please try again later."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['team_id' => $teamId, 'name' => $params['Name'], 'join_code' => $params['join_code']]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['team_id' => $teamId, 'name' => $params['Name'], 'join_code' => $params['join_code']]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
 	/**
@@ -259,11 +259,11 @@ class TeamController extends BaseController
 		$registrationManager = $app['event.registration'];
 		if(empty($results = $registrationManager->getEventRegisteredAtByUser($this->userInfo->getID())))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "User is not registered for an event. Register for an event to be able to check if a team name is available."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "User is not registered for an event. Register for an event to be able to check if a team name is available."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		$taken = $teamManager->isTeamNameTaken($results['event_id'], $teamName);
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['available' => !$taken]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['available' => !$taken]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -284,13 +284,13 @@ class TeamController extends BaseController
 		//Can't kick yourself from the team
 		if($this->userInfo->getID() === $app[Constants::PARAMETER_KEY]['teammate_id'])
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Attempted to kick yourself from the team. Call the leave team function."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Attempted to kick yourself from the team. Call the leave team function."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		//verify the target user is on the team passed in
 		if(!$teamManager->userIsOnTeam($app[Constants::PARAMETER_KEY]['teammate_id'], $app[Constants::PARAMETER_KEY]['team_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Passed in target user is not on the passed in team"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Passed in target user is not on the passed in team"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		//make sure the person asking to kick the teammate can kick people on that team
@@ -306,7 +306,7 @@ class TeamController extends BaseController
 				'target_captain_id'  => $teammateTeamInfo['captain_user_id']
 			]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'Must be the captain of the team or have an adequate assigned role to kick someone from a team.'), HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'Must be the captain of the team or have an adequate assigned role to kick someone from a team.'), HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
 		}
 
 		//remove the user from the team
@@ -323,9 +323,9 @@ class TeamController extends BaseController
 				]
 			);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Unable to remove the user from the team"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Unable to remove the user from the team"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ''), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ''), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 }

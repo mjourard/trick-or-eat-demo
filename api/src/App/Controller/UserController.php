@@ -27,7 +27,7 @@ class UserController extends BaseController
 		$userLookup = $app['user.lookup'];
 		$results = $userLookup->getUserEntity($this->userInfo->getID(), $this->userInfo->toArray());
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", $results), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", $results), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -53,7 +53,7 @@ class UserController extends BaseController
 
 		if($params['region_id'] < 1)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "region_id must be a positive number"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "region_id must be a positive number"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		//ensure there are changes to be made.
@@ -70,12 +70,12 @@ class UserController extends BaseController
 				'email'   => $this->userInfo->getEmail()
 			]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Unable to find user entry for the authenticated user email"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Unable to find user entry for the authenticated user email"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if (!$regionManager->regionExists($params['region_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad region id passed in"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Bad region id passed in"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if(
@@ -84,7 +84,7 @@ class UserController extends BaseController
 			$info['region_id'] === $params['region_id']
 		)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "No changes detected"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "No changes detected"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		try
@@ -100,12 +100,12 @@ class UserController extends BaseController
 				'region_id'  => $params['region_id'],
 				'err'        => $ex->getMessage()
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "An error occurred when trying to update the user information."), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "An error occurred when trying to update the user information."), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 
 		//retrieve the newly updated user object to be returned
 		$results = $userLookup->getUserEntity($this->userInfo->getID(), $this->userInfo->toArray());
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", $results), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", $results), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 }

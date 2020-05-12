@@ -36,13 +36,13 @@ class ResetPasswordController extends BaseController
 		catch(\Exception $e)
 		{
 			$this->logger->warning($e->getMessage(), ['jwt' => $jwt]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "The token passed in is no longer valid."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "The token passed in is no longer valid."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		try
 		{
 			$pwRequestManager->resetPasswordByToken($token, $password);
-			return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
+			return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
 		}
 		catch(Exception $ex)
 		{
@@ -50,7 +50,7 @@ class ResetPasswordController extends BaseController
 				'user_id' => $this->userInfo->getID(),
 				'err' => $ex->getMessage()
 			]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Failed to update your password. Contact TOE support."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Failed to update your password. Contact TOE support."), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 	}
 
@@ -80,9 +80,9 @@ class ResetPasswordController extends BaseController
 		catch(\Exception $e)
 		{
 			$this->logger->warning($e->getMessage(), ['jwt' => $token]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Token is invalid: " . $e->getMessage()), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Token is invalid: " . $e->getMessage()), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_NO_CONTENT);
 	}
 }

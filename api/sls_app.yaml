@@ -208,19 +208,19 @@ functions:
              - Accept-Encoding
              - X-Bearer-Token
            allowCredentials: true
-  clean-reset-tokens:
+  cron:
     handler: bin/console.php
-    layers:
-      - ${bref:layer.php-72}
-    events:
-      - schedule: cron(45 0 1 * ? *) # For the demo, only needs to run once a month. Should be changed to every hour in prod
-  init-db:
-    handler: bin/console.php
-    description: 'A cron job that will initialize the tables in the RDS backend'
-    timeout: 300 # in seconds (max time for lambda to run mysqldump)
+    timeout: 30
     layers:
       - ${bref:layer.php-72}
       - ${bref:layer.console}
+    events:
+      - schedule:
+          name: clean-reset-tokens
+          description: clears the most resent password reset tokens from the database
+          rate: cron(45 0 1 * ? *) # For the demo, only needs to run once a month. Should be changed to every hour in prod
+          input:
+            cli: clean-reset-tokens
 
 ## In order to print out the hosted domain via `serverless info` we need to define the DomainName output for CloudFormation
 Outputs:

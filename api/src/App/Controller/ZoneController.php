@@ -48,7 +48,7 @@ class ZoneController extends BaseController
 				$params['longitude']
 			);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['zone' => $newZone]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+			return $app->json(ResponseJson::getJsonResponseArray(true, "", ['zone' => $newZone]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 		}
 		catch(\Exception $e)
 		{
@@ -58,7 +58,7 @@ class ZoneController extends BaseController
 				'err'                     => $e->getMessage()
 			]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "There was an error creating a the new zone: {$e->getMessage()}"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "There was an error creating a the new zone: {$e->getMessage()}"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 	}
 
@@ -78,7 +78,7 @@ class ZoneController extends BaseController
 
 		if(!$zoneManager->zoneExists($params['zone_id']))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Zone with ID of {$params['zone_id']} does not exist."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Zone with ID of {$params['zone_id']} does not exist."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		try
@@ -94,11 +94,11 @@ class ZoneController extends BaseController
 				$params['latitude'],
 				$params['longitude']
 			);
-			return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+			return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		}
 		catch(\Exception $e)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "There was an error updating the zone: {$e->getMessage()}"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "There was an error updating the zone: {$e->getMessage()}"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 	}
 
@@ -122,16 +122,16 @@ class ZoneController extends BaseController
 
 		if(!$zoneManager->isStatusGood($status) && $status !== 'all' && $status !== 'working')
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad status passed in '$status'."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Bad status passed in '$status'."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 
 		if(!$regionManager->regionExists($regionId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad region Id passed in '$regionId'"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Bad region Id passed in '$regionId'"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['zones' => $zoneManager->getZones($regionId, $status)]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['zones' => $zoneManager->getZones($regionId, $status)]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	public function getZone(Application $app, $zoneId)
@@ -146,9 +146,9 @@ class ZoneController extends BaseController
 
 		if(empty($zone))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Zone with id $zoneId does not exist."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Zone with id $zoneId does not exist."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['zone' => $zone]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['zone' => $zone]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	public function setZoneStatus(Application $app)
@@ -163,16 +163,16 @@ class ZoneController extends BaseController
 
 		if(!$zoneManager->isStatusGood($status))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Bad status passed in: $status"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Bad status passed in: $status"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if(!$zoneManager->zoneExists($zoneId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Zone with id $zoneId does not exist."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Zone with id $zoneId does not exist."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		$zoneManager->updateZoneStatus($zoneId, $status);
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, ""), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -187,11 +187,11 @@ class ZoneController extends BaseController
 	{
 		if($params['houses_covered'] < 1)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "param houses_covered must be a positive number. Newly created zones must cover at least 1 house."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "param houses_covered must be a positive number. Newly created zones must cover at least 1 house."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 		if($params['zoom'] < self::MIN_ZOOM || $params['zoom'] > self::MAX_ZOOM)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, sprintf("param zoom must be between %d and %d", self::MIN_ZOOM, self::MAX_ZOOM)), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, sprintf("param zoom must be between %d and %d", self::MIN_ZOOM, self::MAX_ZOOM)), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		return null;

@@ -61,7 +61,7 @@ class RouteController extends BaseController
 
 		if(!$eventManager->eventExists($eventId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Event does not exist in the database."), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Event does not exist in the database."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		$order = "ASC";
@@ -82,7 +82,7 @@ class RouteController extends BaseController
 		{
 			$this->logger->err($ex->getMessage(), ['event_id' => $eventId]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem dropping aggregating team membership data.'), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'There was a problem dropping aggregating team membership data.'), HTTPCodes::SERVER_ERROR_GENERIC_DATABASE_FAILURE);
 		}
 		$fullRoutes = 0;
 		$emptyRoutes = 0;
@@ -136,7 +136,7 @@ class RouteController extends BaseController
 			'unassignedTeams' => count($unassignedTeams)
 		];
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['routes' => $routes, 'unassignedTeams' => $unassignedTeams, 'stats' => $stats]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['routes' => $routes, 'unassignedTeams' => $unassignedTeams, 'stats' => $stats]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	/**
@@ -155,7 +155,7 @@ class RouteController extends BaseController
 		$this->unauthorizedAccess([Constants::ROLE_ADMIN, Constants::ROLE_ORGANIZER, Constants::ROLE_PARTICIPANT]);
 		if($eventId < 1)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "EventId must be a positive integer."), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "EventId must be a positive integer."), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		/** @var TeamManager $teamManager */
@@ -166,7 +166,7 @@ class RouteController extends BaseController
 		{
 			if(!$teamManager->userIsOnTeam($this->userInfo->getID(), $teamId))
 			{
-				return $app->json(ResponseJson::GetJsonResponseArray(false, "Not authorized to retrieve data about other teams. UserId = " . $this->userInfo->getID()), HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
+				return $app->json(ResponseJson::getJsonResponseArray(false, "Not authorized to retrieve data about other teams. UserId = " . $this->userInfo->getID()), HTTPCodes::CLI_ERR_NOT_AUTHORIZED);
 			}
 		}
 
@@ -181,7 +181,7 @@ class RouteController extends BaseController
 			$route['zoom'] = (int)$route['zoom'];
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['routes' => $routes]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['routes' => $routes]), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 	}
 
 	public function getRoutesForEvent(Request $request, Application $app, $eventId)
@@ -190,14 +190,14 @@ class RouteController extends BaseController
 		$this->unauthorizedAccess([Constants::ROLE_ADMIN, Constants::ROLE_ORGANIZER]);
 		if($eventId < 1)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Event Id must be a positive number. Passed in '$eventId'"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Event Id must be a positive number. Passed in '$eventId'"));
 		}
 
 		/** @var AssignmentManager $assignmentManager */
 		$assignmentManager = $app['route.assignment'];
 		$routes = $assignmentManager->getRoutesForEvent($eventId);
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['routes' => $routes]));
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['routes' => $routes]));
 	}
 
 	public function getUnallocatedRoutes(Request $request, Application $app, $eventId)
@@ -206,14 +206,14 @@ class RouteController extends BaseController
 		$this->unauthorizedAccess([Constants::ROLE_ADMIN, Constants::ROLE_ORGANIZER]);
 		if($eventId < 1)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Event Id must be a positive number. Passed in '$eventId'"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Event Id must be a positive number. Passed in '$eventId'"));
 		}
 
 		/** @var AssignmentManager $assignmentManager */
 		$assignmentManager = $app['route.assignment'];
 		$routes = $assignmentManager->getUnallocatedRoutes($eventId);
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['routes' => $routes]));
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['routes' => $routes]));
 	}
 
 	public function allocateRoute(Request $request, Application $app)
@@ -230,14 +230,14 @@ class RouteController extends BaseController
 		//verify that the route passed in exists and that it isn't already allocated to the event passed in
 		if(!$routeManager->routeExists($zoneId, $routeId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Could not find a route with ID $routeId in zone $zoneId"), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Could not find a route with ID $routeId in zone $zoneId"), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
 		/** @var AssignmentManager $assignmentManager */
 		$assignmentManager = $app['route.assignment'];
 		if($assignmentManager->isRouteAllocatedToEvent($routeId, $eventId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, sprintf("Route with id %d is already allocated to event with id %d", $routeId, $eventId)), HTTPCodes::CLI_ERR_BAD_REQUEST);
+			return $app->json(ResponseJson::getJsonResponseArray(false, sprintf("Route with id %d is already allocated to event with id %d", $routeId, $eventId)), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		if( ($allocationId = $assignmentManager->allocateRouteToEvent($routeId, $eventId)) === false)
@@ -248,10 +248,10 @@ class RouteController extends BaseController
 				'event_id' => $eventId
 			]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Unable to allocate route to event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Unable to allocate route to event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "", ['route_allocation_id' => $allocationId]));
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['route_allocation_id' => $allocationId]));
 	}
 
 	public function deallocateRoute(Request $request, Application $app)
@@ -265,12 +265,12 @@ class RouteController extends BaseController
 		$eventId = $app[Constants::PARAMETER_KEY]['eventId'];
 		if(!$assignmentManager->isRouteAllocatedToEvent($routeId, $eventId))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Route {$app[Constants::PARAMETER_KEY]['routeId']} is not currently allocated to {$app[Constants::PARAMETER_KEY]['eventId']}"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Route {$app[Constants::PARAMETER_KEY]['routeId']} is not currently allocated to {$app[Constants::PARAMETER_KEY]['eventId']}"));
 		}
 		//check if the route is currently assigned to a team
 		if (!empty($teams = $assignmentManager->getRouteTeamsInfo($routeId, $eventId)))
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "There are teams currently assigned to that route", ['teams' => $teams]));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "There are teams currently assigned to that route", ['teams' => $teams]));
 		}
 
 		if(!$assignmentManager->deallocateRouteFromEvent($routeId, $eventId))
@@ -280,10 +280,10 @@ class RouteController extends BaseController
 				'route_id' => $routeId
 			]);
 
-			return $app->json(ResponseJson::GetJsonResponseArray(false, "Unable to deallocate (remove) route from event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Unable to deallocate (remove) route from event"), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, ""));
+		return $app->json(ResponseJson::getJsonResponseArray(true, ""));
 	}
 
 	/**
@@ -458,7 +458,7 @@ class RouteController extends BaseController
 									'err'               => $ex->getMessage()
 								]);
 
-								return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was a problem updating teams with their assigned routes.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+								return $app->json(ResponseJson::getJsonResponseArray(false, 'There was a problem updating teams with their assigned routes.'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 							}
 						}
 						//update the total assignment counts
@@ -471,10 +471,10 @@ class RouteController extends BaseController
 		//now have assignment pairs, create a statement to update the database with them
 		if($totalAssignments === 0)
 		{
-			return $app->json(ResponseJson::GetJsonResponseArray(true, 'No routes found to able to be assigned.'), HTTPCodes::CLI_ERR_NOT_FOUND);
+			return $app->json(ResponseJson::getJsonResponseArray(true, 'No routes found to able to be assigned.'), HTTPCodes::CLI_ERR_NOT_FOUND);
 		}
 
-		return $app->json(ResponseJson::GetJsonResponseArray(true, "$totalAssignments route assignment pairings were made", ['pairings' => $totalAssignments]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
+		return $app->json(ResponseJson::getJsonResponseArray(true, "$totalAssignments route assignment pairings were made", ['pairings' => $totalAssignments]), HTTPCodes::SUCCESS_RESOURCE_CREATED);
 	}
 
 	/**
@@ -497,12 +497,12 @@ class RouteController extends BaseController
 		try
 		{
 			$assignmentManager->removeAllRouteAssignments($eventId);
-			return $app->json(ResponseJson::GetJsonResponseArray(true, 'All teams have had their route assignments removed.'), HTTPCodes::SUCCESS_DATA_RETRIEVED);
+			return $app->json(ResponseJson::getJsonResponseArray(true, 'All teams have had their route assignments removed.'), HTTPCodes::SUCCESS_DATA_RETRIEVED);
 		}
 		catch(RouteAssignmentException $ex)
 		{
 			$this->logger->err("unable to remove all route assignments from the event", ['event_id' => $eventId]);
-			return $app->json(ResponseJson::GetJsonResponseArray(false, 'There was an error while removing all route assignments from the event'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
+			return $app->json(ResponseJson::getJsonResponseArray(false, 'There was an error while removing all route assignments from the event'), HTTPCodes::SERVER_SERVICE_UNAVAILABLE);
 		}
 	}
 

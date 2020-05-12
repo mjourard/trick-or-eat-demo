@@ -18,13 +18,14 @@ class AurQuery extends aCmd
 
 	protected function configure()
 	{
-		$this->setDescription('Runs the specified query or query file against the aurora database and outputs the results');
+		$this->setDescription('Runs the specified query or query file against the aurora database and outputs the results. Created because querying an aurora serverless database without a VPN into the VPC is annoying');
 		$this->addArgument('query', InputArgument::REQUIRED, 'A MySQL-compatible query. Pass in a filepath if the --file flag is used');
 		$this->addOption('file', 'f', InputOption::VALUE_NONE, 'Use this you want to read in a file containing mysql query or queries to be executed');
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$this->notifyUserOfDBType($output);
 		$query = $input->getArgument('query');
 		if ($input->getOption('file'))
 		{
@@ -90,7 +91,14 @@ class AurQuery extends aCmd
 			$output->writeln($formattedLine);
 
 			$output->writeln($query);
-			$res = $this->container->aurora->queryDB($query);
+			$q = $this->container->dbConn->prepare($query);
+			if (!$q->execute())
+			{
+				$output->writeln("error while executing sql statement: ");
+				$output->writeln(print_r($q->errorInfo(), true));
+				return 1;
+			}
+			$res = $q->fetchAll();
 			$table = new Table($output);
 			$table->setHeaders(array_keys($res[0]));
 			$rows = [];
