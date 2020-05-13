@@ -108,7 +108,7 @@ class RouteControllerTest extends BaseTestCase
 		]));
 		$this->client->request('POST', '/routes/allocate', [
 			'zoneId'  => 1,
-			'routeId' => $route->routeId,
+			'routeId' => $route->getRouteId(),
 			'eventId' => 1
 		]);
 		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
@@ -124,7 +124,7 @@ class RouteControllerTest extends BaseTestCase
 
 		$this->dbConn->createQueryBuilder()
 			->delete('route_archive')
-			->where('route_id = ' . $route->routeId)
+			->where('route_id = ' . $route->getRouteId())
 			->execute();
 	}
 
@@ -232,8 +232,8 @@ class RouteControllerTest extends BaseTestCase
 				'owner_user_id'         => $this->getLoggedInUserId(),
 			]);
 			$route = $routeManager->saveRouteInfo($route);
-			self::assertNotEmpty($route->routeId, "Unable to save route info for route $i");
-			$routeIds[] = $route->routeId;
+			self::assertNotEmpty($route->getRouteId(), "Unable to save route info for route $i");
+			$routeIds[] = $route->getRouteId();
 		}
 
 		//create the buses used for routes

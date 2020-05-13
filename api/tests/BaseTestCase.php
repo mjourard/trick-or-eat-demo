@@ -233,6 +233,11 @@ class BaseTestCase extends TestCase
 		return $this->loggedInPassword;
 	}
 
+	public function boolToEnum(bool $b)
+	{
+		return $b ? 'true' : 'false';
+	}
+
 	protected function getModifiedJSONObject($modifications = [])
 	{
 		if (($temp = $this->templatePostObj) === null)

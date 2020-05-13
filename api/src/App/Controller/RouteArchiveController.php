@@ -11,11 +11,14 @@ namespace TOE\App\Controller;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
+use TOE\App\Service\Location\ZoneManager;
 use TOE\App\Service\Route\Archive\iObjectStorage;
 use TOE\App\Service\Route\Archive\Route;
 use TOE\App\Service\Route\Archive\RouteManagementException;
 use TOE\App\Service\Route\Archive\RouteManager;
+use TOE\App\Service\Route\Assignment\AssignmentManager;
 use TOE\GlobalCode\Constants;
+use TOE\GlobalCode\HTTPCodes;
 use TOE\GlobalCode\ResponseJson;
 
 class RouteArchiveController extends BaseController
@@ -42,13 +45,28 @@ class RouteArchiveController extends BaseController
 		$this->initializeInstance($app);
 		$this->unauthorizedAccess([Constants::ROLE_ADMIN, Constants::ROLE_ORGANIZER]);
 
-		if(empty($request->files))
+		/* @var $file \Symfony\Component\HttpFoundation\File\UploadedFile */
+		if(empty($request->files) || ($file = $request->files->get("file")) === null)
 		{
-			return $app->json(ResponseJson::getJsonResponseArray(false, "No files received to upload."));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "No files received to upload."), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
-		/* @var $file \Symfony\Component\HttpFoundation\File\UploadedFile */
-		$file = $request->files->get("file");
+		/** @var ZoneManager $zoneManager */
+		$zoneManager = $this->app['zone'];
+
+		$zoneId = (int)$app[Constants::PARAMETER_KEY]['zone_id'];
+		if (!$zoneManager->zoneExists($zoneId))
+		{
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Zone with passed in ID does not exist"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+		}
+
+		/** @var AssignmentManager $assignmentManager */
+		$assignmentManager = $this->app['route.assignment'];
+		if (!in_array($app[Constants::PARAMETER_KEY]['type'], $assignmentManager->getRouteTypes()))
+		{
+			return $app->json(ResponseJson::getJsonResponseArray(false, "Passed in route type not an acceptable route type"), HTTPCodes::CLI_ERR_BAD_REQUEST);
+		}
+
 		$route = Route::init($file, $app[Constants::PARAMETER_KEY]['zone_id'], $this->userInfo->getID());
 		$route->type = $app[Constants::PARAMETER_KEY]['type'];
 		$route->wheelchairAccessible = $app[Constants::PARAMETER_KEY]['mobility'];
@@ -65,7 +83,7 @@ class RouteArchiveController extends BaseController
 		{
 			$route = $this->objectStorage->saveRouteFile($file, $route);
 			$route = $this->routeManager->saveRouteInfo($route);
-			return $app->json(ResponseJson::getJsonResponseArray(true, "Upload Successful", ['route_id' => $route->routeId]));
+			return $app->json(ResponseJson::getJsonResponseArray(true, "Upload Successful", ['route_id' => $route->getRouteId()]));
 		}
 		catch(RouteManagementException $e)
 		{

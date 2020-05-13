@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class Route
 {
-	public $routeId;
+	private $routeId;
 	/**
 	 * @var string the value saved in the database under route_file_url, but it's just the path
 	 */
@@ -82,5 +82,48 @@ class Route
 		}
 
 		return uniqid("/$zoneId-") . ".$ext";
+	}
+
+	/**
+	 * sets the route id
+	 *
+	 * @param int|string $routeId
+	 */
+	public function setRouteId($routeId)
+	{
+		$this->routeId = (int)$routeId;
+	}
+
+	/**
+	 * Gets the route id
+	 *
+	 * @return int
+	 */
+	public function getRouteId()
+	{
+		if ($this->routeId === null)
+		{
+			return -1;
+		}
+		return (int)$this->routeId;
+	}
+
+	/**
+	 * Resets the object when the route file was deleted
+	 */
+	public function fileWasDeleted()
+	{
+		$this->routeFilePath = null;
+		$this->filename = null;
+	}
+
+	/**
+	 * Determines if the passed in Route object has a linked file or not
+	 *
+	 * @return bool
+	 */
+	public function hasFile()
+	{
+		return !empty($this->routeFilePath);
 	}
 }

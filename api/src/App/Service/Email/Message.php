@@ -23,7 +23,7 @@ class Message
 		$this->sent = false;
 	}
 
-	public function RecordMessageId($id)
+	public function recordMessageId($id)
 	{
 		$this->sent = true;
 		$this->messageId = $id;

@@ -29,6 +29,7 @@ class S3ObjectStore implements iObjectStorage
 	public function __construct(S3Client $s3, $routeBucket)
 	{
 		$this->s3 = $s3;
+		$this->s3->registerStreamWrapper();
 		$this->bucket = $routeBucket;
 	}
 
@@ -59,6 +60,13 @@ class S3ObjectStore implements iObjectStorage
 	public function getRouteFile(Route $route)
 	{
 		// TODO: Implement getRouteFile() method.
+		$file = sprintf("s3://%s/%s", $this->bucket, $route->routeFilePath);
+		$fp = fopen($file, 'r');
+		if ($fp === null)
+		{
+			return false;
+		}
+		return $fp;
 	}
 
 	/**
@@ -67,5 +75,32 @@ class S3ObjectStore implements iObjectStorage
 	public function deleteRouteFile(Route $route)
 	{
 		// TODO: Implement deleteRouteFile() method.
+		$res = $this->s3->deleteObject([
+			'Bucket' => $this->bucket,
+			'Key' => $route->routeFilePath
+		]);
+		$route->fileWasDeleted();
+		return $route;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function routeFileExists(Route $route)
+	{
+		if (!$route->hasFile())
+		{
+			return false;
+		}
+		$res = $this->s3->headObject([
+			'Bucket' => $this->bucket,
+			'Key' => $route->routeFilePath
+		]);
+		$length = $res->get('ContentLength');
+		if (empty($length))
+		{
+			return false;
+		}
+		return (int)$length > 0;
 	}
 }

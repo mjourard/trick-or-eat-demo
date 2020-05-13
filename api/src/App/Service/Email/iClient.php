@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TOE\App\Service\Email;
 
 
-abstract class aClient
+interface iClient
 {
 	/**
 	 * @param Message $msg
@@ -13,5 +13,5 @@ abstract class aClient
 	 * @return void
 	 * @throws EmailException
 	 */
-	abstract public function sendEmail(Message $msg);
+	public function sendEmail(Message $msg);
 }

@@ -37,4 +37,13 @@ interface iObjectStorage
 	 * @return Route an updated Route object
 	 */
 	public function deleteRouteFile(Route $route);
+
+	/**
+	 * Checks if the file associated with the route object can be found
+	 *
+	 * @param Route $route
+	 *
+	 * @return bool true if the file can be found, false otherwise
+	 */
+	public function routeFileExists(Route $route);
 }

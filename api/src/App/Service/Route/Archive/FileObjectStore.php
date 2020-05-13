@@ -30,6 +30,11 @@ class FileObjectStore implements iObjectStorage
 	 */
 	public function saveRouteFile(UploadedFile $file, Route $route)
 	{
+		//check if the file already exists
+		if (file_exists($this->routeDir . DIRECTORY_SEPARATOR . $route->routeFilePath))
+		{
+			throw new RouteManagementException("File already exists. Ensure you want to overwrite it...");
+		}
 		//upload the route to the server
 		try
 		{
@@ -47,7 +52,21 @@ class FileObjectStore implements iObjectStorage
 	 */
 	public function getRouteFile(Route $route)
 	{
-		// TODO: Implement getRouteFile() method.
+		if (!$route->hasFile())
+		{
+			throw new RouteManagementException("route object does not have a file assigned to it");
+		}
+		$file = $this->getRouteFilepath($route);
+		if (!file_exists($file))
+		{
+			throw new RouteManagementException("Unable to find file $file");
+		}
+		$fp =  fopen($file, 'r');
+		if ($fp === null)
+		{
+			return false;
+		}
+		return $fp;
 	}
 
 	/**
@@ -55,6 +74,45 @@ class FileObjectStore implements iObjectStorage
 	 */
 	public function deleteRouteFile(Route $route)
 	{
-		// TODO: Implement deleteRouteFile() method.
+		$file = $this->getRouteFilepath($route);
+		if (file_exists($file))
+		{
+			unlink($file);
+		}
+		$route->fileWasDeleted();
+		return $route;
+	}
+
+	/**
+	 * Checks if the route file exists and is readable
+	 *
+	 * @param Route $route
+	 *
+	 * @return bool
+	 */
+	public function routeFileExists(Route $route)
+	{
+		if (!$route->hasFile())
+		{
+			return  false;
+		}
+		$file = $this->getRouteFilepath($route);
+		return file_exists($file) && is_readable($file);
+	}
+
+	/**
+	 * Gets the local filepath of the route object
+	 *
+	 * @param Route $route
+	 *
+	 * @return string|false
+	 */
+	private function getRouteFilepath(Route $route)
+	{
+		if (!$route->hasFile())
+		{
+			return false;
+		}
+		return  $this->routeDir . $route->routeFilePath;
 	}
 }

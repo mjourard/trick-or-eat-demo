@@ -49,7 +49,7 @@ class RouteManager extends BaseDBService
 			->setParameter(':owner_user_id', $route->ownerUserId);
 		if($qb->execute() > 0)
 		{
-			$route->routeId = (int)$qb->getConnection()->lastInsertId();
+			$route->setRouteId($qb->getConnection()->lastInsertId());
 		}
 
 		return $route;

@@ -6,7 +6,7 @@ namespace TOE\App\Controller;
 use DateTime;
 use DateTimeZone;
 use Silex\Application;
-use TOE\App\Service\Email\aClient;
+use TOE\App\Service\Email\iClient;
 use TOE\App\Service\Email\EmailException;
 use TOE\App\Service\Email\Message;
 use TOE\App\Service\Password\PasswordRequestManager;
@@ -83,11 +83,11 @@ class RequestResetController extends BaseController
 	 * @param string  $message
 	 * @param string  $email
 	 *
-	 * @param aClient $client An email client to send the reset token message from
+	 * @param iClient $client An email client to send the reset token message from
 	 *
 	 * @return bool|string Returns true on success, and an error message on false.
 	 */
-	private function emailToken($message, $email, aClient $client)
+	private function emailToken($message, $email, iClient $client)
 	{
 		$messageToSend = (new Message())
 			->setTo($email)

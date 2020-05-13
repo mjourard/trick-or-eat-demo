@@ -571,4 +571,18 @@ TEAMROUTEINSERT;
 			->setParameter(':route_allocation_id', $routeAllocationId);
 		return $qb->execute() === 1;
 	}
+
+	/**
+	 * Gets the available route types
+	 *
+	 * @return string[]
+	 */
+	public function getRouteTypes()
+	{
+		return [
+			self::ROUTE_TYPE_WALK,
+			self::ROUTE_TYPE_BUS,
+			self::ROUTE_TYPE_DRIVE
+		];
+	}
 }

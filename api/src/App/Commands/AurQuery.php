@@ -99,6 +99,11 @@ class AurQuery extends aCmd
 				return 1;
 			}
 			$res = $q->fetchAll();
+			if (empty($res))
+			{
+				$output->writeln("Statement returned 0 records");
+				continue;
+			}
 			$table = new Table($output);
 			$table->setHeaders(array_keys($res[0]));
 			$rows = [];

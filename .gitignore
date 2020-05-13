@@ -7,6 +7,7 @@ dist/
 data/redis/
 .serverless/
 api/account_config.yaml
+api/public/route-files/*
 .env
 .env.prod
 secrets.json

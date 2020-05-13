@@ -9,7 +9,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPMailerOAuth;
 use SMTP;
 
-class GmailClient extends aClient
+class GmailClient implements iClient
 {
 	/**
 	 * @var PHPMailerOAuth

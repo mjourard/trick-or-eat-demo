@@ -32,7 +32,7 @@ class Env
 	public const TOE_AWS_ACCESS_KEY = 'TOE_AWS_ACCESS_KEY';
 	public const TOE_AWS_SECRET_KEY = 'TOE_AWS_SECRET_KEY';
 	public const TOE_AWS_ASSUME_ROLE_ARN = 'TOE_AWS_ASSUME_ROLE_ARN';
-	public const TOE_ROUTE_BUCKET = 'TOE_ROUTE_BUCKET';
+	public const TOE_S3_ROUTE_BUCKET = 'TOE_S3_ROUTE_BUCKET';
 	#endregion
 
 	public const TOE_OBJECT_STORAGE_TYPE = 'TOE_OBJECT_STORAGE_TYPE'; //type of 'file' or 's3'
@@ -66,7 +66,7 @@ class Env
 		self::TOE_OBJECT_STORAGE_TYPE         => self::KEY_TYPE_STRING,
 		self::TOE_DATABASE_TYPE               => self::KEY_TYPE_STRING,
 		self::TOE_EMAIL_CLIENT                => self::KEY_TYPE_STRING,
-		self::TOE_ROUTE_BUCKET                => self::KEY_TYPE_STRING,
+		self::TOE_S3_ROUTE_BUCKET             => self::KEY_TYPE_STRING,
 		self::TOE_ENCODED_JWT_KEY             => self::KEY_TYPE_STRING,
 		self::TOE_LOG_FILE                    => self::KEY_TYPE_STRING,
 		self::TOE_LOGGING_LEVEL               => self::KEY_TYPE_STRING,
@@ -83,15 +83,17 @@ class Env
 	 *
 	 * @param string $key
 	 *
+	 * @param bool   $forceReload reloads the environment variable instead of reading it from memory
+	 *
 	 * @return bool|int|string
 	 */
-	public static function get($key)
+	public static function get($key, $forceReload = false)
 	{
 		if(!isset(self::KEY_TYPES[$key]))
 		{
 			return false;
 		}
-		if(isset(static::$cache[$key]))
+		if(isset(static::$cache[$key]) && !$forceReload)
 		{
 			return static::$cache[$key];
 		}
@@ -119,5 +121,26 @@ class Env
 		static::$cache[$key] = $val;
 
 		return $val;
+	}
+
+	/**
+	 * Sets an environment variable
+	 *
+	 * @param string $key
+	 * @param $val
+	 */
+	public static function set($key, $val)
+	{
+		switch(self::KEY_TYPES[$key])
+		{
+			case self::KEY_TYPE_BOOL:
+				$val = strtolower($val);
+				$val = $val === 'true' || $val === '1';
+				$val = $val ? 'true' : 'false';
+				break;
+			default:
+		}
+		putenv("$key=$val");
+
 	}
 }

@@ -7,37 +7,20 @@ namespace TOE\App\Service\Email;
 
 use Aws\Exception\AwsException;
 use Aws\Ses\SesClient;
+use TOE\App\Service\AWS\aWrapper;
 
-class AwsSesClient extends aClient
+class AwsSesClient extends aWrapper implements iClient
 {
 	/**
 	 * @var SesClient
 	 */
-	private $ses;
+	protected $client;
 
-	public function __construct($configArgs)
+	public function __construct(array $configArgs)
 	{
-		$args = [
-			'version' => '2010-12-01',
-			'region'  => 'us-east-1'
-		];
-		if (!empty($configArgs['region']))
-		{
-			$args['region'] = $configArgs['region'];
-		}
-		if (!empty($configArgs['RoleArn']))
-		{
-			$args['profile'] = 'default';
-			$args['RoleArn'] = $configArgs['RoleArn'];
-		}
-		if (!empty($configArgs['key']) && !empty($configArgs['secret']))
-		{
-			$args['credentials'] = [
-				'key' => $configArgs['key'],
-				'secret' => $configArgs['secret']
-			];
-		}
-		$this->ses = new SesClient($args);
+		$configArgs['version'] = '2010-12-01';
+		$configArgs['region'] = 'us-east-1';
+		parent::__construct($configArgs);
 	}
 
 	/**
@@ -55,7 +38,7 @@ class AwsSesClient extends aClient
 		}
 
 		try {
-			$result = $this->ses->sendEmail([
+			$result = $this->client->sendEmail([
 				'Destination' => [
 					'ToAddresses' => $to,
 				],
@@ -78,10 +61,15 @@ class AwsSesClient extends aClient
 					],
 				],
 			]);
-			$msg->RecordMessageId($result['MessageId']);
+			$msg->recordMessageId($result['MessageId']);
 		} catch (AwsException $e) {
 			// output error message if fails
 			throw new EmailException("The email was not sent. Error message: ".$e->getAwsErrorMessage(), $e);
 		}
+	}
+
+	public function getClientClass()
+	{
+		return SesClient::class;
 	}
 }
