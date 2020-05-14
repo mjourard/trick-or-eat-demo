@@ -14,6 +14,7 @@ namespace TOE\App\Controller;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use TOE\App\Service\Event\EventManager;
+use TOE\App\Service\Route\Archive\iObjectStorage;
 use TOE\App\Service\Route\Archive\RouteManager;
 use TOE\App\Service\Route\Assignment\AssignmentManager;
 use TOE\App\Service\Route\Assignment\RouteAssignmentException;
@@ -174,11 +175,15 @@ class RouteController extends BaseController
 		$assignmentManager = $app['route.assignment'];
 		$routes = $assignmentManager->getTeamRouteInfo($this->userInfo->getID(), $teamId, $eventId);
 
+		/** @var iObjectStorage $routeManager */
+		$objectStorage = $app['route.object_storage'];
+
 		foreach($routes as &$route)
 		{
 			$route['latitude'] = (double)$route['latitude'];
 			$route['longitude'] = (double)$route['longitude'];
 			$route['zoom'] = (int)$route['zoom'];
+			$route['route_file_url'] = $objectStorage->getRouteFileUrl($route['route_file_url']);
 		}
 
 		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['routes' => $routes]), HTTPCodes::SUCCESS_DATA_RETRIEVED);

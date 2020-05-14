@@ -14,15 +14,21 @@ class FileObjectStore implements iObjectStorage
 	 * @var string The local directory in which route files are saved
 	 */
 	private $routeDir;
+	/**
+	 * @var string The prefix of urls in which files should be served as
+	 */
+	private $routefilesUrlPrefix;
 
 	/**
 	 * FileObjectStore constructor.
 	 *
-	 * @param string                    $routeDir The directory on the local machine in which route files are stored
+	 * @param string $routeDir The directory on the local machine in which route files are stored
+	 * @param string $routefilesUrlPrefix The prefix to be attached to urls of served route files. Should contain the protocol, domain and any required file paths
 	 */
-	public function __construct($routeDir)
+	public function __construct($routeDir, $routefilesUrlPrefix)
 	{
 		$this->routeDir = $routeDir;
+		$this->routefilesUrlPrefix = $routefilesUrlPrefix;
 	}
 
 	/**
@@ -114,5 +120,13 @@ class FileObjectStore implements iObjectStorage
 			return false;
 		}
 		return  $this->routeDir . $route->routeFilePath;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getRouteFileUrl(string $savedRouteFileUrl)
+	{
+		return $this->routefilesUrlPrefix . $savedRouteFileUrl;
 	}
 }

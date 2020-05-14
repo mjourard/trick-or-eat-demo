@@ -60,13 +60,26 @@ class S3ObjectStore implements iObjectStorage
 	public function getRouteFile(Route $route)
 	{
 		// TODO: Implement getRouteFile() method.
-		$file = sprintf("s3://%s/%s", $this->bucket, $route->routeFilePath);
+		$file = $this->getS3FilePath($route->routeFilePath);
 		$fp = fopen($file, 'r');
 		if ($fp === null)
 		{
 			return false;
 		}
 		return $fp;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getRouteFileUrl(string $savedRouteFileUrl)
+	{
+		$cmd = $this->s3->getCommand('GetObject', [
+			'Bucket' => $this->bucket,
+			'Key' => $savedRouteFileUrl
+		]);
+		$request = $this->s3->createPresignedRequest($cmd, '+8 hours');
+		return (string)$request->getUri();
 	}
 
 	/**
@@ -102,5 +115,17 @@ class S3ObjectStore implements iObjectStorage
 			return false;
 		}
 		return (int)$length > 0;
+	}
+
+	/**
+	 * Gets the s3 filepath based on the passed in route file path
+	 *
+	 * @param string $routeFilePath
+	 *
+	 * @return string
+	 */
+	private function getS3FilePath(string $routeFilePath)
+	{
+		return sprintf("s3://%s/%s", $this->bucket, $routeFilePath);
 	}
 }

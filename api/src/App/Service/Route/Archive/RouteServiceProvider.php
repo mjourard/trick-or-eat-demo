@@ -33,11 +33,28 @@ class RouteServiceProvider implements ServiceProviderInterface
 					break;
 				case 'file':
 				default:
-					return new FileObjectStore(Constants::ROUTE_HOSTING_DIRECTORY);
+					return new FileObjectStore(
+						Constants::ROUTE_HOSTING_DIRECTORY,
+								self::getLocalRoutefileUrlPrefix()
+					);
 			}
 		});
 		$app['route.manager'] = function($app) {
 			return new RouteManager($app['db']);
 		};
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getLocalRoutefileUrlPrefix()
+	{
+		$proto = "http";
+		if (isset($_SERVER['HTTPS']))
+		{
+			$proto = "https";
+		}
+		return sprintf("%s://%s/route-files", $proto, $_SERVER['SERVER_NAME']);
+
 	}
 }

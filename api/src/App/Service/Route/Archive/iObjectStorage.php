@@ -30,6 +30,16 @@ interface iObjectStorage
 	public function getRouteFile(Route $route);
 
 	/**
+	 * Gets a full route file url based on the passed in saved route file url
+	 *
+	 * @param string $savedRouteFileUrl
+	 *
+	 * @return string
+	 */
+	public function getRouteFileUrl(string $savedRouteFileUrl);
+
+
+	/**
 	 * Deletes the passed in Route object
 	 *
 	 * @param Route $route
