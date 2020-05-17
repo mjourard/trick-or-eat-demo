@@ -9,8 +9,7 @@ function RoutesController($routeParams, $scope, Map, Route, User) {
 
 	this.initMap = function (lat, long, zoom, kmlUrl) {
 		$scope.map = Map.initMap(Map.newLatLngObj(lat, long), zoom, 'zone-map');
-
-		var layer = Map.initKmlLayer(kmlUrl);
+		let layer = Map.initKmlLayer(kmlUrl);
 		layer.setMap($scope.map);
 	};
 

@@ -60,7 +60,7 @@
 				</md-list>
 				<md-list class="md-dense" ng-cloak>
 					<md-subheader>Upload Log:</md-subheader>
-					<md-list-item ng-repeat="log in logs">
+					<md-list-item ng-repeat="log in logs track by $index">
 						<p>{{log}}</p>
 					</md-list-item>
 				</md-list>
@@ -71,7 +71,7 @@
 	<md-divider></md-divider>
 	<div flex>
 		<md-toolbar md-scroll-shrink>
-			<div class="md-toolbar-tools">Routes In Zone: {{curZone}}</div>
+			<div class="md-toolbar-tools">Routes In Zone: <strong>{{curZone}}</strong></div>
 		</md-toolbar>
 		<md-list>
 			<md-list-item class="md-2-line" ng-repeat="route in $ctrl.routes" ng-click="null">

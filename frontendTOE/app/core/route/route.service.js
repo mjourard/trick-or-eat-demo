@@ -12,7 +12,7 @@ angular.module('core.route')
 			return Request.get("/routes/" + event_id + "/getRouteAssignments/" + team_id, {}).then(function success(response) {
 				var routes = response.data.routes;
 				routes.forEach(function(route) {
-					route.route_file_url = URLS.routeHosting + route.route_file_url;
+					route.route_file_url = route.route_file_url;
 				});
 				return routes;
 			}, function failure(response) {

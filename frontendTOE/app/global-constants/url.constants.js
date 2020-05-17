@@ -5,6 +5,5 @@
 
 //The values of backend and routeHosting are replaced at compile time by webpack.
 angular.module('app').constant('URLS', {
-	backend: BACKEND,
-	routeHosting: ROUTE_HOSTING
+	backend: BACKEND
 });

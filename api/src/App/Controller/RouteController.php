@@ -367,7 +367,7 @@ class RouteController extends BaseController
 							if(isset($teams[$key][$remainingSpots]) && !empty($teams[$key][$remainingSpots]))
 							{
 								$curTeam = array_pop($teams[$key][$remainingSpots]);
-								$assignments[] = new TeamAssignment($route['route_id'], $curTeam['team_id']);
+								$assignments[] = new TeamAssignment($route['route_allocation_id'], $curTeam['team_id']);
 								$route['member_count'] += $remainingSpots;
 							}
 						}
@@ -420,7 +420,7 @@ class RouteController extends BaseController
 											while(count($teamCombination[$temp]) > 0)
 											{
 												$curTeam = array_pop($teamCombination[$temp]);
-												$assignments[] = new TeamAssignment($route['route_id'], $curTeam['team_id']);
+												$assignments[] = new TeamAssignment($route['route_allocation_id'], $curTeam['team_id']);
 											}
 										}
 										$route['member_count'] = Constants::MAX_ROUTE_MEMBERS;
@@ -437,7 +437,7 @@ class RouteController extends BaseController
 								while($route['member_count'] + $teamSize <= Constants::MAX_ROUTE_MEMBERS && isset($teams[$key][$teamSize]) && !empty($teams[$key][$teamSize]))
 								{
 									$curTeam = array_pop($teams[$key][$teamSize]);
-									$assignments[] = new TeamAssignment($route['route_id'], $curTeam['team_id']);
+									$assignments[] = new TeamAssignment($route['route_allocation_id'], $curTeam['team_id']);
 									$route['member_count'] += $teamSize;
 								}
 								if($route['member_count'] >= Constants::MAX_ROUTE_MEMBERS)

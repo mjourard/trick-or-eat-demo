@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace TOE\App\Service\Route\Assignment;
 
 
+use Doctrine\DBAL\Connection;
 use TOE\App\Service\BaseDBService;
 use TOE\GlobalCode\Constants;
 
@@ -395,7 +396,7 @@ class AssignmentManager extends BaseDBService
 		//Grab all routes that aren't full yet and meet the current requirements.
 		$qb = $this->dbConn->createQueryBuilder();
 		$qb->select(
-			'ral.route_id',
+			'ral.route_allocation_id',
 			'count(m.user_id) AS member_count'
 		)
 			->from('route_allocation', 'ral')
@@ -404,15 +405,16 @@ class AssignmentManager extends BaseDBService
 			->leftJoin('tr', 'team', 't', 'tr.team_id = t.team_id')
 			->leftJoin('t', 'member', 'm', 't.team_id = m.team_id')
 			->where('ral.event_id = :event_id')
-			->andWhere('ra.type in (:route_types)')
+			->andWhere($qb->expr()->in('ra.type', [':route_types']))
 			->andWhere($blindParam)
 			->andWhere($hearingParam)
 			->andWhere($mobileParam)
-			->groupBy('ral.route_id')
+			->groupBy('ral.route_allocation_id')
 			->having("member_count < " . Constants::MAX_ROUTE_MEMBERS)
-			->setParameter(':route_types', $routeTypes)
-			->setParameter(':event_id', $eventId);
+			->setParameter(':event_id', $eventId)
+			->setParameter(':route_types', $routeTypes, Connection::PARAM_STR_ARRAY);
 		$routes = $qb->execute()->fetchAll();
+
 		foreach($routes as &$route)
 		{
 			$route['member_count'] = (int)$route['member_count'];

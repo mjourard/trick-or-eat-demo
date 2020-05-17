@@ -50,11 +50,16 @@ class RouteServiceProvider implements ServiceProviderInterface
 	public static function getLocalRoutefileUrlPrefix()
 	{
 		$proto = "http";
-		if (isset($_SERVER['HTTPS']))
+		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
 		{
 			$proto = "https";
 		}
-		return sprintf("%s://%s/route-files", $proto, $_SERVER['SERVER_NAME']);
-
+		$domain = "localhost";
+		if (!empty($_SERVER['HTTP_HOST']))
+		{
+			$domain = $_SERVER['HTTP_HOST'];
+		}
+		//possibly include the port in the future, but not necessary now
+		return sprintf("%s://%s/route-files", $proto, $domain);
 	}
 }

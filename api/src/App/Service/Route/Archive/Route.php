@@ -69,7 +69,7 @@ class Route
 
 	public static function getRouteName($zoneId, $fileName)
 	{
-		return "/$zoneId-" . str_replace(" ", "_", $fileName);
+		return "$zoneId-" . str_replace(" ", "_", $fileName);
 	}
 
 	public static function getRouteHostingUrlPath($zoneId, $fileName)

@@ -68,30 +68,51 @@ function RouteArchiveController($scope, $mdDialog, $timeout, ICON_PATHS, URLS, R
 				.cancel('Cancel')
 				.ok('Delete')
 		).then(function () {
-			if (Route.deleteRoute(zoneId, routeId)) {
-				self.updateRoutes();
-			}
+			let resp = Route.deleteRoute(zoneId, routeId).then(function(resp) {
+				console.log(resp);
+				if (resp) {
+					self.updateRoutes();
+				}
+			});
 		});
 	};
 
 	$scope.upload = function (files) {
 		if (files && files.length) {
-			for (var i = 0; i < files.length; i++) {
-				var file = files[i];
+			for (let i = 0; i < files.length; i++) {
+				let file = files[i];
 				if (!file.$error) {
 					Route.uploadRoute(self.zone, self.blind, self.mobility, self.deaf, file).then(function (resp) {
 						$timeout(function () {
-							$scope.logs.push( ($scope.logs.length + 1) + ': file: ' + resp.config.data.file.name + ' - ' + resp.data.message);
+							$scope.logs.push( self.getTime() + ' file: ' + resp.config.data.file.name + ' - ' + resp.data.message);
 							self.updateRoutes();
 						});
-					}, null, function (evt) {
-						var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-						$scope.logs.push(($scope.logs.length + 1) + ': progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-					});
+					}, function(resp) {
+						let message = "Uploaded failed. Unable to determine the reason. Please contact support for assistance.";
+						if (resp.data && resp.data.message) {
+							message = resp.data.message;
+						}
+						$scope.logs.push(self.getTime() + ' ERROR: ' + message);
+					}, function (evt) {
+						let progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+						$scope.logs.push(self.getTime() + ': progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+					})
+						.catch(function() {
+							$scope.logs.push(self.getTime() + ' ERROR: Uploaded failed. Unable to determine the reason. Please contact support for assistance.');
+						});
 				}
 			}
 		}
 	};
+
+	/**
+	 * Get an hour:minute timestamp which can be prepended to the $scope.logs array entries
+	 * @returns {string}
+	 */
+	self.getTime = function() {
+		let date = new Date();
+		return date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+	}
 
 	$scope.clearPending = function() {
 		$scope.files = [];

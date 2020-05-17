@@ -55,7 +55,8 @@ class RouteArchiveController extends BaseController
 		$zoneManager = $this->app['zone'];
 
 		$zoneId = (int)$app[Constants::PARAMETER_KEY]['zone_id'];
-		if (!$zoneManager->zoneExists($zoneId))
+		$zoneData = $zoneManager->getZone($zoneId);
+		if (empty($zoneData))
 		{
 			return $app->json(ResponseJson::getJsonResponseArray(false, "Zone with passed in ID does not exist"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
@@ -76,7 +77,7 @@ class RouteArchiveController extends BaseController
 
 		if($this->routeManager->getExistingRouteId($route) !== false)
 		{
-			return $app->json(ResponseJson::getJsonResponseArray(false, "You already have a route '{$route->routeName}' in zone {$app[Constants::PARAMETER_KEY]['zone_id']}"));
+			return $app->json(ResponseJson::getJsonResponseArray(false, "You already have a route '{$route->routeName}' in zone '{$zoneData['zone_name']}'"), HTTPCodes::CLI_ERR_BAD_REQUEST);
 		}
 
 		try
