@@ -20,6 +20,7 @@ use TOE\App\Service\SiteHealth\InfrastructureServiceProvider;
 use TOE\App\Service\Team\TeamServiceProvider;
 use TOE\App\Service\User\UserInfoStorage;
 use TOE\App\Service\User\UserServiceProvider;
+use TOE\GlobalCode\Constants;
 use TOE\GlobalCode\Env;
 use TOE\GlobalCode\HTTPCodes;
 use TOE\GlobalCode\ResponseJson;
@@ -133,7 +134,22 @@ $app->before(function (Request $request) use ($app)
 });
 $app->after(function(Request $request, Response $response) use ($app)
 {
-	$response->headers->set('Access-Control-Allow-Origin', Env::get(Env::TOE_ACCESS_CONTROL_ALLOW_ORIGIN), true);
+	$origins = [];
+	$origin = $request->headers->get('origin');
+	//if the app is deployed locally, allow whatever the origin is to come through
+	if (Env::get(Env::TOE_STAGE) === Constants::TOE_STAGE_LOCAL)
+	{
+		$origins[$origin] = 1;
+	}
+	if (!empty($allowedOrigin = Env::get(Env::TOE_ACCESS_CONTROL_ALLOW_ORIGIN)))
+	{
+		$origins[$allowedOrigin] = 1;
+	}
+	//if the allowed origin is within the list of allowed origins, add the header to let it through
+	if (isset($origins[$origin]))
+	{
+		$response->headers->set('Access-Control-Allow-Origin', $origin, true);
+	}
 	$response->headers->set("Vary", "Origin");
 	$response->headers->set('Access-Control-Allow-Credentials', 'true', true);
 });

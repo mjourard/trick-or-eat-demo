@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace TOETests\App\Controller;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Response;
 use TOE\App\Service\Route\Archive\iObjectStorage;
 use TOE\App\Service\Route\Archive\RouteManager;
 use TOE\App\Service\Route\Assignment\AssignmentManager;
@@ -66,16 +67,63 @@ class RouteArchiveControllerTest extends BaseTestCase
 	/**
 	 * @group Route-Archive
 	 */
+	public function testGetRouteDetails()
+	{
+		$this->initializeTest(clsTesterCreds::SUPER_ADMIN_EMAIL);
+
+		$getUrl = function(int $zoneid) {
+			return sprintf("/zones/routes/%d/mapdetails", $zoneid);
+		};
+		$getData = function(Response $lastResponse) {
+			return json_decode($lastResponse->getContent())->route_details;
+		};
+
+		//test with non-existant zone
+		$this->client->request('GET', $getUrl(999999));
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$routes = $getData($this->lastResponse);
+		self::assertEmpty($routes, "route_details did not return an empty array.");
+
+		//test with one route in the database
+		$newRouteId = RouteArchiveControllerTest::addRouteToArchive($this->dbConn, "fill", "fill", 5, "Bus", true, true, true, 1, $this->getLoggedInUserId());
+		$this->client->request('GET', $getUrl(1));
+		$this->basicResponseCheck(HTTPCodes::SUCCESS_DATA_RETRIEVED);
+		$routes = $getData($this->lastResponse);
+		self::assertNotEmpty($routes, "route_details did not return a populated array.");
+		self::assertEquals($newRouteId, $routes[0]->route_id, "route_id did not match");
+		self::assertEquals("fill", $routes[0]->route_name, "route_name did not match");
+		$notEmptyProps = [
+			'route_file_url',
+			'latitude',
+			'longitude',
+			'zoom'
+		];
+		foreach($notEmptyProps as $prop)
+		{
+			self::assertNotEmpty($routes[0]->{$prop}, "$prop was empty");
+		}
+		$routeIds = [$newRouteId];
+
+		foreach($routeIds as $index => $routeId)
+		{
+			self::assertEquals($routeId, $routes[$index]->route_id, "route_id did not match");
+			RouteArchiveControllerTest::removeRouteFromArchive($this->dbConn, $routeId);
+		}
+	}
+
+	/**
+	 * @group Route-Archive
+	 */
 	public function testAddRoute()
 	{
 		$this->setDatabaseConnection();
 
 		$goodRoute = [
-			'zone_id' => (string)ZoneControllerTest::TEST_ZONE_ID,
-			'type' => AssignmentManager::ROUTE_TYPE_WALK,
+			'zone_id'  => (string)ZoneControllerTest::TEST_ZONE_ID,
+			'type'     => AssignmentManager::ROUTE_TYPE_WALK,
 			'mobility' => $this->boolToEnum(true),
-			'visual' => $this->boolToEnum(true),
-			'hearing' => $this->boolToEnum(true)
+			'visual'   => $this->boolToEnum(true),
+			'hearing'  => $this->boolToEnum(true)
 		];
 
 		$goodFilepath = __DIR__ . '/../../POST-PUT-data/kmz-files/Trick-Or-Eat_Zone_AB.kmz';

@@ -22,6 +22,11 @@
 		</p>
 	</div>
 	<div ng-show="$ctrl.hasRoutes" flex="90" flex-offset="5" align="center">
+		<route-view lat="$ctrl.curRoute.latitude"
+					long="$ctrl.curRoute.longitude"
+					zoom="$ctrl.curRoute.zoom"
+					kml-url="$ctrl.curRoute.routeFileUrl"
+		></route-view>
 		<div id="zone-map" class="angular-google-map-container"></div>
 	</div>
 

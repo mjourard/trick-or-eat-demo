@@ -34,7 +34,7 @@ class RouteControllerTest extends BaseTestCase
 	public const TEMP_TEAM_NAME = "routetestingteam";
 
 	public const TEMP_ROUTE_NAME = "2-AB-route-2-modded.kmz";
-	public const TEMP_ROUTE_FILE_URL = "/2-59db0030f23b7.kmz";
+	public const TEMP_ROUTE_FILE_URL = "http://localhost/route-files/2-59db0030f23b7.kmz";
 	public const TEMP_ROUTE_TYPE = "Bus";
 	public const TEMP_BUS_NAME = "";
 	public const TEMP_ROUTE_ID = 1;

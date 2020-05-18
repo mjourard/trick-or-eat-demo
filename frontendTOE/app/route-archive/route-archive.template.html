@@ -79,6 +79,9 @@
 					<div flex="40">
 						<h3>Zone: {{route.zone_name}}</h3>
 						<h3>Route: {{route.route_name}}</h3>
+						<md-button class="md-raised md-primary" aria-label="View route" ng-click="$ctrl.viewRoute($event, route.route_id)">
+							View
+						</md-button>
 					</div>
 					<div flex="50">
 						<md-checkbox ng-model="route.wheelchair_accessible" aria-label="wheelchair accessible?">
@@ -101,5 +104,18 @@
 				</div>
 			</md-list-item>
 		</md-list>
+	</div>
+</div>
+<div style="visibility: hidden">
+	<div class="md-dialog-container" id="showMapDialog">
+		<md-dialog layout-padding aria-label="route map">
+			<h3>{{$ctrl.curMap.route_name}}</h3>
+			<route-view
+					lat="$ctrl.curMap.latitude"
+					long="$ctrl.curMap.longitude"
+					zoom="$ctrl.curMap.zoom"
+					kml-url="$ctrl.curMap.route_file_url"
+			></route-view>
+		</md-dialog>
 	</div>
 </div>

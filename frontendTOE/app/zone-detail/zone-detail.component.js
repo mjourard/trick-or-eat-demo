@@ -9,8 +9,8 @@ function ZoneDetailController($scope, $routeParams, $location, $mdDialog, ICON_P
 	this.mapZoom = 7;
 	$scope.saveText = isNaN($routeParams.zoneId) ? "Create" : "Save";
 
-	this.initMap = function (lat, long, zoom) {
-		$scope.map = Map.initMap(Map.newLatLngObj(lat, long), zoom, 'zone-map', self.addressMarker, ICON_PATHS.parking);
+	this.initZoneMap = function (lat, long, zoom) {
+		$scope.map = Map.initMap(Map.newLatLngObj(lat, long), zoom, document.getElementById('zone-map'), self.addressMarker, ICON_PATHS.parking);
 		var geocoder = new google.maps.Geocoder;
 
 		google.maps.event.addListener($scope.map, 'click', function (event) {
@@ -48,11 +48,11 @@ function ZoneDetailController($scope, $routeParams, $location, $mdDialog, ICON_P
 			self.radius = details.zone_radius_meter;
 			self.houses = details.houses_covered;
 			self.mapZoom = details.zoom;
-			self.initMap(details.latitude, details.longitude, details.zoom);
+			self.initZoneMap(details.latitude, details.longitude, details.zoom);
 		});
 	} else {
 		var coords = Location.getRegionCoordinates(User.getRegionId());
-		self.initMap(coords.lat, coords.long, self.mapZoom);
+		self.initZoneMap(coords.lat, coords.long, self.mapZoom);
 	}
 
 	// Adds a marker to the map.

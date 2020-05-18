@@ -26,6 +26,7 @@ angular.module('app', [
     'register',
     'requestPasswordReset',
     'resetPassword',
+    'routeView',
     'routes',
     'routeArchive',
     'signUp',
@@ -97,6 +98,7 @@ require('./page-footer/page-footer.module.js');
 require('./view-team/view-team.module.js');
 require('./reset-password/reset-password.module.js');
 require('./join-team/join-team.module.js');
+require('./route-view/route-view.module');
 require('./route-archive/route-archive.module.js');
 require('./account/account.module.js');
 require('./faq/faq.module.js');

@@ -85,6 +85,9 @@ $app->put('/zones/status', 'TOE\App\Controller\ZoneController::setZoneStatus')
 $app->get('/zones/routes/{zoneId}', 'TOE\App\Controller\RouteArchiveController::getRoutes')
 	->assert('zoneId', Constants::STANDARD_ID_REGEX)
 	->convert('zoneId', $strtoint);
+$app->get('/zones/routes/{zoneId}/mapdetails', 'TOE\App\Controller\RouteArchiveController::getRouteDetails')
+	->assert('zoneId', Constants::STANDARD_ID_REGEX)
+	->convert('zoneId', $strtoint);
 $app->delete('/zones/routes/{zoneId}/{routeId}', 'TOE\App\Controller\RouteArchiveController::deleteRoute')
 	->assert('zoneId', Constants::STANDARD_ID_REGEX)
 	->assert('routeId', Constants::STANDARD_ID_REGEX)

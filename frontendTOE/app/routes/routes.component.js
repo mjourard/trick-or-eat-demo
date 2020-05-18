@@ -1,17 +1,14 @@
 function RoutesController($routeParams, $scope, Map, Route, User) {
-	console.log("Inside the Routes Ctrl");
-
 	var route = this;
-
 	route.event = $routeParams.location;
 	route.routesObj = null;
 	route.hasRoutes = false;
-
-	this.initMap = function (lat, long, zoom, kmlUrl) {
-		$scope.map = Map.initMap(Map.newLatLngObj(lat, long), zoom, 'zone-map');
-		let layer = Map.initKmlLayer(kmlUrl);
-		layer.setMap($scope.map);
-	};
+	route.curRoute = {
+		latitude: null,
+		longitude: null,
+		zoom: null,
+		routeFileUrl: null
+	}
 
 
 	/**
@@ -21,8 +18,7 @@ function RoutesController($routeParams, $scope, Map, Route, User) {
 	var hasRoutes = function () {
 		route.hasRoutes = route.routesObj !== null && route.routesObj.length > 0;
 		if (route.hasRoutes) {
-			// route.initMap(43.57691500, -80.25670600, 16);
-			route.initMap(route.routesObj[0].latitude, route.routesObj[0].longitude, route.routesObj[0].zoom, route.routesObj[0].route_file_url);
+			route.setCurRoute(route.routesObj[0].latitude, route.routesObj[0].longitude, route.routesObj[0].zoom, route.routesObj[0].route_file_url);
 		}
 	};
 
@@ -46,6 +42,25 @@ function RoutesController($routeParams, $scope, Map, Route, User) {
 			hasRoutes();
 		});
 	};
+
+	/**
+	 * Sets the current route of the controller
+	 *
+	 * To be used later when there are multiple routes to select from for teams
+	 *
+	 * @param lat
+	 * @param long
+	 * @param zoom
+	 * @param routeFileUrl
+	 */
+	route.setCurRoute = function(lat, long, zoom, routeFileUrl) {
+		route.curRoute = {
+			latitude: lat,
+			longitude: long,
+			zoom: zoom,
+			routeFileUrl: routeFileUrl
+		}
+	}
 }
 
 angular.module('routes').component('routes', {

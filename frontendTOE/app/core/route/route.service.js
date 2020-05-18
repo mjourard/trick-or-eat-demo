@@ -114,6 +114,23 @@ angular.module('core.route')
 			})
 		};
 
+		/**
+		 * Gets a list of the details of routes of the passed in zone necessary to display the routes on a map
+		 *
+		 * @param zoneId
+		 * @returns {*}
+		 */
+		this.getRouteMapDetails = function (zoneId) {
+			if (zoneId === undefined) {
+				zoneId = -1;
+			}
+			return Request.get('/zones/routes/' + zoneId + '/mapdetails').then(function success(response) {
+				return response.data;
+			}, function failure(response) {
+				return [];
+			})
+		}
+
 		this.deleteRoute = function (zoneId, routeId) {
 			if (routeId === undefined) {
 				routeId = -1;

@@ -64,4 +64,7 @@ class Constants
 	public const ROUTE_HOSTING_DIRECTORY = __DIR__ . "/../../public/route-files";
 
 	public const EMAIL_RESET_LINK = "#/reset-password/";
+
+	//the different deploy stages that are referenced within the application code
+	public const TOE_STAGE_LOCAL = 'local';
 }

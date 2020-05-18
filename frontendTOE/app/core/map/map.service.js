@@ -176,11 +176,17 @@ angular.module('core.map').service('Map', ['Request', 'User', function (Request,
 	 * @returns {{lat: *, lng: *}}
 	 */
 	this.newLatLngObj = function (lat, lng) {
+		if (typeof lat === 'string') {
+			lat = parseFloat(lat);
+		}
+		if (typeof lng === 'string') {
+			lng = parseFloat(lng);
+		}
 		return {lat: lat, lng: lng};
 	};
 
-	this.initMap = function (latLng, zoom, mapElementId, markerList, markerUrl) {
-		var map = new google.maps.Map(document.getElementById(mapElementId), {
+	this.initMap = function (latLng, zoom, element, markerList, markerUrl) {
+		var map = new google.maps.Map(element, {
 			zoom: zoom,
 			center: latLng
 		});

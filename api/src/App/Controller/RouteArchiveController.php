@@ -138,6 +138,26 @@ class RouteArchiveController extends BaseController
 	}
 
 	/**
+	 * Returns the details about the routes in the zone necessary to view the routes on a map
+	 *
+	 * @param Application $app
+	 * @param             $zoneId
+	 *
+	 * @return \Symfony\Component\HttpFoundation\JsonResponse
+	 */
+	public function getRouteDetails(Application $app, $zoneId)
+	{
+		$this->initializeInstance($app);
+		$this->unauthorizedAccess([Constants::ROLE_ADMIN, Constants::ROLE_ORGANIZER]);
+		$details = $this->routeManager->getRouteMapDetails($zoneId);
+		foreach($details as &$route)
+		{
+			$route['route_file_url'] = $this->objectStorage->getRouteFileUrl($route['route_file_url']);
+		}
+		return $app->json(ResponseJson::getJsonResponseArray(true, "", ['route_details' => $details]));
+	}
+
+	/**
 	 * Initializes the controller with proper typed properties
 	 *
 	 * @param Application $app

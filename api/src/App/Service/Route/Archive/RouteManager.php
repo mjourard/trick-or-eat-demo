@@ -185,6 +185,38 @@ class RouteManager extends BaseDBService
 	}
 
 	/**
+	 * Gets the details of the routes of the passed in zone required to view the routes in a map
+	 *
+	 * @param int $zoneId
+	 *
+	 * @return mixed[]
+	 */
+	public function getRouteMapDetails(int $zoneId)
+	{
+		$qb = $this->dbConn->createQueryBuilder();
+		$qb->select(
+			'ra.route_id',
+			'ra.route_name',
+			'ra.route_file_url',
+			'z.latitude',
+			'z.longitude',
+			'z.zoom'
+		)
+			->from('route_archive', 'ra')
+			->leftJoin('ra', 'zone', 'z', 'ra.zone_id = z.zone_id')
+			->where('z.zone_id = :zone_id')
+			->setParameter(':zone_id', $zoneId);
+
+		$details = $qb->execute()->fetchAll();
+		foreach($details as &$detail)
+		{
+			$detail['zoom'] = (int)$detail['zoom'];
+		}
+
+		return $details;
+	}
+
+	/**
 	 * Checks if the passed in route exists within the passed in zone
 	 *
 	 * @param int $zoneId
