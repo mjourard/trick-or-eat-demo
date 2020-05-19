@@ -137,6 +137,10 @@ a.header:hover {
     padding-left: 8%;
 }
 
+md-dialog.map-dialog {
+    min-width: 65vw;
+}
+
 /* google maps stuff */
 .angular-google-map-container {
     height: 70vh;
