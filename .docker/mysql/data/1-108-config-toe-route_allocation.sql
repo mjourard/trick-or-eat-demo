@@ -16,13 +16,13 @@ CREATE TABLE `route_allocation` (
   `start_time` datetime NOT NULL,
   `bus_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`route_allocation_id`),
-  UNIQUE KEY `route_id_event_id_UNIQUE` (`route_id`, `event_id`),
+  UNIQUE KEY `route_id_event_id_UNIQUE` (`route_id`,`event_id`),
   KEY `fk_ROUTE_EVENT1_idx` (`event_id`),
   KEY `fk_I_BUS1_idx` (`bus_id`),
   CONSTRAINT `fk_I_BUS1` FOREIGN KEY (`bus_id`) REFERENCES `bus` (`bus_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_ROUTE_EVENT1` FOREIGN KEY (`event_id`) REFERENCES `event` (`event_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_ROUTE_ID` FOREIGN KEY (`route_id`) REFERENCES `route_archive` (`route_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

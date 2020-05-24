@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "$DIR"/mysqldump_functions.sh
 
 TOE_SCHEMA=toe
-TOE_TABLES=('bus' 'country' 'event' 'feedback' 'member' 'password_request' 'question' 'region' 'route' 'route_archive' 'team' 'user' 'user_role' 'zone')
+TOE_TABLES=('bus' 'country' 'event' 'feedback' 'member' 'password_request' 'question' 'region' 'route_allocation' 'route_archive' 'team' 'team_route' 'user' 'user_role' 'zone')
 TOE_INDEX=1
 # create this file to connect to the docker instance
 TOE_EXTRAS_FILE=~/.mysql/defaults_extra_files/toe_docker

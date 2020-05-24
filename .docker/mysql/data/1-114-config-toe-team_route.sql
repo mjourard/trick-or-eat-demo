@@ -20,7 +20,7 @@ CREATE TABLE `team_route` (
   KEY `fk_team_route_route_id_idx` (`route_allocation_id`),
   CONSTRAINT `fk_team_route_route_id` FOREIGN KEY (`route_allocation_id`) REFERENCES `route_allocation` (`route_allocation_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_team_route_team_id` FOREIGN KEY (`team_id`) REFERENCES `team` (`team_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -28,5 +28,4 @@ CREATE TABLE `team_route` (
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
 
