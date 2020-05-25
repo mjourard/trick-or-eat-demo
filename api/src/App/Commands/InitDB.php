@@ -60,7 +60,23 @@ class InitDB extends aCmd
 		}
 		else
 		{
-			$this->createAuroraSchema(Constants::DATABASE_NAME);
+			try
+			{
+				$this->createAuroraSchema(Constants::DATABASE_NAME);
+			}
+			catch(RDSDataServiceException $ex)
+			{
+				if (stripos($ex->getAwsErrorMessage(), "Can't create database '" . Constants::DATABASE_NAME . "'; database exists") !== false)
+				{
+					$output->writeln("Database already exists, skipping initialization");
+				}
+				else
+				{
+					throw $ex;
+				}
+
+			}
+
 		}
 		$schemas = $this->container->dbConn->query("SHOW DATABASES")->fetchAll();
 		if ($wipe)
@@ -68,6 +84,7 @@ class InitDB extends aCmd
 			try
 			{
 				$this->container->dbConn->query("DROP DATABASE " . Constants::DATABASE_NAME . ";");
+				$this->createAuroraSchema(Constants::DATABASE_NAME);
 			}
 			catch(\Exception $ex)
 			{
@@ -202,6 +219,6 @@ class InitDB extends aCmd
 		$aurora = (new AuroraDataAPIWrapper(new RDSDataServiceClient($awsConfigs)))
 			->setDbArn(Env::get(Env::TOE_DB_ARN))
 			->setSecretArn(Env::get(Env::TOE_DB_SECRET_ARN));
-		$aurora->queryDB("CREATE SCHEMA toe;");
+		$aurora->queryDB("CREATE SCHEMA $schemaName;");
 	}
 }

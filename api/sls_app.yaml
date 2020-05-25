@@ -25,7 +25,9 @@ provider:
     - Effect: Allow
       Action:
         - s3:*
-      Resource: ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppS3RouteBucketArn}
+      Resource:
+       - ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppS3RouteBucketArn}
+       - ${cf:${self:custom.PERSIST_STACK_NAME}-${self:provider.stage}.AppS3RouteBucketArn}/*
     - Effect: Allow
       Resource: '*'
       Action:
