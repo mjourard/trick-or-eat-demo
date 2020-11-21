@@ -18,16 +18,17 @@ module.exports = title => {
                 template: './app/index.html',
                 inject: 'true'
             }, config)),
-            new CopyPlugin([
-                {
-                    from: './*/**/*.html',
-                    to: '[path]/[name].[ext]',
-                    test: /.+\.html$/,
-                    context: './app/'
-                },
-                {from: 'css/**', to: '[path]/[name].[ext]', context: './app/'},
-                {from: 'img/**', to: '[path]/[name].[ext]', context: './app/'}
-            ])
+            new CopyPlugin({
+		patterns: [
+                    {
+                        from: './*/**/*.html',
+                        to: '[path]/[name].[ext]',
+                        context: './app/'
+                    },
+                    {from: 'css/**', to: '[path]/[name].[ext]', context: './app/'},
+                    {from: 'img/**', to: '[path]/[name].[ext]', context: './app/'}
+		]
+            })
 
         ],
         output: {
