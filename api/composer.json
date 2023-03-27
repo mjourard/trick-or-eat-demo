@@ -7,7 +7,7 @@
   },
   "require": {
     "silex/silex": "~2.0",
-    "firebase/php-jwt": "^4.0",
+    "firebase/php-jwt": "^6.0",
     "doctrine/dbal": "^2.5",
     "symfony/validator": "^3.2",
     "monolog/monolog": "^1.22",
